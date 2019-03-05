@@ -5,64 +5,108 @@
 /**
  * @enum {number}
  */
-var AnimationKeyableType = { NUM: 0, VEC: 1, QUAT: 2 };
+var AnimationKeyableType = {
+    NUM : 0,
+    VEC : 1,
+    QUAT: 2
+};
+
+
+/**
+ * @param {AnimationKeyableType} [type]
+ * @param {number} [time]
+ * @param {BlendValue} [value]
+ */
+
+function new_AnimationKeyable(type, time, value) {
+    switch (type) {
+        case AnimationKeyableType.NUM : return new AnimationKeyableNum (time, value);
+        case AnimationKeyableType.VEC : return new AnimationKeyableVec (time, value);
+        case AnimationKeyableType.QUAT: return new AnimationKeyableQuat(time, value);
+    }
+    console.log("new_AnimationKeyable> unknown type: ", type);
+}
+
+/**
+ * @param {number} [time]
+ * @param {number} [value]
+ */
+
+var AnimationKeyableNum = function (time, value) {
+    this.type = AnimationKeyableType.NUM;
+    this.time = time;
+    this.value = value;
+};
+
+/**
+ * @param {number} [time]
+ * @param {pc.Vec3} [value]
+ */
+
+var AnimationKeyableVec = function (time, value) {
+    this.type = AnimationKeyableType.VEC;
+    this.time = time || 0;
+    this.value = value || new pc.Vec3();
+};
+
+/**
+ * @param {number} [time]
+ * @param {pc.Quat} [value]
+ */
+
+var AnimationKeyableQuat = function (time, value) {
+    this.type = AnimationKeyableType.QUAT;
+    this.time = time || 0;
+    this.value = value || new pc.Quat();
+};
+
+/**
+ * @param {AnimationKeyableNum} other
+ */
+
+AnimationKeyableNum.prototype.copy = function (other) {
+    this.value = other.value;
+    return this;
+};
+
+
+/**
+ * @param {AnimationKeyableVec} other
+ */
+
+AnimationKeyableVec.prototype.copy = function (other) {
+    this.value = other.value.clone();
+    return this;
+};
+
+/**
+ * @param {AnimationKeyableQuat} other
+ */
+
+AnimationKeyableQuat.prototype.copy = function (other) {
+    this.value = other.value.clone();
+    return this;
+};
+
+
+AnimationKeyableNum.prototype.clone = function () {
+    return new AnimationKeyableNum(this.time, this.value);
+}
+
+AnimationKeyableVec.prototype.clone = function () {
+    return new AnimationKeyableVec(this.time, this.value.clone());
+}
+
+AnimationKeyableQuat.prototype.clone = function () {
+    return new AnimationKeyableQuat(this.time, this.value.clone());
+}
 
 /**
  * @constructor
- * @param {AnimationKeyableType} [type]
- * @param {number} [time]
- * @param {BlendValue} [value]
  */
 
-var AnimationKeyable = function (type, time, value) {
-    this.init(type, time, value);
-};
-
-/**
- * @param {AnimationKeyableType} [type]
- * @param {number} [time]
- * @param {BlendValue} [value]
- * @returns {AnimationKeyable}
- */
-
-AnimationKeyable.prototype.init = function (type, time, value) {
-    this.type = type || AnimationKeyableType.NUM;
-    this.time = time || 0;
-    if (value)
-        this.value = value;
-    else {
-        switch (type) {
-            case AnimationKeyableType.NUM: this.value = 0; break;
-            case AnimationKeyableType.VEC: this.value = new pc.Vec3(); break;
-            case AnimationKeyableType.QUAT: this.value = new pc.Quat(); break;
-        }
-    }
-    return this;
-};
-
-/**
- * @param {AnimationKeyable} keyable
- * @returns {AnimationKeyable}
- */
-
-AnimationKeyable.prototype.copy = function (keyable) {
-    if (!keyable)
-        return this;
-
-    var value = keyable.value;
-    if (keyable.value instanceof pc.Vec3 || keyable.value instanceof pc.Quat)
-        value = keyable.value.clone();
-
-    this.init(keyable.type, keyable.time, value);
-    return this;
-};
-
-AnimationKeyable.prototype.clone = function () {
-    var value = this.value;
-    if (this.value instanceof pc.Vec3 || this.value instanceof pc.Quat)
-        value = this.value.clone();
-    var cloned = new AnimationKeyable(this.type, this.time, value);
-    return cloned;
+var AnimationKeyable = function () {
+    // only for static methods
 };
 
 /**
@@ -78,7 +122,7 @@ AnimationKeyable.sum = function (keyable1, keyable2) {
     if (!keyable1 || !keyable2 || keyable1.type != keyable2.type)
         return null;
 
-    var resKeyable = new AnimationKeyable(keyable1.type);
+    var resKeyable = new_AnimationKeyable(keyable1.type);
     switch (keyable1.type) {
         case AnimationKeyableType.NUM: resKeyable.value = keyable1.value + keyable2.value; break;
         case AnimationKeyableType.VEC: resKeyable.value.add2(keyable1.value, keyable2.value); break;
@@ -102,7 +146,7 @@ AnimationKeyable.minus = function (keyable1, keyable2) {
     if (!keyable1 || !keyable2 || keyable1.type != keyable2.type)
         return null;
 
-    var resKeyable = new AnimationKeyable(keyable1.type);
+    var resKeyable = new_AnimationKeyable(keyable1.type);
     switch (keyable1.type) {
         case AnimationKeyableType.NUM: resKeyable.value = keyable1.value - keyable2.value; break;
         case AnimationKeyableType.VEC: resKeyable.value.sub2(keyable1.value, keyable2.value); break;
@@ -126,7 +170,7 @@ AnimationKeyable.mul = function (keyable, coeff) {
     if (!keyable)
         return null;
 
-    var resKeyable = new AnimationKeyable();
+    var resKeyable = new_AnimationKeyable();
     resKeyable.copy(keyable);
     switch (keyable.type) {
         case AnimationKeyableType.NUM: resKeyable.value *= coeff; break;
@@ -167,7 +211,7 @@ AnimationKeyable.linearBlend = function (keyable1, keyable2, p, cacheValue) {
 
     var resKeyable;
     if (cacheValue) resKeyable = cacheValue;
-    else resKeyable = new AnimationKeyable(keyable1.type);
+    else resKeyable = new_AnimationKeyable(keyable1.type);
 
     if (p === 0) {
         resKeyable.copy(keyable1);
@@ -578,8 +622,7 @@ AnimationCurve.prototype.copy = function (curve) {
 
     this.animKeys = [];
     for (i = 0; i < curve.animKeys.length; i ++) {
-        var key = new AnimationKeyable();
-        key.copy(curve.animKeys[i]);
+        var key = curve.animKeys[i].clone();
         this.animKeys.push(key);
     }
     return this;
@@ -763,7 +806,7 @@ AnimationCurve.prototype.insertKey = function (type, time, value) {
         return;
     }
 
-    var keyable = new AnimationKeyable(type, time, value);
+    var keyable = new_AnimationKeyable(type, time, value);
 
     // append at the back
     if (pos >= this.animKeys.length) {
@@ -856,7 +899,7 @@ AnimationCurve.prototype.getSubCurve = function (tmBeg, tmEnd) {
             if (tmFirst < 0)
                 tmFirst = this.animKeys[i].time;
 
-            var key = new AnimationKeyable().copy(this.animKeys[i]);
+            var key = this.animKeys[i].clone();
             key.time -= tmFirst;
             subCurve.animKeys.push(key);
         }
@@ -1160,7 +1203,7 @@ AnimationCurve.prototype.evalCUBICSPLINE_GLTF = function (time) {
         return null;
 
     // 1. find the interval [key1, key2]
-    var resKey = new AnimationKeyable();
+    var resKey = new_AnimationKeyable(this.keyableType);
     var key1, key2;
     for (var i = 0; i < this.animKeys.length; i ++) {
         if (this.animKeys[i].time === time) {
@@ -1379,7 +1422,7 @@ AnimationCurve.cubicCardinal = function (key0, key1, key2, key3, time, tension, 
     var p = (time - key1.time) / (key2.time - key1.time);
     var resKey;
     if (cacheValue) resKey = cacheValue;
-    else resKey = new AnimationKeyable(key1.type);
+    else resKey = new_AnimationKeyable(key1.type);
 
     // adjust for non-unit-interval
     var factor = tension * (key2.time - key1.time);
@@ -1444,7 +1487,7 @@ AnimationClipSnapshot.prototype.copy = function (shot) {
     this.curveNames = [];
     for (var i = 0; i < shot.curveNames.length; i ++) {
         var cname = shot.curveNames[i];
-        this.curveKeyable[cname] = new AnimationKeyable().copy(shot.curveKeyable[cname]);
+        this.curveKeyable[cname] = shot.curveKeyable[cname].clone();
         this.curveNames.push(cname);
     }
     return this;
@@ -1827,7 +1870,7 @@ AnimationClip.prototype.eval_cache = function (time, cacheKeyIdx, cacheValue) { 
         if (cacheKeyIdx) ki = cacheKeyIdx[curve.name];
         var kv;
         if (cacheValue) kv = cacheValue.curveKeyable[curve.name];
-        else kv = new AnimationKeyable(curve.keyableType);
+        else kv = new_AnimationKeyable(curve.keyableType);
         var keyable = curve.eval_cache(time, ki, kv);// 0210
         if (cacheKeyIdx && keyable) cacheKeyIdx[curve.name] = keyable._cacheKeyIdx;
         snapshot.curveKeyable[curve.name] = keyable;
@@ -2139,12 +2182,12 @@ AnimationSession._allocatePlayableCache = function(playable) {
         return null;
 
     if (playable instanceof AnimationCurve) {
-        return new AnimationKeyable(playable.keyableType);
+        return new_AnimationKeyable(playable.keyableType);
     } else if (playable instanceof AnimationClip) {
         var snapshot = new AnimationClipSnapshot();
         for (var i = 0, len = playable.animCurves.length; i < len; i++) {
             var cname = playable.animCurves[i].name;
-            snapshot.curveKeyable[cname] = new AnimationKeyable(playable.animCurves[i].keyableType);
+            snapshot.curveKeyable[cname] = new_AnimationKeyable(playable.animCurves[i].keyableType);
             snapshot.curveNames.push(cname);
         }
         return snapshot;
@@ -2249,7 +2292,7 @@ AnimationSession.prototype.setBlend = function (blendValue, weight, curveName){
         return;
 
     this.blendWeights[curveName] = weight;
-    this.blendables[curveName] = new AnimationKeyable(keyType, 0, blendValue);
+    this.blendables[curveName] = new_AnimationKeyable(keyType, 0, blendValue);
     this._cacheBlendValues[curveName] = null;// 1226, null if blendable is not animationclip
 };
 

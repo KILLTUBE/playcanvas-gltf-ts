@@ -182,7 +182,7 @@
                     curve.type = AnimationCurveType.CUBICSPLINE_GLTF;
                     for (i = 0; i < times.length; i++) {
                         time = times[i];
-                        var keyable = new AnimationKeyable(keyType, time, null);
+                        var keyable = new_AnimationKeyable(keyType, time, null);
                         if ((path === 'translation') || (path === 'scale')) {
                             keyable.inTangent = new pc.Vec3(values[9 * i + 0], values[9 * i + 1], values[9 * i + 2]);
                             keyable.value = new pc.Vec3(values[9 * i + 3], values[9 * i + 4], values[9 * i + 5]);

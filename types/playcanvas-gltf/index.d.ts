@@ -16,6 +16,7 @@ declare interface AnimationKeyable {
     inTangent: SingleDOF;
     _cacheKeyIdx: number;
     normalize(): void;
+    clone(): AnimationKeyable;
 }
 
 declare interface AnimationEventCallback {
