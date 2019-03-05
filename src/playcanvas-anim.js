@@ -955,6 +955,7 @@ AnimationCurve.prototype.evalLINEAR = function (time) {
  * @returns {AnimationKeyable}
  */
 
+
 AnimationCurve.prototype.evalLINEAR_cache = function (time, cacheKeyIdx, cacheValue) { //1215
     if (!this.animKeys || this.animKeys.length === 0)
         return null;
@@ -967,40 +968,46 @@ AnimationCurve.prototype.evalLINEAR_cache = function (time, cacheKeyIdx, cacheVa
     if (cacheKeyIdx) begIdx = cacheKeyIdx;
     var i = begIdx;
 
-    for (var c = 0; c < this.animKeys.length; c ++) {
-        i = (begIdx + c) % this.animKeys.length;
-        if (this.animKeys[i].time === time) {
-            resKey.copy(this.animKeys[i]);
+    var n = this.animKeys.length;
+    /** @type AnimationKeyable */
+    var animKey;
+    for (var c = 0; c < n; c ++) {
+        i = begIdx + c;
+
+        // same as `i %= n` in this setting, just much faster
+		if (i >= n) {
+			i -= n;
+		}
+
+        animKey = this.animKeys[i];
+        
+        if (animKey.time === time) {
+            resKey.copy(animKey);
             resKey._cacheKeyIdx = i;
             return resKey;
         }
 
-        if (i === 0 && this.animKeys[i].time > time) { // earlier than first
-            key1 = null;
-            key2 = this.animKeys[i];
-            break;
+        // 2. only found one boundary
+        if (i === 0 && animKey.time > time) { // earlier than first
+            resKey.copy(animKey);
+            resKey.time = time;
+            resKey._cacheKeyIdx = i;
+            return resKey;
         }
 
-        if (i == this.animKeys.length - 1 && this.animKeys[i].time < time) { // later than last
-            key1 = this.animKeys[i];
-            key2 = null;
-            break;
-
+        // 2. only found one boundary
+        if (i == n - 1 && animKey.time < time) { // later than last
+            resKey.copy(animKey);
+            resKey.time = time;
+            resKey._cacheKeyIdx = i;
+            return resKey;
         }
-        if (this.animKeys[i].time > time &&
-            (i - 1 < 0 || this.animKeys[i - 1].time < time)) {
+
+        if (animKey.time > time && (i - 1 < 0 || this.animKeys[i - 1].time < time)) {
             key1 = this.animKeys[i - 1];
-            key2 = this.animKeys[i];
+            key2 = animKey;
             break;
         }
-    }
-
-    // 2. only found one boundary
-    if (!key1 || !key2) {
-        resKey.copy(key1 ? key1 : key2);
-        resKey.time = time;
-        resKey._cacheKeyIdx = i;
-        return resKey;
     }
 
     // 3. both found then interpolate
