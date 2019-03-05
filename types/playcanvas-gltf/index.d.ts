@@ -62,7 +62,7 @@ declare interface Playable {
 }
 
 declare class AnimationCurve implements Playable {
-    name: string;
+    name: number;
     type: AnimationCurveType;
     tension: number;
     duration: number;
@@ -75,8 +75,7 @@ declare class AnimationCurve implements Playable {
 }
 
 declare class AnimationClipSnapshot {
-    curveKeyable: {[curvename: string]: AnimationKeyable};
-    curveNames: string[];
+    curveKeyable: AnimationKeyable[];
     time: number;
     _cacheKeyIdx: MapStringToNumber;
 }
@@ -121,5 +120,5 @@ declare interface AnimationTargetsMap {
 }
 
 declare interface AnimationCurveMap {
-    [name: string]: AnimationCurve;
+    [name: number]: AnimationCurve;
 }

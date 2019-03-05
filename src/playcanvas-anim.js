@@ -594,8 +594,7 @@ var AnimationCurveType = { LINEAR: 0, STEP: 1, CUBIC: 2, CUBICSPLINE_GLTF: 3 };
  */
 
 var AnimationCurve = function () {
-    AnimationCurve.count ++;
-    this.name = "curve" + AnimationCurve.count.toString();
+    this.name = -1; // AnimationClip#addCurve will assign a proper ID
     this.type = AnimationCurveType.LINEAR;
     this.keyableType = AnimationKeyableType.NUM;
     this.tension = 0.5;// 0.5 catmul-rom
@@ -604,7 +603,6 @@ var AnimationCurve = function () {
     this.animKeys = [];
     this.session = new AnimationSession(this);
 };
-AnimationCurve.count = 0;
 
 // getter and setter
 Object.defineProperty(AnimationCurve.prototype, 'isPlaying', {
@@ -1509,8 +1507,7 @@ AnimationCurve.cubicCardinal = function (key0, key1, key2, key3, time, tension, 
  */
 
 var AnimationClipSnapshot = function () {
-    this.curveKeyable = {};// curveKeyable[curveName]=keyable
-    this.curveNames = [];
+    this.curveKeyable = [];
 };
 
 /**
@@ -1520,13 +1517,9 @@ var AnimationClipSnapshot = function () {
 AnimationClipSnapshot.prototype.copy = function (shot) {
     if (!shot)
         return this;
-
-    this.curveKeyable = {};
-    this.curveNames = [];
-    for (var i = 0; i < shot.curveNames.length; i ++) {
-        var cname = shot.curveNames[i];
-        this.curveKeyable[cname] = shot.curveKeyable[cname].clone();
-        this.curveNames.push(cname);
+    this.curveKeyable = [];
+    for (var i = 0; i < shot.curveKeyable.length; i ++) {
+        this.curveKeyable[i] = shot.curveKeyable[i].clone();
     }
     return this;
 };
@@ -1553,8 +1546,8 @@ AnimationClipSnapshot.linearBlend = function (shot1, shot2, p) {
 
     var resShot = new AnimationClipSnapshot();
     resShot.copy(shot1);
-    for (var i = 0; i < shot2.curveNames.length; i ++) {
-        var cname = shot2.curveNames[i];
+    for (var i = 0; i < shot2.curveKeyable.length; i ++) {
+        var cname = i;
         if (shot1.curveKeyable[cname] && shot2.curveKeyable[cname]) {
             var resKey = AnimationKeyable.linearBlend(shot1.curveKeyable[cname], shot2.curveKeyable[cname], p);
             resShot.curveKeyable[cname] = resKey;
@@ -1584,8 +1577,8 @@ AnimationClipSnapshot.linearBlendExceptStep = function (shot1, shot2, p, animCur
 
     var resShot = new AnimationClipSnapshot();
     resShot.copy(shot1);
-    for (var i = 0; i < shot2.curveNames.length; i ++) {
-        var cname = shot2.curveNames[i];
+    for (var i = 0; i < shot2.curveKeyable.length; i ++) {
+        var cname = i;
         if (shot1.curveKeyable[cname] && shot2.curveKeyable[cname]) {
             if (animCurveMap[cname] && animCurveMap[cname].type === AnimationCurveType.STEP) {
                 if (p > 0.5) resShot.curveKeyable[cname] = shot2.curveKeyable[cname];
@@ -1795,29 +1788,26 @@ AnimationClip.prototype.fadeTo = function (toClip, duration) {
  */
 
 AnimationClip.prototype.addCurve = function (curve) {
-    if (curve && curve.name) {
-        this.animCurves.push(curve);
-        this.animCurvesMap[curve.name] = curve;
-        if (curve.duration > this.duration)
-            this.duration = curve.duration;
-    }
+    curve.name = this.animCurves.length;
+    this.animCurves.push(curve);
+    this.animCurvesMap[curve.name] = curve;
+    if (curve.duration > this.duration)
+        this.duration = curve.duration;
 };
 
 /**
- * @param {string} name
+ * @param {number} name
  */
 
 AnimationClip.prototype.removeCurve = function (name) {
-    if (name) {
-        var curve = this.animCurvesMap[name];
-        if (curve) {
-            var idx = this.animCurves.indexOf(curve);
-            if (idx !== -1) {
-                this.animCurves.splice(idx, 1);
-            }
-            delete this.animCurvesMap[name];
-            this.updateDuration();
+    var curve = this.animCurvesMap[name];
+    if (curve) {
+        var idx = this.animCurves.indexOf(curve);
+        if (idx !== -1) {
+            this.animCurves.splice(idx, 1);
         }
+        delete this.animCurvesMap[name];
+        this.updateDuration();
     }
 };
 
@@ -1932,7 +1922,6 @@ AnimationClip.prototype.eval = function (time) {
         var curve = this.animCurves[i];
         var keyable = curve.eval(time);
         snapshot.curveKeyable[curve.name] = keyable;
-        snapshot.curveNames.push(curve.name);// 1226
     }
     return snapshot;
 };
@@ -1948,20 +1937,20 @@ AnimationClip.prototype.constructFromRoot = function (root) {
     // scale
     var curveScale = new AnimationCurve();
     curveScale.keyableType = AnimationKeyableType.VEC;
-    curveScale.name = root.name + ".localScale";
+    //curveScale.name = root.name + ".localScale";
     curveScale.setTarget(root, TargetPath.LocalScale);
     this.addCurve(curveScale);
 
     // translate
     var curvePos = new AnimationCurve();
     curvePos.keyableType = AnimationKeyableType.VEC;
-    curvePos.name = root.name + ".localPosition";
+    //curvePos.name = root.name + ".localPosition";
     curvePos.setTarget(root, TargetPath.LocalPosition);
     this.addCurve(curvePos);
 
     // rotate
     var curveRotQuat = new AnimationCurve();
-    curveRotQuat.name = root.name + ".localRotation.quat";
+    //curveRotQuat.name = root.name + ".localRotation.quat";
     curveRotQuat.keyableType = AnimationKeyableType.QUAT;
     curveRotQuat.setTarget(root, TargetPath.LocalRotation);
     this.addCurve(curveRotQuat);
@@ -2226,7 +2215,6 @@ AnimationSession._allocatePlayableCache = function(playable) {
         for (var i = 0, len = playable.animCurves.length; i < len; i++) {
             var cname = playable.animCurves[i].name;
             snapshot.curveKeyable[cname] = new_AnimationKeyable(playable.animCurves[i].keyableType);
-            snapshot.curveNames.push(cname);
         }
         return snapshot;
     }
@@ -2309,8 +2297,6 @@ AnimationSession.prototype.clone = function () {
 
 AnimationSession.prototype.setBlend = function (blendValue, weight, curveName){
     if (blendValue instanceof AnimationClip){
-        if (!curveName || curveName === "")
-            curveName = "__default__";
         this.blendables[curveName] = blendValue;
         this._cacheBlendValues[curveName] = AnimationSession._allocatePlayableCache(blendValue);// 1226
         this.blendWeights[curveName] = weight;
@@ -2339,9 +2325,6 @@ AnimationSession.prototype.setBlend = function (blendValue, weight, curveName){
  */
 
 AnimationSession.prototype.unsetBlend = function (curveName) {
-    if (!curveName || curveName === "")
-        curveName = "__default__";
-
     // unset blendvalue
     if (this.blendables[curveName]) {
         delete this.blendables[curveName];
@@ -2474,9 +2457,8 @@ AnimationSession.prototype.blendToTarget = function (input, p) {
 
     // playable is a clip, input is a AnimationClipSnapshot, animTargets is an object {curvename1:[]targets, curvename2:[]targets, curvename3:[]targets}
     if (this.playable instanceof AnimationClip && input instanceof AnimationClipSnapshot) {
-        for (i = 0; i < input.curveNames.length; i ++) {
-            cname = input.curveNames[i];
-            if (!cname) continue;
+        for (i = 0; i < input.curveKeyable.length; i ++) {
+            cname = i;
 
             blendUpdateNone = eBlendType.PARTIAL_BLEND;
             if (this.playable.animCurvesMap[cname] && this.playable.animCurvesMap[cname].type === AnimationCurveType.STEP && this.fadeDir) {
@@ -2520,9 +2502,8 @@ AnimationSession.prototype.updateToTarget = function (input) {
 
     // playable is a clip, input is a AnimationClipSnapshot
     if (this.playable instanceof AnimationClip && input instanceof AnimationClipSnapshot) {
-        for (i = 0; i < input.curveNames.length; i ++) {
-            cname = input.curveNames[i];
-            if (!cname) continue;
+        for (i = 0; i < input.curveKeyable.length; i ++) {
+            cname = i;
             ctargets = this.animTargets[cname];
             if (!ctargets) continue;
 
