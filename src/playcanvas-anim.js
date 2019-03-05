@@ -102,6 +102,37 @@ AnimationKeyableQuat.prototype.clone = function () {
 }
 
 /**
+ * @param {AnimationKeyableNum} from
+ * @param {AnimationKeyableNum} to
+ * @param {number} alpha
+ */
+
+AnimationKeyableNum.prototype.linearBlend = function (from, to, alpha) {
+    this.value = (1.0 - alpha) * from.value + alpha * to.value;
+}
+
+/**
+ * @param {AnimationKeyableNum} from
+ * @param {AnimationKeyableNum} to
+ * @param {number} alpha
+ */
+
+AnimationKeyableVec.prototype.linearBlend = function (from, to, alpha) {
+    this.value.lerp(from.value, to.value, alpha);
+}
+
+/**
+ * @param {AnimationKeyableNum} from
+ * @param {AnimationKeyableNum} to
+ * @param {number} alpha
+ */
+
+AnimationKeyableQuat.prototype.linearBlend = function (from, to, alpha) {
+    this.value.slerp(from.value, to.value, alpha);
+}
+
+
+/**
  * @constructor
  */
 
@@ -204,36 +235,34 @@ AnimationKeyable.div = function (keyable, coeff) {
  * @param {AnimationKeyable} [cacheValue]
  * @returns {AnimationKeyable}
  */
-
+/*
 AnimationKeyable.linearBlend = function (keyable1, keyable2, p, cacheValue) {
-    if (!keyable1 || !keyable2 || keyable1.type !== keyable2.type)
-        return null;
 
-    var resKeyable;
-    if (cacheValue) resKeyable = cacheValue;
-    else resKeyable = new_AnimationKeyable(keyable1.type);
+    cacheValue.linearBlend(keyable1, keyable2, p);
+    return cacheValue;
 
-    if (p === 0) {
+
+    // was === 0, never hit, only when key1 or key2 wasnt defined
+    if (p < 0.001) {
+        window.hit++;
+        window.ration = window.miss / window.hit;
+
+        //console.log(p);
         resKeyable.copy(keyable1);
         return resKeyable;
     }
 
-    if (p === 1) {
+    // was === 1, never hit
+    if (p > 0.999) {
+        window.hit++;
+        window.ration = window.miss / window.hit;
+        //console.log(p);
         resKeyable.copy(keyable2);
         return resKeyable;
     }
 
-    switch (keyable1.type) {
-        case AnimationKeyableType.NUM:
-            resKeyable.value = (1 - p) * keyable1.value + p * keyable2.value; break;
-        case AnimationKeyableType.VEC:
-            resKeyable.value.lerp(keyable1.value, keyable2.value, p); break;
-        case AnimationKeyableType.QUAT:
-            resKeyable.value.slerp(keyable1.value, keyable2.value, p); break;
-    }
-    return resKeyable;
 };
-
+*/
 /**
  * @param {SingleDOF} value1
  * @param {SingleDOF} value2
@@ -962,7 +991,6 @@ AnimationCurve.prototype.evalLINEAR_cache = function (time, cacheKeyIdx, cacheVa
 
     // 1. find the interval [key1, key2]
     var resKey = cacheValue;// new AnimationKeyable();
-    var key1, key2;
 
     var begIdx = 0;
     if (cacheKeyIdx) begIdx = cacheKeyIdx;
@@ -1003,18 +1031,21 @@ AnimationCurve.prototype.evalLINEAR_cache = function (time, cacheKeyIdx, cacheVa
             return resKey;
         }
 
+        // both found then interpolate
         if (animKey.time > time && (i - 1 < 0 || this.animKeys[i - 1].time < time)) {
-            key1 = this.animKeys[i - 1];
-            key2 = animKey;
-            break;
+            var key1 = this.animKeys[i - 1];
+            var key2 = animKey;
+            //if (!key1 || !key2)
+            //    debugger;
+            var p = (time - key1.time) / (key2.time - key1.time);
+            resKey.linearBlend(key1, key2, p);
+            resKey.time = time;
+            resKey._cacheKeyIdx = i;
+            return resKey;
         }
     }
 
-    // 3. both found then interpolate
-    var p = (time - key1.time) / (key2.time - key1.time);
-    resKey = AnimationKeyable.linearBlend(key1, key2, p, resKey);
-    resKey.time = time;
-    resKey._cacheKeyIdx = i;
+    console.log("no key found for time ", time, "cacheKeyIdx", cacheKeyIdx, "cacheValue", cacheValue);
     return resKey;
 };
 

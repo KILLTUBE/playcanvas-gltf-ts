@@ -11,12 +11,16 @@ declare namespace pc {
 }
 
 declare interface AnimationKeyable {
+    type: AnimationKeyableType;
+    time: number;
     value: BlendValue;
     outTangent: SingleDOF;
     inTangent: SingleDOF;
     _cacheKeyIdx: number;
     normalize(): void;
     clone(): AnimationKeyable;
+    copy(other: AnimationKeyable): AnimationKeyable;
+    linearBlend(from: AnimationKeyable, to: AnimationKeyable, alpha: number): AnimationKeyable;
 }
 
 declare interface AnimationEventCallback {
