@@ -53,7 +53,6 @@ declare type Blendable = AnimationKeyable | BlendValue;
 declare type MapStringToNumber = {[curvenum: string]: number};
 
 declare interface Playable {
-    animCurvesMap: AnimationCurveMap;
     session: AnimationSession;
     bySpeed: number;
     loop: boolean;
@@ -69,7 +68,6 @@ declare class AnimationCurve implements Playable {
     keyableType: AnimationKeyableType;
     animTargets: AnimationTarget[];
     animKeys: AnimationKeyable[];
-    animCurvesMap: AnimationCurveMap;
     session: AnimationSession;
     getAnimTargets(): AnimationTargetsMap;
 }
@@ -92,7 +90,6 @@ declare class AnimationClip implements Playable {
     duration: number;
     animCurves: AnimationCurve[];
     session: AnimationSession;
-    animCurvesMap: AnimationCurveMap;
     root: pc.GraphNode;
     getAnimTargets(): AnimationTargetsMap;
 }

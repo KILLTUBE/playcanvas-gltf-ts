@@ -1614,7 +1614,6 @@ var AnimationClip = function (root) {
     AnimationClip.count ++;
     this.name = "clip" + AnimationClip.count.toString();
     this.duration = 0;
-    this.animCurvesMap = {}; // a map for easy query
     this.animCurves = [];
     this.root = null;
     if (root) {
@@ -1663,7 +1662,6 @@ AnimationClip.prototype.copy = function (clip) {
 
     // copy curves
     this.animCurves.length = 0;
-    this.animCurvesMap = {};
 
     for (var i = 0, len = clip.animCurves.length; i < len; i++) {
         var curve = clip.animCurves[i];
@@ -1790,31 +1788,24 @@ AnimationClip.prototype.fadeTo = function (toClip, duration) {
 AnimationClip.prototype.addCurve = function (curve) {
     curve.name = this.animCurves.length;
     this.animCurves.push(curve);
-    this.animCurvesMap[curve.name] = curve;
     if (curve.duration > this.duration)
         this.duration = curve.duration;
 };
 
 /**
- * @param {number} name
+ * @param {number} id
  */
 
-AnimationClip.prototype.removeCurve = function (name) {
-    var curve = this.animCurvesMap[name];
+AnimationClip.prototype.removeCurve = function (id) {
+    var curve = this.animCurves[id];
     if (curve) {
-        var idx = this.animCurves.indexOf(curve);
-        if (idx !== -1) {
-            this.animCurves.splice(idx, 1);
-        }
-        delete this.animCurvesMap[name];
+        this.animCurves.splice(id, 1);
         this.updateDuration();
     }
 };
 
 AnimationClip.prototype.removeAllCurves = function () {
     this.animCurves.length = 0;
-    this.animCurvesMap = {};
-
     this.duration = 0;
 };
 
@@ -2032,8 +2023,6 @@ AnimationClip.prototype.updateCurveNameFromTarget = function () {
             continue;
 
         curve.name = newName;
-        delete this.animCurvesMap[oldName];
-        this.animCurvesMap[newName] = curve;
     }
 };
 
@@ -2225,8 +2214,11 @@ AnimationSession.prototype.allocateCache = function () { // 1215
     if (!this.playable)
         return;
 
-    if (this.playable instanceof AnimationCurve) this._cacheKeyIdx = 0;
-    else if (this.playable instanceof AnimationClip) this._cacheKeyIdx = {};
+    if (this.playable instanceof AnimationCurve) {
+        this._cacheKeyIdx = 0;
+    } else if (this.playable instanceof AnimationClip) {
+        this._cacheKeyIdx = {};
+    }
 
     this._cacheValue = AnimationSession._allocatePlayableCache(this.playable);
 };
@@ -2461,7 +2453,7 @@ AnimationSession.prototype.blendToTarget = function (input, p) {
             cname = i;
 
             blendUpdateNone = eBlendType.PARTIAL_BLEND;
-            if (this.playable.animCurvesMap[cname] && this.playable.animCurvesMap[cname].type === AnimationCurveType.STEP && this.fadeDir) {
+            if (this.playable.animCurves[i] && this.playable.animCurves[i].type === AnimationCurveType.STEP && this.fadeDir) {
                 if ((this.fadeDir == -1 && p <= 0.5) || (this.fadeDir == 1 && p > 0.5)) blendUpdateNone = eBlendType.FULL_UPDATE;
                 else blendUpdateNone = eBlendType.NONE;
             }
@@ -2537,7 +2529,7 @@ AnimationSession.prototype.showAt = function (time, fadeDir, fadeBegTime, fadeEn
         var blendClip = this.blendables[bname];
         if (blendClip && (blendClip instanceof AnimationClip) && (typeof p === "number")) {
             var blendInput = blendClip.eval_cache(this.accTime % blendClip.duration, null, this._cacheBlendValues[bname]);
-            input = AnimationClipSnapshot.linearBlendExceptStep(input, blendInput, p, this.playable.animCurvesMap);
+            input = AnimationClipSnapshot.linearBlendExceptStep(input, blendInput, p, this.playable.animCurves);
         }
     }
     // blend custom bone second
