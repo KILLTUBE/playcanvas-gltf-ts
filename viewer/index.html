@@ -6,15 +6,68 @@
         <meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no' />
         <link rel="icon" type="image/png" href="icons/favicon.png">
         <link rel="stylesheet" href="styles.css">
-        <script src='https://code.playcanvas.com/playcanvas-stable.js'></script>
+		
+        <script>
+
+            function fetch_script(url) {
+                return new Promise(function(resolve, reject) {
+                    var script = document.createElement("script");
+                    script.type = "text/javascript";
+                    script.onload = function () {
+                        resolve(script);
+                    };
+                    script.src = url;
+                    document.head.appendChild(script);
+                });
+            }
+
+            window.onload = async function() {
+
+                window.wasm = false;
+                window.prefix_url = window.location.origin; // e.g. `window.location.origin == "http://127.0.0.1"`
+
+                if (window.wasm) {
+                    await fetch_script(window.prefix_url + "/MathAS/html5/main.js");
+                    await init_mathas (window.prefix_url + "/MathAS/");
+                    module.memory.grow((300 * 1024 * 1024 ) / 65536) // can use up to 300mb without regrowth (which fucks up dataviews :S)
+                    await fetch_script(window.prefix_url + "/AssemblyCanvas/build/output/playcanvas-latest.js");
+                } else {
+                    await fetch_script(window.prefix_url + "/playcanvas-engine/build/output/playcanvas-latest.js");
+                }
+                
+
+                /*
+				await fetch_script('../src/AnimationClip.js');
+				await fetch_script('../src/AnimationClipSnapshot.js');
+				await fetch_script('../src/AnimationCurve.js');
+				await fetch_script('../src/AnimationKeyable.js');
+				await fetch_script('../src/AnimationSession.js');
+                await fetch_script('../src/AnimationTarget.js');
+                */
+				await fetch_script('../src/playcanvas-anim.js');
+				await fetch_script('../src/playcanvas-gltf.js');
+				await fetch_script('src/utils.js');
+				await fetch_script('src/viewer.js');
+				await fetch_script('src/shaderchunks.js');
+				await fetch_script('src/timeline.js');
+
+				//setup_scene();
+				main();
+            }
+		</script>
+		
+        <!--<script src='https://code.playcanvas.com/playcanvas-stable.js'></script>-->
+        <!--<script src="playcanvas-latest.js"></script>-->
+		<!--
         <script src='../src/playcanvas-anim.js'></script>
         <script src='../src/playcanvas-gltf.js'></script>
         <script src='src/utils.js'></script>
         <script src='src/viewer.js'></script>
         <script src='src/shaderchunks.js'></script>
         <script src='src/timeline.js'></script>
+		-->
     </head>
-    <body onload='main()'>
+    <body>
         <div id="overlay">
             <div id="anim">
                 <select id="anim_select"></select>
