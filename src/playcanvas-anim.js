@@ -6,23 +6,62 @@
  * @enum {number}
  */
 var AnimationKeyableType = {
-    NUM : 0,
-    VEC : 1,
-    QUAT: 2
+    NUM               : 0,
+    VEC2              : 1,
+    VEC               : 2, // todo: rename to VEC3
+    VEC4              : 3,
+    QUAT              : 4,
+    NUM_CUBICSCPLINE  : 5,
+    VEC2_CUBICSCPLINE : 6,
+    VEC_CUBICSCPLINE  : 7, // todo: rename to VEC3_CUBICSPLINE
+    VEC4_CUBICSCPLINE : 8,
+    QUAT_CUBICSCPLINE : 9
 };
 
 
 /**
- * @param {AnimationKeyableType} [type]
- * @param {number} [time]
- * @param {BlendValue} [value]
+ * @param {AnimationKeyableType} [type      ]
+ * @param {number              } [time      ]
+ * @param {BlendValue          } [value     ]
+ * @param {BlendValue          } [inTangent ]
+ * @param {BlendValue          } [outTangent]
  */
 
-function new_AnimationKeyable(type, time, value) {
+function new_AnimationKeyable(type, time, value, inTangent, outTangent) {
     switch (type) {
-        case AnimationKeyableType.NUM : return new AnimationKeyableNum (time, value);
-        case AnimationKeyableType.VEC : return new AnimationKeyableVec (time, value);
-        case AnimationKeyableType.QUAT: return new AnimationKeyableQuat(time, value);
+        case AnimationKeyableType.NUM: {
+            var keyable = new AnimationKeyableNum();
+            keyable.time = time || 0;
+            keyable.value = value || 0;
+            return keyable;
+        }
+        case AnimationKeyableType.VEC: {
+            var keyable = new AnimationKeyableVec ();
+            keyable.time = time || 0;
+            keyable.value = value || new pc.Vec3();;
+            return keyable;
+        }
+        case AnimationKeyableType.QUAT: {
+            var keyable = new AnimationKeyableQuat();
+            keyable.time = time || 0;
+            keyable.value = value || new pc.Quat();
+            return keyable;
+        }
+        case AnimationKeyableType.NUM_CUBICSCPLINE: {
+            var keyable = new AnimationKeyableNum (time, value);
+            // todo
+            return keyable;
+        }
+        case AnimationKeyableType.VEC_CUBICSCPLINE: {
+            var keyable = new AnimationKeyableVec (time, value);
+            // todo
+            return keyable;
+        }
+        case AnimationKeyableType.QUAT_CUBICSCPLINE: {
+            var keyable = new AnimationKeyableQuatCubicSpline(time, value);
+            // todo
+            return keyable;
+        }
     }
     console.log("new_AnimationKeyable> unknown type: ", type);
 }
@@ -33,9 +72,9 @@ function new_AnimationKeyable(type, time, value) {
  */
 
 var AnimationKeyableNum = function (time, value) {
-    this.type = AnimationKeyableType.NUM;
-    this.time = time;
-    this.value = value;
+    this.type  = AnimationKeyableType.NUM;
+    this.time  = time  || 0.0;
+    this.value = value || 0.0;
 };
 
 /**
@@ -44,8 +83,8 @@ var AnimationKeyableNum = function (time, value) {
  */
 
 var AnimationKeyableVec = function (time, value) {
-    this.type = AnimationKeyableType.VEC;
-    this.time = time || 0;
+    this.type  = AnimationKeyableType.VEC;
+    this.time  = time  || 0.0;
     this.value = value || new pc.Vec3();
 };
 
@@ -55,9 +94,54 @@ var AnimationKeyableVec = function (time, value) {
  */
 
 var AnimationKeyableQuat = function (time, value) {
-    this.type = AnimationKeyableType.QUAT;
-    this.time = time || 0;
+    this.type  = AnimationKeyableType.QUAT;
+    this.time  = time  || 0.0;
     this.value = value || new pc.Quat();
+};
+
+/**
+ * @param {number} [time      ]
+ * @param {number} [value     ]
+ * @param {number} [inTangent ]
+ * @param {number} [outTangent]
+ */
+
+var AnimationKeyableNumCubicSpline = function (time, value, inTangent, outTangent) {
+    this.type       = AnimationKeyableType.NUM_CUBICSCPLINE;
+    this.time       = time       || 0.0;
+    this.value      = value      || 0.0;
+    this.inTangent  = inTangent  || 0.0;
+    this.outTangent = outTangent || 0.0;
+};
+
+/**
+ * @param {number } [time      ]
+ * @param {pc.Vec3} [value     ]
+ * @param {pc.Vec3} [inTangent ]
+ * @param {pc.Vec3} [outTangent]
+ */
+
+var AnimationKeyableVecCubicSpline = function (time, value, inTangent, outTangent) {
+    this.type       = AnimationKeyableType.VEC_CUBICSCPLINE;
+    this.time       = time       || 0.0;
+    this.value      = value      || new pc.Vec3();
+    this.inTangent  = inTangent  || new pc.Vec3();
+    this.outTangent = outTangent || new pc.Vec3();
+};
+
+/**
+ * @param {number } [time      ]
+ * @param {pc.Quat} [value     ]
+ * @param {pc.Quat} [inTangent ]
+ * @param {pc.Quat} [outTangent]
+ */
+
+var AnimationKeyableQuatCubicSpline = function (time, value, inTangent, outTangent) {
+    this.type       = AnimationKeyableType.QUAT_CUBICSCPLINE;
+    this.time       = time       || 0.0;
+    this.value      = value      || new pc.Quat();
+    this.inTangent  = inTangent  || new pc.Quat();
+    this.outTangent = outTangent || new pc.Quat();
 };
 
 /**
@@ -68,7 +152,6 @@ AnimationKeyableNum.prototype.copy = function (other) {
     this.value = other.value;
     return this;
 };
-
 
 /**
  * @param {AnimationKeyableVec} other
@@ -88,6 +171,38 @@ AnimationKeyableQuat.prototype.copy = function (other) {
     return this;
 };
 
+/**
+ * @param {AnimationKeyableNumCubicSpline} other
+ */
+
+AnimationKeyableNumCubicSpline.prototype.copy = function (other) {
+    this.value = other.value;
+    this.inTangent = other.value;
+    this.outTangent = other.value;
+    return this;
+};
+
+/**
+ * @param {AnimationKeyableVecCubicSpline} other
+ */
+
+AnimationKeyableVecCubicSpline.prototype.copy = function (other) {
+    this.value      = other.value.clone();
+    this.inTangent  = other.inTangent.value.clone();
+    this.outTangent = other.outTangent.value.clone();
+    return this;
+};
+
+/**
+ * @param {AnimationKeyableQuatCubicSpline} other
+ */
+
+AnimationKeyableQuatCubicSpline.prototype.copy = function (other) {
+    this.value      = other.value.clone();
+    this.inTangent  = other.inTangent.value.clone();
+    this.outTangent = other.outTangent.value.clone();
+    return this;
+};
 
 AnimationKeyableNum.prototype.clone = function () {
     return new AnimationKeyableNum(this.time, this.value);
@@ -99,6 +214,18 @@ AnimationKeyableVec.prototype.clone = function () {
 
 AnimationKeyableQuat.prototype.clone = function () {
     return new AnimationKeyableQuat(this.time, this.value.clone());
+}
+
+AnimationKeyableNumCubicSpline.prototype.clone = function () {
+    return new AnimationKeyableNumCubicSpline(this.time, this.value, this.inTangent, this.outTangent);
+}
+
+AnimationKeyableVecCubicSpline.prototype.clone = function () {
+    return new AnimationKeyableVecCubicSpline(this.time, this.value.clone(), this.inTangent.clone(), this.outTangent.clone());
+}
+
+AnimationKeyableQuatCubicSpline.prototype.clone = function () {
+    return new AnimationKeyableQuatCubicSpline(this.time, this.value.clone(), this.inTangent.clone(), this.outTangent.clone());
 }
 
 /**
@@ -455,7 +582,12 @@ AnimationTarget.getLocalScale = function (node) {
  * @enum {number}
  */
 
-var AnimationCurveType = { LINEAR: 0, STEP: 1, CUBIC: 2, CUBICSPLINE_GLTF: 3 };
+var AnimationCurveType = {
+    LINEAR:           0,
+    STEP:             1,
+    CUBIC:            2,
+    CUBICSPLINE_GLTF: 3
+};
 
 /**
  * @constructor
@@ -1050,14 +1182,15 @@ AnimationCurve.prototype.evalCUBICSPLINE_GLTF_cache = function (time, cacheKeyId
     // 3. both found then interpolate
     var p = (time - key1.time) / (key2.time - key1.time);
     var g = key2.time - key1.time;
-    if (this.keyableType === AnimationKeyableType.NUM) {
+
+    if (this.keyableType === AnimationKeyableType.NUM_CUBICSCPLINE) {
         resKey.value = AnimationCurve.cubicHermite(g * key1.outTangent, key1.value, g * key2.inTangent, key2.value, p);
-    } else if (this.keyableType === AnimationKeyableType.VEC) {
+    } else if (this.keyableType === AnimationKeyableType.VEC_CUBICSCPLINE) {
         resKey.value = new pc.Vec3();
         resKey.value.x = AnimationCurve.cubicHermite(g * key1.outTangent.x, key1.value.x, g * key2.inTangent.x, key2.value.x, p);
         resKey.value.y = AnimationCurve.cubicHermite(g * key1.outTangent.y, key1.value.y, g * key2.inTangent.y, key2.value.y, p);
         resKey.value.z = AnimationCurve.cubicHermite(g * key1.outTangent.z, key1.value.z, g * key2.inTangent.z, key2.value.z, p);
-    } else if (this.keyableType === AnimationKeyableType.QUAT) {
+    } else if (this.keyableType === AnimationKeyableType.QUAT_CUBICSCPLINE) {
         resKey.value = new pc.Quat();
         resKey.value.w = AnimationCurve.cubicHermite(g * key1.outTangent.w, key1.value.w, g * key2.inTangent.w, key2.value.w, p);
         resKey.value.x = AnimationCurve.cubicHermite(g * key1.outTangent.x, key1.value.x, g * key2.inTangent.x, key2.value.x, p);

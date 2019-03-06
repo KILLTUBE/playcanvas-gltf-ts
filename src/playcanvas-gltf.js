@@ -143,17 +143,24 @@
                 // translation, rotation or scale
                 keyType = AnimationKeyableType.NUM;
                 var targetPath = path;
+                var isCubicSplince = sampler.interpolation === "CUBICSPLINE";
                 switch (path) {
                     case "translation":
                         keyType = AnimationKeyableType.VEC;
+                        if (isCubicSplince)
+                            keyType = AnimationKeyableType.VEC_CUBICSCPLINE;
                         targetPath = TargetPath.LocalPosition;
                         break;
                     case "scale":
                         keyType = AnimationKeyableType.VEC;
+                        if (isCubicSplince)
+                            keyType = AnimationKeyableType.VEC_CUBICSCPLINE;
                         targetPath = TargetPath.LocalScale;
                         break;
                     case "rotation":
                         keyType = AnimationKeyableType.QUAT;
+                        if (isCubicSplince)
+                            keyType = AnimationKeyableType.QUAT_CUBICSCPLINE;
                         targetPath = TargetPath.LocalRotation;
                         break;
                 }
@@ -182,18 +189,24 @@
                     curve.type = AnimationCurveType.CUBICSPLINE_GLTF;
                     for (i = 0; i < times.length; i++) {
                         time = times[i];
-                        var keyable = new_AnimationKeyable(keyType, time, null);
+                        var keyable;
                         if ((path === 'translation') || (path === 'scale')) {
-                            keyable.inTangent = new pc.Vec3(values[9 * i + 0], values[9 * i + 1], values[9 * i + 2]);
-                            keyable.value = new pc.Vec3(values[9 * i + 3], values[9 * i + 4], values[9 * i + 5]);
-                            keyable.outTangent = new pc.Vec3(values[9 * i + 6], values[9 * i + 7], values[9 * i + 8]);
+                            keyable = new AnimationKeyableVecCubicSpline();
+                            keyable.time = time;
+                            keyable.inTangent.set( values[9 * i + 0], values[9 * i + 1], values[9 * i + 2]);
+                            keyable.value.set(     values[9 * i + 3], values[9 * i + 4], values[9 * i + 5]);
+                            keyable.outTangent.set(values[9 * i + 6], values[9 * i + 7], values[9 * i + 8]);
                         } else if (path === 'rotation') {
-                            keyable.inTangent = new pc.Quat(values[12 * i + 0], values[12 * i + 1], values[12 * i + 2], values[12 * i + 3]);
-                            keyable.value = new pc.Quat(values[12 * i + 4], values[12 * i + 5], values[12 * i + 6], values[12 * i + 7]);
-                            keyable.outTangent = new pc.Quat(values[12 * i + 8], values[12 * i + 9], values[12 * i + 10], values[12 * i + 11]);
+                            keyable = new AnimationKeyableQuatCubicSpline();
+                            keyable.time = time;
+                            keyable.inTangent.set( values[12 * i + 0], values[12 * i + 1], values[12 * i + 2], values[12 * i + 3]);
+                            keyable.value.set(     values[12 * i + 4], values[12 * i + 5], values[12 * i + 6], values[12 * i + 7]);
+                            keyable.outTangent.set(values[12 * i + 8], values[12 * i + 9], values[12 * i + 10], values[12 * i + 11]);
                         } else {
-                            keyable.inTangent = values[3 * i];
-                            keyable.value = values[3 * i + 1];
+                            keyable = new AnimationKeyableNumCubicSpline();
+                            keyable.time = time;
+                            keyable.inTangent  = values[3 * i    ];
+                            keyable.value      = values[3 * i + 1];
                             keyable.outTangent = values[3 * i + 2];
                         }
                         curve.insertKeyable(keyable);
