@@ -143,23 +143,23 @@
                 // translation, rotation or scale
                 keyType = AnimationKeyableType.NUM;
                 var targetPath = path;
-                var isCubicSplince = sampler.interpolation === "CUBICSPLINE";
+                var isCubicSpline = sampler.interpolation === "CUBICSPLINE";
                 switch (path) {
                     case "translation":
                         keyType = AnimationKeyableType.VEC;
-                        if (isCubicSplince)
+                        if (isCubicSpline)
                             keyType = AnimationKeyableType.VEC_CUBICSCPLINE;
                         targetPath = TargetPath.LocalPosition;
                         break;
                     case "scale":
                         keyType = AnimationKeyableType.VEC;
-                        if (isCubicSplince)
+                        if (isCubicSpline)
                             keyType = AnimationKeyableType.VEC_CUBICSCPLINE;
                         targetPath = TargetPath.LocalScale;
                         break;
                     case "rotation":
                         keyType = AnimationKeyableType.QUAT;
-                        if (isCubicSplince)
+                        if (isCubicSpline)
                             keyType = AnimationKeyableType.QUAT_CUBICSCPLINE;
                         targetPath = TargetPath.LocalRotation;
                         break;

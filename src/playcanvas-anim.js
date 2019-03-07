@@ -38,7 +38,7 @@ function new_AnimationKeyable(type, time, value, inTangent, outTangent) {
         case AnimationKeyableType.VEC: {
             var keyable = new AnimationKeyableVec ();
             keyable.time = time || 0;
-            keyable.value = value || new pc.Vec3();;
+            keyable.value = value || new pc.Vec3();
             return keyable;
         }
         case AnimationKeyableType.QUAT: {
@@ -48,18 +48,15 @@ function new_AnimationKeyable(type, time, value, inTangent, outTangent) {
             return keyable;
         }
         case AnimationKeyableType.NUM_CUBICSCPLINE: {
-            var keyable = new AnimationKeyableNum (time, value);
-            // todo
+            var keyable = new AnimationKeyableNumCubicSpline(time, value, inTangent, outTangent);
             return keyable;
         }
         case AnimationKeyableType.VEC_CUBICSCPLINE: {
-            var keyable = new AnimationKeyableVec (time, value);
-            // todo
+            var keyable = new AnimationKeyableVecCubicSpline(time, value, inTangent, outTangent);
             return keyable;
         }
         case AnimationKeyableType.QUAT_CUBICSCPLINE: {
-            var keyable = new AnimationKeyableQuatCubicSpline(time, value);
-            // todo
+            var keyable = new AnimationKeyableQuatCubicSpline(time, value, inTangent, outTangent);
             return keyable;
         }
     }
@@ -229,6 +226,46 @@ AnimationKeyableQuatCubicSpline.prototype.clone = function () {
 }
 
 /**
+ * @param {AnimationKeyableNumCubicSpline} from
+ * @param {AnimationKeyableNumCubicSpline} to
+ * @param {number} alpha
+ */
+
+AnimationKeyableNumCubicSpline.prototype.cubicHermite = function (from, to, alpha) {
+    var g = to.time - from.time;
+    this.value = AnimationCurve.cubicHermite(g * from.outTangent, from.value, g * to.inTangent, to.value, alpha);
+}
+
+/**
+ * @param {AnimationKeyableVecCubicSpline} from
+ * @param {AnimationKeyableVecCubicSpline} to
+ * @param {number} alpha
+ */
+
+AnimationKeyableVecCubicSpline.prototype.cubicHermite = function (from, to, alpha) {
+    var g = to.time - from.time;
+    this.value.x = AnimationCurve.cubicHermite(g * from.outTangent.x, from.value.x, g * to.inTangent.x, to.value.x, alpha);
+    this.value.y = AnimationCurve.cubicHermite(g * from.outTangent.y, from.value.y, g * to.inTangent.y, to.value.y, alpha);
+    this.value.z = AnimationCurve.cubicHermite(g * from.outTangent.z, from.value.z, g * to.inTangent.z, to.value.z, alpha);
+}
+
+/**
+ * @param {AnimationKeyableQuatCubicSpline} from
+ * @param {AnimationKeyableQuatCubicSpline} to
+ * @param {number} alpha
+ */
+
+AnimationKeyableQuatCubicSpline.prototype.cubicHermite = function (from, to, alpha) {
+    var g = to.time - from.time;
+    this.value.w = AnimationCurve.cubicHermite(g * from.outTangent.w, from.value.w, g * to.inTangent.w, to.value.w, alpha);
+    this.value.x = AnimationCurve.cubicHermite(g * from.outTangent.x, from.value.x, g * to.inTangent.x, to.value.x, alpha);
+    this.value.y = AnimationCurve.cubicHermite(g * from.outTangent.y, from.value.y, g * to.inTangent.y, to.value.y, alpha);
+    this.value.z = AnimationCurve.cubicHermite(g * from.outTangent.z, from.value.z, g * to.inTangent.z, to.value.z, alpha);
+    this.value.normalize();
+}
+
+
+/**
  * @param {AnimationKeyableNum} from
  * @param {AnimationKeyableNum} to
  * @param {number} alpha
@@ -358,9 +395,10 @@ AnimationTarget.prototype.blendToTarget = function (value, p) {
      // target needs scaling for retargetting
     if (this.targetPath === TargetPath.LocalPosition && (this.vScale instanceof pc.Vec3)) {
         if (value instanceof pc.Vec3) {
-            value.x *= this.vScale.x;
-            value.y *= this.vScale.y;
-            value.z *= this.vScale.z;
+            value.mul(this.vScale);
+            //value.x *= this.vScale.x;
+            //value.y *= this.vScale.y;
+            //value.z *= this.vScale.z;
         } else if ((typeof value === "number") && (typeof this.vScale[this.targetProp] === "number")) {
             value *= this.vScale[this.targetProp];
         }
@@ -447,9 +485,10 @@ AnimationTarget.prototype.updateToTarget = function (value) {
     // target needs scaling for retargetting
     if (this.targetPath === TargetPath.LocalPosition && (this.vScale instanceof pc.Vec3)) {
         if (value instanceof pc.Vec3) {
-            value.x *= this.vScale.x;
-            value.y *= this.vScale.y;
-            value.z *= this.vScale.z;
+            value.mul(this.vScale);
+            //value.x *= this.vScale.x;
+            //value.y *= this.vScale.y;
+            //value.z *= this.vScale.z;
         } else if ((typeof value === "number") && (typeof this.vScale[this.targetProp] === "number")) {
             value *= this.vScale[this.targetProp];
         }
@@ -1181,24 +1220,7 @@ AnimationCurve.prototype.evalCUBICSPLINE_GLTF_cache = function (time, cacheKeyId
 
     // 3. both found then interpolate
     var p = (time - key1.time) / (key2.time - key1.time);
-    var g = key2.time - key1.time;
-
-    if (this.keyableType === AnimationKeyableType.NUM_CUBICSCPLINE) {
-        resKey.value = AnimationCurve.cubicHermite(g * key1.outTangent, key1.value, g * key2.inTangent, key2.value, p);
-    } else if (this.keyableType === AnimationKeyableType.VEC_CUBICSCPLINE) {
-        resKey.value = new pc.Vec3();
-        resKey.value.x = AnimationCurve.cubicHermite(g * key1.outTangent.x, key1.value.x, g * key2.inTangent.x, key2.value.x, p);
-        resKey.value.y = AnimationCurve.cubicHermite(g * key1.outTangent.y, key1.value.y, g * key2.inTangent.y, key2.value.y, p);
-        resKey.value.z = AnimationCurve.cubicHermite(g * key1.outTangent.z, key1.value.z, g * key2.inTangent.z, key2.value.z, p);
-    } else if (this.keyableType === AnimationKeyableType.QUAT_CUBICSCPLINE) {
-        resKey.value = new pc.Quat();
-        resKey.value.w = AnimationCurve.cubicHermite(g * key1.outTangent.w, key1.value.w, g * key2.inTangent.w, key2.value.w, p);
-        resKey.value.x = AnimationCurve.cubicHermite(g * key1.outTangent.x, key1.value.x, g * key2.inTangent.x, key2.value.x, p);
-        resKey.value.y = AnimationCurve.cubicHermite(g * key1.outTangent.y, key1.value.y, g * key2.inTangent.y, key2.value.y, p);
-        resKey.value.z = AnimationCurve.cubicHermite(g * key1.outTangent.z, key1.value.z, g * key2.inTangent.z, key2.value.z, p);
-        resKey.normalize();
-    }
-
+    resKey.cubicHermite(key1, key2, p);
     resKey.time = time;
     resKey._cacheKeyIdx = i;
     return resKey;
@@ -1216,14 +1238,21 @@ AnimationCurve.prototype.eval_cache = function (time, cacheKeyIdx, cacheValue) {
         return null;
 
     switch (this.type) {
-        case AnimationCurveType.LINEAR: return this.evalLINEAR_cache(time, cacheKeyIdx, cacheValue);
-        case AnimationCurveType.STEP: return this.evalSTEP_cache(time, cacheKeyIdx, cacheValue);
-        case AnimationCurveType.CUBIC:
-            if (this.keyableType == AnimationKeyableType.QUAT)
+        case AnimationCurveType.LINEAR: {
+            return this.evalLINEAR_cache(time, cacheKeyIdx, cacheValue);
+        }
+        case AnimationCurveType.STEP: {
+            return this.evalSTEP_cache(time, cacheKeyIdx, cacheValue);
+        }
+        case AnimationCurveType.CUBIC: {
+            if (this.keyableType == AnimationKeyableType.QUAT) {
                 return this.evalLINEAR_cache(time, cacheKeyIdx, cacheValue);
+            }
             return this.evalCUBIC_cache(time, cacheKeyIdx, cacheValue);
-        case AnimationCurveType.CUBICSPLINE_GLTF:// 10/15, keyable contains (inTangent, value, outTangent)
+        }
+        case AnimationCurveType.CUBICSPLINE_GLTF: {// 10/15, keyable contains (inTangent, value, outTangent)
             return this.evalCUBICSPLINE_GLTF_cache(time, cacheKeyIdx, cacheValue);
+        }
     }
     return null;
 };
@@ -1709,10 +1738,15 @@ AnimationClip.prototype.eval_cache = function (time, cacheKeyIdx, cacheValue) { 
     for (var i = 0, len = this.animCurves.length; i < len; i++) {
         var curve = this.animCurves[i];
         var ki;
-        if (cacheKeyIdx) ki = cacheKeyIdx[curve.name];
+        if (cacheKeyIdx) {
+            ki = cacheKeyIdx[curve.name];
+        }
         var kv;
-        if (cacheValue) kv = cacheValue.curveKeyable[curve.name];
-        else kv = new_AnimationKeyable(curve.keyableType);
+        if (cacheValue) {
+            kv = cacheValue.curveKeyable[curve.name];
+        } else {
+            kv = new_AnimationKeyable(curve.keyableType);
+        }
         var keyable = curve.eval_cache(time, ki, kv);// 0210
         if (cacheKeyIdx && keyable) cacheKeyIdx[curve.name] = keyable._cacheKeyIdx;
         snapshot.curveKeyable[curve.name] = keyable;
