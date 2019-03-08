@@ -1,9 +1,5 @@
-
-
-
-
-
 /**
+ * @constructor
  * @param {number} [time]
  * @param {number} [value]
  */
@@ -14,7 +10,32 @@ var AnimationKeyableNum = function (time, value) {
     this.value = value || 0.0;
 };
 
+AnimationKeyableNum.prototype.clone = function () {
+    return new AnimationKeyableNum(this.time, this.value);
+};
+
 /**
+ * @param {AnimationKeyableNum} other
+ */
+
+AnimationKeyableNum.prototype.copy = function (other) {
+	this.time = other.time;
+    this.value = other.value;
+    return this;
+};
+
+/**
+ * @param {AnimationKeyableNum} from
+ * @param {AnimationKeyableNum} to
+ * @param {number} alpha
+ */
+
+AnimationKeyableNum.prototype.linearBlend = function (from, to, alpha) {
+    this.value = (1.0 - alpha) * from.value + alpha * to.value;
+}
+
+/**
+ * @constructor
  * @param {number} [time]
  * @param {pc.Vec3} [value]
  */
@@ -25,7 +46,32 @@ var AnimationKeyableVec = function (time, value) {
     this.value = value || new pc.Vec3();
 };
 
+AnimationKeyableVec.prototype.clone = function () {
+    return new AnimationKeyableVec(this.time, this.value.clone());
+}
+
 /**
+ * @param {AnimationKeyableVec} other
+ */
+
+AnimationKeyableVec.prototype.copy = function (other) {
+	this.time = other.time;
+    this.value.copy(other.value);
+    return this;
+};
+
+/**
+ * @param {AnimationKeyableVec} from
+ * @param {AnimationKeyableVec} to
+ * @param {number} alpha
+ */
+
+AnimationKeyableVec.prototype.linearBlend = function (from, to, alpha) {
+    this.value.lerp(from.value, to.value, alpha);
+};
+
+/**
+ * @constructor
  * @param {number} [time]
  * @param {pc.Quat} [value]
  */
@@ -36,7 +82,32 @@ var AnimationKeyableQuat = function (time, value) {
     this.value = value || new pc.Quat();
 };
 
+AnimationKeyableQuat.prototype.clone = function () {
+    return new AnimationKeyableQuat(this.time, this.value.clone());
+};
+
 /**
+ * @param {AnimationKeyableQuat} other
+ */
+
+AnimationKeyableQuat.prototype.copy = function (other) {
+	this.time = other.time;
+    this.value.copy(other.value);
+    return this;
+};
+
+/**
+ * @param {AnimationKeyableQuat} from
+ * @param {AnimationKeyableQuat} to
+ * @param {number} alpha
+ */
+
+AnimationKeyableQuat.prototype.linearBlend = function (from, to, alpha) {
+    this.value.slerp(from.value, to.value, alpha);
+};
+
+/**
+ * @constructor
  * @param {number} [time      ]
  * @param {number} [value     ]
  * @param {number} [inTangent ]
@@ -51,7 +122,35 @@ var AnimationKeyableNumCubicSpline = function (time, value, inTangent, outTangen
     this.outTangent = outTangent || 0.0;
 };
 
+AnimationKeyableNumCubicSpline.prototype.clone = function () {
+    return new AnimationKeyableNumCubicSpline(this.time, this.value, this.inTangent, this.outTangent);
+};
+
 /**
+ * @param {AnimationKeyableNumCubicSpline} other
+ */
+
+AnimationKeyableNumCubicSpline.prototype.copy = function (other) {
+	this.time = other.time;
+    this.value = other.value;
+    this.inTangent = other.inTangent;
+    this.outTangent = other.outTangent;
+    return this;
+};
+
+/**
+ * @param {AnimationKeyableNumCubicSpline} from
+ * @param {AnimationKeyableNumCubicSpline} to
+ * @param {number} alpha
+ */
+
+AnimationKeyableNumCubicSpline.prototype.cubicHermite = function (from, to, alpha) {
+    var g = to.time - from.time;
+    this.value = AnimationCurve.cubicHermite(g * from.outTangent, from.value, g * to.inTangent, to.value, alpha);
+};
+
+/**
+ * @constructor
  * @param {number } [time      ]
  * @param {pc.Vec3} [value     ]
  * @param {pc.Vec3} [inTangent ]
@@ -66,115 +165,21 @@ var AnimationKeyableVecCubicSpline = function (time, value, inTangent, outTangen
     this.outTangent = outTangent || new pc.Vec3();
 };
 
-/**
- * @param {number } [time      ]
- * @param {pc.Quat} [value     ]
- * @param {pc.Quat} [inTangent ]
- * @param {pc.Quat} [outTangent]
- */
-
-var AnimationKeyableQuatCubicSpline = function (time, value, inTangent, outTangent) {
-    this.type       = AnimationKeyableType.QUAT_CUBICSCPLINE;
-    this.time       = time       || 0.0;
-    this.value      = value      || new pc.Quat();
-    this.inTangent  = inTangent  || new pc.Quat();
-    this.outTangent = outTangent || new pc.Quat();
-};
-
-/**
- * @param {AnimationKeyableNum} other
- */
-
-AnimationKeyableNum.prototype.copy = function (other) {
-    this.value = other.value;
-    return this;
-};
-
-/**
- * @param {AnimationKeyableVec} other
- */
-
-AnimationKeyableVec.prototype.copy = function (other) {
-    this.value = other.value.clone();
-    return this;
-};
-
-/**
- * @param {AnimationKeyableQuat} other
- */
-
-AnimationKeyableQuat.prototype.copy = function (other) {
-    this.value = other.value.clone();
-    return this;
-};
-
-/**
- * @param {AnimationKeyableNumCubicSpline} other
- */
-
-AnimationKeyableNumCubicSpline.prototype.copy = function (other) {
-    this.value = other.value;
-    this.inTangent = other.value;
-    this.outTangent = other.value;
-    return this;
-};
+AnimationKeyableVecCubicSpline.prototype.clone = function () {
+    return new AnimationKeyableVecCubicSpline(this.time, this.value.clone(), this.inTangent.clone(), this.outTangent.clone());
+}
 
 /**
  * @param {AnimationKeyableVecCubicSpline} other
  */
 
 AnimationKeyableVecCubicSpline.prototype.copy = function (other) {
-    this.value      = other.value.clone();
-    this.inTangent  = other.inTangent.value.clone();
-    this.outTangent = other.outTangent.value.clone();
+	this.time = other.time;
+    this.value.copy(other.value);
+    this.inTangent.copy(other.inTangent);
+    this.outTangent.copy(other.outTangent);
     return this;
 };
-
-/**
- * @param {AnimationKeyableQuatCubicSpline} other
- */
-
-AnimationKeyableQuatCubicSpline.prototype.copy = function (other) {
-    this.value      = other.value.clone();
-    this.inTangent  = other.inTangent.value.clone();
-    this.outTangent = other.outTangent.value.clone();
-    return this;
-};
-
-AnimationKeyableNum.prototype.clone = function () {
-    return new AnimationKeyableNum(this.time, this.value);
-}
-
-AnimationKeyableVec.prototype.clone = function () {
-    return new AnimationKeyableVec(this.time, this.value.clone());
-}
-
-AnimationKeyableQuat.prototype.clone = function () {
-    return new AnimationKeyableQuat(this.time, this.value.clone());
-}
-
-AnimationKeyableNumCubicSpline.prototype.clone = function () {
-    return new AnimationKeyableNumCubicSpline(this.time, this.value, this.inTangent, this.outTangent);
-}
-
-AnimationKeyableVecCubicSpline.prototype.clone = function () {
-    return new AnimationKeyableVecCubicSpline(this.time, this.value.clone(), this.inTangent.clone(), this.outTangent.clone());
-}
-
-AnimationKeyableQuatCubicSpline.prototype.clone = function () {
-    return new AnimationKeyableQuatCubicSpline(this.time, this.value.clone(), this.inTangent.clone(), this.outTangent.clone());
-}
-
-/**
- * @param {AnimationKeyableNumCubicSpline} from
- * @param {AnimationKeyableNumCubicSpline} to
- * @param {number} alpha
- */
-
-AnimationKeyableNumCubicSpline.prototype.cubicHermite = function (from, to, alpha) {
-    var g = to.time - from.time;
-    this.value = AnimationCurve.cubicHermite(g * from.outTangent, from.value, g * to.inTangent, to.value, alpha);
-}
 
 /**
  * @param {AnimationKeyableVecCubicSpline} from
@@ -189,6 +194,39 @@ AnimationKeyableVecCubicSpline.prototype.cubicHermite = function (from, to, alph
     this.value.z = AnimationCurve.cubicHermite(g * from.outTangent.z, from.value.z, g * to.inTangent.z, to.value.z, alpha);
 }
 
+
+/**
+ * @constructor
+ * @param {number } [time      ]
+ * @param {pc.Quat} [value     ]
+ * @param {pc.Quat} [inTangent ]
+ * @param {pc.Quat} [outTangent]
+ */
+
+var AnimationKeyableQuatCubicSpline = function (time, value, inTangent, outTangent) {
+    this.type       = AnimationKeyableType.QUAT_CUBICSCPLINE;
+    this.time       = time       || 0.0;
+    this.value      = value      || new pc.Quat();
+    this.inTangent  = inTangent  || new pc.Quat();
+    this.outTangent = outTangent || new pc.Quat();
+};
+
+AnimationKeyableQuatCubicSpline.prototype.clone = function () {
+    return new AnimationKeyableQuatCubicSpline(this.time, this.value.clone(), this.inTangent.clone(), this.outTangent.clone());
+};
+
+/**
+ * @param {AnimationKeyableQuatCubicSpline} other
+ */
+
+AnimationKeyableQuatCubicSpline.prototype.copy = function (other) {
+	this.time = other.time;
+    this.value.copy(other.value);
+    this.inTangent.copy(other.inTangent);
+    this.outTangent.copy(other.outTangent);
+    return this;
+};
+
 /**
  * @param {AnimationKeyableQuatCubicSpline} from
  * @param {AnimationKeyableQuatCubicSpline} to
@@ -202,34 +240,4 @@ AnimationKeyableQuatCubicSpline.prototype.cubicHermite = function (from, to, alp
     this.value.y = AnimationCurve.cubicHermite(g * from.outTangent.y, from.value.y, g * to.inTangent.y, to.value.y, alpha);
     this.value.z = AnimationCurve.cubicHermite(g * from.outTangent.z, from.value.z, g * to.inTangent.z, to.value.z, alpha);
     this.value.normalize();
-}
-
-/**
- * @param {AnimationKeyableNum} from
- * @param {AnimationKeyableNum} to
- * @param {number} alpha
- */
-
-AnimationKeyableNum.prototype.linearBlend = function (from, to, alpha) {
-    this.value = (1.0 - alpha) * from.value + alpha * to.value;
-}
-
-/**
- * @param {AnimationKeyableNum} from
- * @param {AnimationKeyableNum} to
- * @param {number} alpha
- */
-
-AnimationKeyableVec.prototype.linearBlend = function (from, to, alpha) {
-    this.value.lerp(from.value, to.value, alpha);
-}
-
-/**
- * @param {AnimationKeyableNum} from
- * @param {AnimationKeyableNum} to
- * @param {number} alpha
- */
-
-AnimationKeyableQuat.prototype.linearBlend = function (from, to, alpha) {
-    this.value.slerp(from.value, to.value, alpha);
-}
+};

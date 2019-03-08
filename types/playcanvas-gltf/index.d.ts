@@ -23,6 +23,48 @@ declare interface AnimationKeyable {
     linearBlend(from: AnimationKeyable, to: AnimationKeyable, alpha: number): AnimationKeyable;
 }
 
+declare interface AnimationKeyableNum {
+    type: AnimationKeyableType;
+    time: number;
+    value: number;
+}
+
+declare interface AnimationKeyableVec {
+    type: AnimationKeyableType;
+    time: number;
+    value: pc.Vec3;
+}
+
+declare interface AnimationKeyableQuat {
+    type: AnimationKeyableType;
+    time: number;
+    value: pc.Quat;
+}
+
+declare interface AnimationKeyableNumCubicSpline {
+    type: AnimationKeyableType;
+    time: number;
+    value: number;
+    inTangent: number;
+    outTangent: number;
+}
+
+declare interface AnimationKeyableVecCubicSpline {
+    type: AnimationKeyableType;
+    time: number;
+    value: pc.Vec3;
+    inTangent: pc.Vec3;
+    outTangent: pc.Vec3;
+}
+
+declare interface AnimationKeyableQuatCubicSpline {
+    type: AnimationKeyableType;
+    time: number;
+    value: pc.Quat;
+    inTangent: pc.Quat;
+    outTangent: pc.Quat;
+}
+
 declare interface AnimationEventCallback {
     (context: any, parameter: any): void
 }
