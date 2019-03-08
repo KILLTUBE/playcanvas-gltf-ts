@@ -23,27 +23,30 @@
 
             window.onload = async function() {
 
-                window.wasm = false;
+                window.wasm = true;
                 window.prefix_url = window.location.origin; // e.g. `window.location.origin == "http://127.0.0.1"`
 
                 if (window.wasm) {
                     await fetch_script(window.prefix_url + "/MathAS/html5/main.js");
                     await init_mathas (window.prefix_url + "/MathAS/");
                     module.memory.grow((300 * 1024 * 1024 ) / 65536) // can use up to 300mb without regrowth (which fucks up dataviews :S)
+                    module.updateDataViews();
                     await fetch_script(window.prefix_url + "/AssemblyCanvas/build/output/playcanvas-latest.js");
                 } else {
                     await fetch_script(window.prefix_url + "/playcanvas-engine/build/output/playcanvas-latest.js");
                 }
                 
 
-                /*
-				await fetch_script('../src/AnimationClip.js');
-				await fetch_script('../src/AnimationClipSnapshot.js');
-				await fetch_script('../src/AnimationCurve.js');
-				await fetch_script('../src/AnimationKeyable.js');
-				await fetch_script('../src/AnimationSession.js');
-                await fetch_script('../src/AnimationTarget.js');
-                */
+                if (window.wasm) {
+                    // todo
+                } else {
+                    //await fetch_script('../src/AnimationClip.js');
+                    //await fetch_script('../src/AnimationClipSnapshot.js');
+                    //await fetch_script('../src/AnimationCurve.js');
+                    await fetch_script('../src/AnimationKeyable.js');
+                    //await fetch_script('../src/AnimationSession.js');
+                    //await fetch_script('../src/AnimationTarget.js');
+                }
 				await fetch_script('../src/playcanvas-anim.js');
 				await fetch_script('../src/playcanvas-gltf.js');
 				await fetch_script('src/utils.js');
