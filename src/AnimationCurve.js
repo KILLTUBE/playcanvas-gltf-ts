@@ -30,7 +30,7 @@ var AnimationCurve = function () {
     this.animTargets = [];// allow multiple targets
     this.duration = 0;
     this.animKeys = [];
-    this.session = new AnimationSession(this);
+    this.session = new AnimationCurveSession(this);
 };
 
 // getter and setter

@@ -110,7 +110,7 @@ declare class AnimationCurve implements Playable {
     keyableType: AnimationKeyableType;
     animTargets: AnimationTarget[];
     animKeys: AnimationKeyable[];
-    session: AnimationSession;
+    session: AnimationCurveSession;
     getAnimTargets(): AnimationTargetsMap;
 }
 
@@ -137,6 +137,18 @@ declare class AnimationClip implements Playable {
 }
 
 declare interface AnimationSession {
+    animTargets: AnimationTargetsMap;
+    _cacheKeyIdx: number | object;
+    speed: number;
+    blendables: {[curveName: string]: Blendable};
+    _cacheBlendValues: {[name: string]: AnimationClipSnapshot | AnimationKeyable};
+    blendWeights: {[name: string]: Playable};
+    animEvents: AnimationEvent[];
+    onTimer: (dt: number) => void;
+    _allocatePlayableCache(): Playable;
+}
+
+declare interface AnimationCurveSession {
     animTargets: AnimationTargetsMap;
     _cacheKeyIdx: number | object;
     speed: number;
