@@ -27,7 +27,7 @@ var AnimationCurve = function () {
     this.type = AnimationCurveType.LINEAR;
     this.keyableType = AnimationKeyableType.NUM;
     this.tension = 0.5;// 0.5 catmul-rom
-    this.animTargets = [];// allow multiple targets
+    this.animTarget = undefined;// allow multiple targets
     this.duration = 0;
     this.animKeys = [];
     //this.session = new AnimationCurveSession(this);
@@ -45,10 +45,7 @@ AnimationCurve.prototype.copy = function (curve) {
     this.keyableType = curve.keyableType;
     this.tension = curve.tension;
     this.duration = curve.duration;
-
-    this.animTargets = [];
-    for (i = 0; i < curve.animTargets.length; i ++)
-        this.animTargets.push(curve.animTargets[i].clone());
+    this.animTarget = curve.animTarget.clone();
 
     this.animKeys = [];
     for (i = 0; i < curve.animKeys.length; i ++) {
@@ -70,7 +67,7 @@ AnimationCurve.prototype.clone = function () {
 
 AnimationCurve.prototype.addTarget = function (targetNode, targetPath, targetProp) {
     var target = new AnimationTarget(targetNode, targetPath, targetProp);
-    this.animTargets.push(target);
+    this.animTarget = target;
 };
 
 /**
@@ -80,14 +77,8 @@ AnimationCurve.prototype.addTarget = function (targetNode, targetPath, targetPro
  */
 
 AnimationCurve.prototype.setTarget = function (targetNode, targetPath, targetProp) {
-    this.animTargets = [];
     this.addTarget(targetNode, targetPath, targetProp);
 };
-
-AnimationCurve.prototype.clearTargets = function () {
-    this.animTargets = [];
-};
-
 
 /**
  * @param {AnimationKeyable[]} animKeys
@@ -196,12 +187,8 @@ AnimationCurve.prototype.getSubCurve = function (tmBeg, tmEnd) {
     var subCurve = new AnimationCurve();
     subCurve.type = this.type;
     subCurve.keyableType = this.keyableType;
-    subCurve.animTargets = this.animTargets;
     subCurve.tension = this.tension;
-
-    subCurve.animTargets = [];
-    for (i = 0; i < this.animTargets.length; i ++)
-        subCurve.animTargets.push(this.animTargets[i].clone());
+    subCurve.animTarget = this.animTarget.clone();
 
     var tmFirst = -1;
     for (i = 0; i < this.animKeys.length; i++) {

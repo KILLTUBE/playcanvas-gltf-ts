@@ -125,7 +125,7 @@ AnimationClip.prototype.getAnimTargets = function () {
     var animTargets = {};
     for (var i = 0, len = this.animCurves.length; i < len; i++) {
         var curve = this.animCurves[i];
-        animTargets[curve.name] = curve.animTargets[0];
+        animTargets[curve.name] = curve.animTarget;
     }
     return animTargets;
 };
@@ -398,10 +398,7 @@ AnimationClip.prototype.transferToRoot = function (root) {
 
     for (var i = 0, len = this.animCurves.length; i < len; i++) {
         var curve = this.animCurves[i];
-        var ctarget = curve.animTargets[0];
-        if (curve.animTargets.length === 0) {
-            continue;
-        }
+        var ctarget = curve.animTarget;
         var atarget = dictTarget[ctarget.targetNode.name];
         if (atarget) { // match by target name
             var cScale = AnimationTarget.getLocalScale(ctarget.targetNode);
@@ -421,12 +418,11 @@ AnimationClip.prototype.transferToRoot = function (root) {
 AnimationClip.prototype.updateCurveNameFromTarget = function () {
     for (var i = 0, len = this.animCurves.length; i < len; i++) {
         var curve = this.animCurves[i];
-        if (!curve.animTargets || curve.animTargets.length < 1)
-            continue;
+
 
         // change name to target string
         var oldName = curve.name;// backup before change
-        var newName = curve.animTargets[0].toString();
+        var newName = curve.animTarget.toString();
         if (oldName == newName)// no need to change name
             continue;
 
