@@ -88,16 +88,6 @@ AnimationCurve.prototype.clearTargets = function () {
     this.animTargets = [];
 };
 
-// this.animTargets wrapped in object, with curve name
-/**
- * @returns {AnimationTargetsMap}
- */
-AnimationCurve.prototype.getAnimTargets = function () {
-    /** @type {AnimationTargetsMap} */
-    var result = {};
-    result[this.name] = this.animTargets;// an array []
-    return result;
-};
 
 /**
  * @param {AnimationKeyable[]} animKeys

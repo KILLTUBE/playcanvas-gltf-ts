@@ -327,7 +327,7 @@ AnimationSession.prototype.invokeByTime = function (time) {
 
 AnimationSession.prototype.blendToTarget = function (input, p) {
     var i, j;
-    var cname, ctargets, blendUpdateNone;
+    var cname, ctarget, blendUpdateNone;
     var eBlendType = { PARTIAL_BLEND: 0, FULL_UPDATE: 1, NONE: 2 };
 
     if (!input || p > 1 || p <= 0)// p===0 remain prev
@@ -350,13 +350,12 @@ AnimationSession.prototype.blendToTarget = function (input, p) {
             else blendUpdateNone = eBlendType.NONE;
         }
 
-        ctargets = this.animTargets[cname];
-        if (!ctargets) continue;
+        ctarget = this.animTargets[cname];
 
-        for (j = 0; j < ctargets.length; j ++) {
-            if (blendUpdateNone === eBlendType.PARTIAL_BLEND) ctargets[j].blendToTarget(input.curveKeyable[cname].value, p);
-            else if (blendUpdateNone === eBlendType.FULL_UPDATE) ctargets[j].updateToTarget(input.value);
-        }
+            if (blendUpdateNone === eBlendType.PARTIAL_BLEND)
+                ctarget.blendToTarget(input.curveKeyable[cname].value, p);
+            else if (blendUpdateNone === eBlendType.FULL_UPDATE)
+                ctarget.updateToTarget(input.value);
     }
 };
 
@@ -366,35 +365,17 @@ AnimationSession.prototype.blendToTarget = function (input, p) {
 
 AnimationSession.prototype.updateToTarget = function (input) {
     var i, j;
-    var cname, ctargets;
+    var cname, ctarget;
 
     if (!input)
         return;
 
-    // playable is a curve, input is a AnimationKeyable
-    if (this.playable instanceof AnimationCurve && input instanceof AnimationKeyable) {
-        cname = this.playable.name;
-        ctargets = this.animTargets[cname];
-        if (!ctargets)
-            return;
-
-        for (j = 0; j < ctargets.length; j ++)
-            ctargets[j].updateToTarget(input.value);
-        return;
-    }
-
-    // playable is a clip, input is a AnimationClipSnapshot
-    if (this.playable instanceof AnimationClip && input instanceof AnimationClipSnapshot) {
-        for (i = 0; i < input.curveKeyable.length; i ++) {
-            cname = i;
-            ctargets = this.animTargets[cname];
-            if (!ctargets) continue;
-
-            for (j = 0; j < ctargets.length; j ++) {
-                if (input.curveKeyable[cname]) {
-                    ctargets[j].updateToTarget(input.curveKeyable[cname].value);
-                }
-            }
+    for (i = 0; i < input.curveKeyable.length; i ++) {
+        cname = i;
+        ctarget = this.animTargets[cname];
+        
+        if (input.curveKeyable[cname]) {
+            ctarget.updateToTarget(input.curveKeyable[cname].value);
         }
     }
 };
