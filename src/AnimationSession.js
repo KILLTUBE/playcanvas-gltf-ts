@@ -321,7 +321,7 @@ AnimationSession.prototype.invokeByTime = function (time) {
 };
 
 /**
- * @param {AnimationInput} input
+ * @param {AnimationClipSnapshot} input
  * @param {number} p
  */
 
@@ -338,45 +338,24 @@ AnimationSession.prototype.blendToTarget = function (input, p) {
         return;
     }
 
-    // playable is a curve, input is a AnimationKeyable, animTargets is an object {curvename:[]targets}
-    if (this.playable instanceof AnimationCurve && input instanceof AnimationKeyable) {
-        cname = this.playable.name;
-        ctargets = this.animTargets[cname];
-        if (!ctargets)
-            return;
+    // playable is a clip, input is a AnimationClipSnapshot, animTargets is an object {curvename1:[]targets, curvename2:[]targets, curvename3:[]targets}
+    //console.log("AnimationSession.prototype.blendToTarget", this.playable, input, p);
 
-        // 10/10, if curve is step, let's not blend
+    for (i = 0; i < input.curveKeyable.length; i ++) {
+        cname = i;
+
         blendUpdateNone = eBlendType.PARTIAL_BLEND;
-        if (this.playable.type === AnimationCurveType.STEP && this.fadeDir) {
+        if (this.playable.animCurves[i] && this.playable.animCurves[i].type === AnimationCurveType.STEP && this.fadeDir) {
             if ((this.fadeDir == -1 && p <= 0.5) || (this.fadeDir == 1 && p > 0.5)) blendUpdateNone = eBlendType.FULL_UPDATE;
             else blendUpdateNone = eBlendType.NONE;
         }
 
+        ctargets = this.animTargets[cname];
+        if (!ctargets) continue;
+
         for (j = 0; j < ctargets.length; j ++) {
-            if (blendUpdateNone === eBlendType.PARTIAL_BLEND) ctargets[j].blendToTarget(input.value, p);
+            if (blendUpdateNone === eBlendType.PARTIAL_BLEND) ctargets[j].blendToTarget(input.curveKeyable[cname].value, p);
             else if (blendUpdateNone === eBlendType.FULL_UPDATE) ctargets[j].updateToTarget(input.value);
-        }
-        return;
-    }
-
-    // playable is a clip, input is a AnimationClipSnapshot, animTargets is an object {curvename1:[]targets, curvename2:[]targets, curvename3:[]targets}
-    if (this.playable instanceof AnimationClip && input instanceof AnimationClipSnapshot) {
-        for (i = 0; i < input.curveKeyable.length; i ++) {
-            cname = i;
-
-            blendUpdateNone = eBlendType.PARTIAL_BLEND;
-            if (this.playable.animCurves[i] && this.playable.animCurves[i].type === AnimationCurveType.STEP && this.fadeDir) {
-                if ((this.fadeDir == -1 && p <= 0.5) || (this.fadeDir == 1 && p > 0.5)) blendUpdateNone = eBlendType.FULL_UPDATE;
-                else blendUpdateNone = eBlendType.NONE;
-            }
-
-            ctargets = this.animTargets[cname];
-            if (!ctargets) continue;
-
-            for (j = 0; j < ctargets.length; j ++) {
-                if (blendUpdateNone === eBlendType.PARTIAL_BLEND) ctargets[j].blendToTarget(input.curveKeyable[cname].value, p);
-                else if (blendUpdateNone === eBlendType.FULL_UPDATE) ctargets[j].updateToTarget(input.value);
-            }
         }
     }
 };

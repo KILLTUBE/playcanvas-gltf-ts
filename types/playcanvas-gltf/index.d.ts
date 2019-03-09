@@ -149,15 +149,22 @@ declare interface AnimationSession {
 }
 
 declare interface AnimationCurveSession {
+    begTime: number;
+    endTime: number;
+    curTime: number;
+    accTime: number;
+    bySpeed: number;
+    isPlaying: boolean;
+    playable: AnimationCurve;
     animTargets: AnimationTargetsMap;
-    _cacheKeyIdx: number | object;
+    _cacheKeyIdx: number;
     speed: number;
     blendables: {[curveName: string]: Blendable};
-    _cacheBlendValues: {[name: string]: AnimationClipSnapshot | AnimationKeyable};
-    blendWeights: {[name: string]: Playable};
+    _cacheBlendValues: {[name: string]: AnimationKeyable};
+    blendWeights: {[name: string]: AnimationCurve};
     animEvents: AnimationEvent[];
     onTimer: (dt: number) => void;
-    _allocatePlayableCache(): Playable;
+    _allocatePlayableCache(): AnimationCurve;
 }
 
 declare interface AnimationComponent {

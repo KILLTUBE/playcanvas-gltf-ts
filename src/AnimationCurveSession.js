@@ -8,7 +8,7 @@
 
 /**
  * @constructor
- * @param {Playable} [playable]
+ * @param {AnimationCurve} [playable]
  * @param {AnimationTargetsMap} [targets]
  */
 
@@ -48,90 +48,21 @@ var AnimationCurveSession = function AnimationCurveSession(playable, targets) {
         this.animTargets = targets;// collection of AnimationTarget
 
     this.animEvents = [];
-
-    // blend related==========================================================
-    this.blendables = {};
-    this.blendWeights = {};
-
-    // ontimer function for playback
-    var self = this;
-    this.onTimer = function (/**@type {number} */dt) {
-        self.curTime += (self.bySpeed * dt);
-        self.accTime += (self.bySpeed * dt);
-
-        if (!self.isPlaying ||// not playing
-            (!self.loop && (self.curTime < self.begTime || self.curTime > self.endTime))){ // not in range
-            self.invokeByTime(self.curTime);
-            self.stop();
-            self.invokeByName("stop");
-            return;
-        }
-
-        // round time to duration
-        var duration = self.endTime - self.begTime;
-        if (self.curTime > self.endTime) { // loop start
-            self.invokeByTime(self.curTime);
-            self.curTime -= duration;
-            for (var i = 0; i < self.animEvents.length; i ++)
-                self.animEvents[i].triggered = false;
-        }
-        if (self.curTime < self.begTime)
-            self.curTime += duration;
-
-        if (self.fadeDir) {
-            self.fadeTime +=  dt;// (self.bySpeed * dt);
-            if (self.fadeTime >= self.fadeEndTime) {
-                if (self.fadeDir === 1) { // fadein completed
-                    self.fadeDir = 0;
-                    self.fadeBegTime = -1;
-                    self.fadeEndTime = -1;
-                    self.fadeTime = -1;
-                } else if (self.fadeDir === -1) { // fadeout completed
-                    self.stop();
-                    return;
-                }
-            }
-        }
-
-        self.showAt(self.curTime, self.fadeDir, self.fadeBegTime, self.fadeEndTime, self.fadeTime);
-        self.invokeByTime(self.curTime);
-    };
 };
 
 AnimationCurveSession.app = null;
 
 /**
- * @param {Playable} playable
- * @returns {AnimationKeyable | AnimationClipSnapshot}
+ * @param {AnimationCurve} curve
+ * @returns {AnimationKeyable}
  */
 
-AnimationCurveSession._allocatePlayableCache = function(playable) {
-    if (!playable)
-        return null;
-
-    if (playable instanceof AnimationCurve) {
-        return new_AnimationKeyable(playable.keyableType);
-    } else if (playable instanceof AnimationClip) {
-        var snapshot = new AnimationClipSnapshot();
-        for (var i = 0, len = playable.animCurves.length; i < len; i++) {
-            var cname = playable.animCurves[i].name;
-            snapshot.curveKeyable[cname] = new_AnimationKeyable(playable.animCurves[i].keyableType);
-        }
-        return snapshot;
-    }
-    return null;
+AnimationCurveSession._allocatePlayableCache = function(curve) {
+	return new_AnimationKeyable(curve.keyableType);
 };
 
 AnimationCurveSession.prototype.allocateCache = function () { // 1215
-    if (!this.playable)
-        return;
-
-    if (this.playable instanceof AnimationCurve) {
-        this._cacheKeyIdx = 0;
-    } else if (this.playable instanceof AnimationClip) {
-        this._cacheKeyIdx = {};
-    }
-
+    this._cacheKeyIdx = 0;
     this._cacheValue = AnimationCurveSession._allocatePlayableCache(this.playable);
 };
 
@@ -189,52 +120,6 @@ AnimationCurveSession.prototype.clone = function () {
             cloned.blendWeights[key] = this.blendWeights[key];
 
     return cloned;
-};
-
-// blend related==========================================================
-
-/**
- * @param {BlendValue} blendValue
- * @param {number} weight
- * @param {string} curveName
- */
-
-AnimationCurveSession.prototype.setBlend = function (blendValue, weight, curveName){
-    if (blendValue instanceof AnimationClip){
-        this.blendables[curveName] = blendValue;
-        this._cacheBlendValues[curveName] = AnimationCurveSession._allocatePlayableCache(blendValue);// 1226
-        this.blendWeights[curveName] = weight;
-        return;
-    }
-
-    // blendable is just a single DOF=================================
-    var keyType;
-    if (typeof blendValue === "number")// 1 instanceof Number is false, don't know why
-        keyType =  AnimationKeyableType.NUM;
-    else if (blendValue instanceof pc.Vec3)
-        keyType = AnimationKeyableType.VEC;
-    else if (blendValue instanceof pc.Quat)
-        keyType = AnimationKeyableType.QUAT;
-
-    if (!curveName || curveName === "" || typeof keyType === "undefined")// has to specify curveName
-        return;
-
-    this.blendWeights[curveName] = weight;
-    this.blendables[curveName] = new_AnimationKeyable(keyType, 0, blendValue);
-    this._cacheBlendValues[curveName] = null;// 1226, null if blendable is not animationclip
-};
-
-/**
- * @param {string} curveName
- */
-
-AnimationCurveSession.prototype.unsetBlend = function (curveName) {
-    // unset blendvalue
-    if (this.blendables[curveName]) {
-        delete this.blendables[curveName];
-        delete this._cacheBlendValues[curveName]; // 1226
-        delete this.blendWeights[curveName];
-    }
 };
 
 // events related
@@ -321,153 +206,17 @@ AnimationCurveSession.prototype.invokeByTime = function (time) {
 };
 
 /**
- * @param {AnimationInput} input
- * @param {number} p
+ * @param {AnimationKeyable} keyable
  */
 
-AnimationCurveSession.prototype.blendToTarget = function (input, p) {
-    var i, j;
-    var cname, ctargets, blendUpdateNone;
-    var eBlendType = { PARTIAL_BLEND: 0, FULL_UPDATE: 1, NONE: 2 };
-
-    if (!input || p > 1 || p <= 0)// p===0 remain prev
-        return;
-
-    if (p === 1) {
-        this.updateToTarget(input);
-        return;
-    }
-
-    // playable is a curve, input is a AnimationKeyable, animTargets is an object {curvename:[]targets}
-    if (this.playable instanceof AnimationCurve && input instanceof AnimationKeyable) {
-        cname = this.playable.name;
-        ctargets = this.animTargets[cname];
-        if (!ctargets)
-            return;
-
-        // 10/10, if curve is step, let's not blend
-        blendUpdateNone = eBlendType.PARTIAL_BLEND;
-        if (this.playable.type === AnimationCurveType.STEP && this.fadeDir) {
-            if ((this.fadeDir == -1 && p <= 0.5) || (this.fadeDir == 1 && p > 0.5)) blendUpdateNone = eBlendType.FULL_UPDATE;
-            else blendUpdateNone = eBlendType.NONE;
-        }
-
-        for (j = 0; j < ctargets.length; j ++) {
-            if (blendUpdateNone === eBlendType.PARTIAL_BLEND) ctargets[j].blendToTarget(input.value, p);
-            else if (blendUpdateNone === eBlendType.FULL_UPDATE) ctargets[j].updateToTarget(input.value);
-        }
-        return;
-    }
-
-    // playable is a clip, input is a AnimationClipSnapshot, animTargets is an object {curvename1:[]targets, curvename2:[]targets, curvename3:[]targets}
-    if (this.playable instanceof AnimationClip && input instanceof AnimationClipSnapshot) {
-        for (i = 0; i < input.curveKeyable.length; i ++) {
-            cname = i;
-
-            blendUpdateNone = eBlendType.PARTIAL_BLEND;
-            if (this.playable.animCurves[i] && this.playable.animCurves[i].type === AnimationCurveType.STEP && this.fadeDir) {
-                if ((this.fadeDir == -1 && p <= 0.5) || (this.fadeDir == 1 && p > 0.5)) blendUpdateNone = eBlendType.FULL_UPDATE;
-                else blendUpdateNone = eBlendType.NONE;
-            }
-
-            ctargets = this.animTargets[cname];
-            if (!ctargets) continue;
-
-            for (j = 0; j < ctargets.length; j ++) {
-                if (blendUpdateNone === eBlendType.PARTIAL_BLEND) ctargets[j].blendToTarget(input.curveKeyable[cname].value, p);
-                else if (blendUpdateNone === eBlendType.FULL_UPDATE) ctargets[j].updateToTarget(input.value);
-            }
-        }
-    }
-};
-
-/**
- * @param {AnimationInput} input
- */
-
-AnimationCurveSession.prototype.updateToTarget = function (input) {
-    var i, j;
-    var cname, ctargets;
-
-    if (!input)
-        return;
-
-    // playable is a curve, input is a AnimationKeyable
-    if (this.playable instanceof AnimationCurve && input instanceof AnimationKeyable) {
-        cname = this.playable.name;
-        ctargets = this.animTargets[cname];
-        if (!ctargets)
-            return;
-
-        for (j = 0; j < ctargets.length; j ++)
-            ctargets[j].updateToTarget(input.value);
-        return;
-    }
-
-    // playable is a clip, input is a AnimationClipSnapshot
-    if (this.playable instanceof AnimationClip && input instanceof AnimationClipSnapshot) {
-        for (i = 0; i < input.curveKeyable.length; i ++) {
-            cname = i;
-            ctargets = this.animTargets[cname];
-            if (!ctargets) continue;
-
-            for (j = 0; j < ctargets.length; j ++) {
-                if (input.curveKeyable[cname]) {
-                    ctargets[j].updateToTarget(input.curveKeyable[cname].value);
-                }
-            }
-        }
-    }
-};
-
-/**
- * @param {number} time
- * @param {number} fadeDir
- * @param {number} fadeBegTime
- * @param {number} fadeEndTime
- * @param {number} fadeTime
- */
-
-AnimationCurveSession.prototype.showAt = function (time, fadeDir, fadeBegTime, fadeEndTime, fadeTime) {
-    var p;
-    var input = this.playable.eval_cache(time, this._cacheKeyIdx, this._cacheValue);
-    if (input)
-        this._cacheKeyIdx = input._cacheKeyIdx;
-    // blend related==========================================================
-    // blend animations first
-    for (var bname in this.blendables) {
-        if (!this.blendables.hasOwnProperty(bname)) continue;
-        p = this.blendWeights[bname];
-        var blendClip = this.blendables[bname];
-        if (blendClip && (blendClip instanceof AnimationClip) && (typeof p === "number")) {
-            var blendInput = blendClip.eval_cache(this.accTime % blendClip.duration, null, this._cacheBlendValues[bname]);
-            input = AnimationClipSnapshot.linearBlendExceptStep(input, blendInput, p, this.playable.animCurves);
-        }
-    }
-    // blend custom bone second
-    for (var cname in this.blendables) {
-        if (!this.blendables.hasOwnProperty(cname)) continue;
-        p = this.blendWeights[cname];
-        var blendkey = this.blendables[cname];
-        if (!blendkey || !input.curveKeyable[cname] || (blendkey instanceof AnimationClip))
-            continue;
-        var resKey = AnimationKeyable.linearBlend(input.curveKeyable[cname], blendkey, p);
-        input.curveKeyable[cname] = resKey;
-    }
-
-    if (fadeDir === 0 || fadeTime < fadeBegTime || fadeTime > fadeEndTime)
-        this.updateToTarget(input);
-    else {
-        p = (fadeTime - fadeBegTime) / (fadeEndTime - fadeBegTime);
-        if (fadeDir === -1)
-            p = 1 - p;
-
-        if (this.fadeSpeed < 1 && fadeDir === -1) { // fadeOut from non-100%
-            p *= this.fadeSpeed;
-        }
-
-        this.blendToTarget(input, p);
-    }
+AnimationCurveSession.prototype.updateToTarget = function (keyable) {
+    var j;
+    var cname = this.playable.name;
+	var ctargets = this.animTargets[cname];
+	if (!ctargets)
+		return;
+	for (j = 0; j < ctargets.length; j ++)
+		ctargets[j].updateToTarget(keyable.value);
 };
 
 /**
