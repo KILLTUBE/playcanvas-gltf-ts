@@ -118,12 +118,13 @@ AnimationClip.prototype.updateToTarget = function (snapshot) {
 
 // a dictionary: retrieve animTargets with curve name
 /**
- * @returns {AnimationTargetsMap}
+ * @returns {AnimationTarget[]}
  */
 AnimationClip.prototype.getAnimTargets = function () {
-    /** @type {AnimationTargetsMap} */
-    var animTargets = {};
-    for (var i = 0, len = this.animCurves.length; i < len; i++) {
+    /** @type {AnimationTarget[]} */
+    var animTargets = [];
+    var n = this.animCurves.length;
+    for (var i=0; i<n; i++) {
         var curve = this.animCurves[i];
         animTargets[curve.name] = curve.animTarget;
     }

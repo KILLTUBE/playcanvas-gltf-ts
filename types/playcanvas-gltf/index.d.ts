@@ -77,7 +77,7 @@ declare interface AnimationTarget {
 }
 
 declare type SingleDOF = number | pc.Vec2 | pc.Vec3 | pc.Vec4 | pc.Quat;
-declare type BlendValue = SingleDOF | Playable;
+declare type BlendValue = SingleDOF;
 declare type AnimationInput = AnimationCurve | AnimationKeyable | AnimationClip | AnimationClipSnapshot;
 
 declare type Blendable = AnimationKeyable | BlendValue;
@@ -94,15 +94,7 @@ declare type Blendable = AnimationKeyable | BlendValue;
 // }
 declare type MapStringToNumber = {[curvenum: string]: number};
 
-declare interface Playable {
-    session: AnimationSession;
-    bySpeed: number;
-    loop: boolean;
-    getAnimTargets(): AnimationTargetsMap;
-    eval_cache(time: number, cacheKeyIdx: any, cacheValue: any): any;
-}
-
-declare class AnimationCurve implements Playable {
+declare class AnimationCurve {
     name: number;
     type: AnimationCurveType;
     tension: number;
@@ -110,8 +102,6 @@ declare class AnimationCurve implements Playable {
     keyableType: AnimationKeyableType;
     animTargets: AnimationTarget[];
     animKeys: AnimationKeyable[];
-    session: AnimationCurveSession;
-    getAnimTargets(): AnimationTargetsMap;
 }
 
 declare class AnimationClipSnapshot {
@@ -127,54 +117,37 @@ declare interface AnimationEvent {
     fnCallback: AnimationEventCallback;
 }
 
-declare class AnimationClip implements Playable {
+declare class AnimationClip {
     name: string;
     duration: number;
     animCurves: AnimationCurve[];
     session: AnimationSession;
     root: pc.GraphNode;
-    getAnimTargets(): AnimationTargetsMap;
+    getAnimTargets(): AnimationTarget[];
 }
 
 declare interface AnimationSession {
-    animTargets: AnimationTargetsMap;
-    _cacheKeyIdx: number | object;
-    speed: number;
-    blendables: {[curveName: string]: Blendable};
-    _cacheBlendValues: {[name: string]: AnimationClipSnapshot | AnimationKeyable};
-    blendWeights: {[name: string]: Playable};
-    animEvents: AnimationEvent[];
-    onTimer: (dt: number) => void;
-    _allocatePlayableCache(): Playable;
-}
-
-declare interface AnimationCurveSession {
     begTime: number;
     endTime: number;
     curTime: number;
     accTime: number;
     bySpeed: number;
     isPlaying: boolean;
-    playable: AnimationCurve;
-    animTargets: AnimationTargetsMap;
-    _cacheKeyIdx: number;
+    animTargets: AnimationTarget[];
+    _cacheKeyIdx: number | object;
     speed: number;
     blendables: {[curveName: string]: Blendable};
-    _cacheBlendValues: {[name: string]: AnimationKeyable};
-    blendWeights: {[name: string]: AnimationCurve};
+    _cacheBlendValues: {[name: string]: AnimationClipSnapshot | AnimationKeyable};
+    blendWeights: {[name: string]: AnimationClip};
     animEvents: AnimationEvent[];
     onTimer: (dt: number) => void;
-    _allocatePlayableCache(): AnimationCurve;
+    _allocatePlayableCache(): AnimationClip;
 }
 
 declare interface AnimationComponent {
     animClips: AnimationClip[];
     animClipsMap: {[clipname: string]: AnimationClip};
     animSessions: {[sessionname: string]: AnimationSession};
-}
-
-declare interface AnimationTargetsMap {
-    [name: string]: AnimationTarget[];
 }
 
 declare interface AnimationCurveMap {

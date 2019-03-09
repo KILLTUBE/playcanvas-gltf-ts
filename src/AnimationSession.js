@@ -327,7 +327,7 @@ AnimationSession.prototype.invokeByTime = function (time) {
 
 AnimationSession.prototype.blendToTarget = function (input, p) {
     var i, j;
-    var cname, ctarget, blendUpdateNone;
+    var ctarget, blendUpdateNone;
     var eBlendType = { PARTIAL_BLEND: 0, FULL_UPDATE: 1, NONE: 2 };
 
     if (!input || p > 1 || p <= 0)// p===0 remain prev
@@ -342,7 +342,6 @@ AnimationSession.prototype.blendToTarget = function (input, p) {
     //console.log("AnimationSession.prototype.blendToTarget", this.playable, input, p);
 
     for (i = 0; i < input.curveKeyable.length; i ++) {
-        cname = i;
 
         blendUpdateNone = eBlendType.PARTIAL_BLEND;
         if (this.playable.animCurves[i] && this.playable.animCurves[i].type === AnimationCurveType.STEP && this.fadeDir) {
@@ -350,12 +349,12 @@ AnimationSession.prototype.blendToTarget = function (input, p) {
             else blendUpdateNone = eBlendType.NONE;
         }
 
-        ctarget = this.animTargets[cname];
+        ctarget = this.animTargets[i];
 
-            if (blendUpdateNone === eBlendType.PARTIAL_BLEND)
-                ctarget.blendToTarget(input.curveKeyable[cname].value, p);
-            else if (blendUpdateNone === eBlendType.FULL_UPDATE)
-                ctarget.updateToTarget(input.value);
+        if (blendUpdateNone === eBlendType.PARTIAL_BLEND)
+            ctarget.blendToTarget(input.curveKeyable[i].value, p);
+        else if (blendUpdateNone === eBlendType.FULL_UPDATE)
+            ctarget.updateToTarget(input.value);
     }
 };
 
@@ -364,18 +363,12 @@ AnimationSession.prototype.blendToTarget = function (input, p) {
  */
 
 AnimationSession.prototype.updateToTarget = function (input) {
-    var i, j;
-    var cname, ctarget;
-
-    if (!input)
-        return;
-
+    var i;
+    var ctarget;
     for (i = 0; i < input.curveKeyable.length; i ++) {
-        cname = i;
-        ctarget = this.animTargets[cname];
-        
-        if (input.curveKeyable[cname]) {
-            ctarget.updateToTarget(input.curveKeyable[cname].value);
+        ctarget = this.animTargets[i];
+        if (input.curveKeyable[i]) {
+            ctarget.updateToTarget(input.curveKeyable[i].value);
         }
     }
 };
