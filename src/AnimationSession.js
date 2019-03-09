@@ -8,11 +8,10 @@
 
 /**
  * @constructor
- * @param {Playable} [playable]
- * @param {AnimationTargetsMap} [targets]
+ * @param {AnimationClip} [playable]
  */
 
-var AnimationSession = function AnimationSession(playable, targets) {
+var AnimationSession = function AnimationSession(playable) {
     this._cacheKeyIdx = undefined;// integer if playable is curve, object {} if playable is clip
     this._cacheValue = undefined;// 1215, keyable if playable is curve, snapshot if playable is clip, all pre allocated
     this._cacheBlendValues = {};// 1226
@@ -37,15 +36,12 @@ var AnimationSession = function AnimationSession(playable, targets) {
     this is solving such situation: session fadeIn a small amount unfinished yet, and it now fadeOut(it should not start updating 100% to target) */
 
     this.playable = null;
-    this.animTargets = {};
+    this.animTargets = [];
     if (playable) {
         this.playable = playable;// curve or clip
         this.allocateCache();
-        if (!targets)
-            this.animTargets = playable.getAnimTargets();
+        this.animTargets = playable.getAnimTargets();
     }
-    if (targets)
-        this.animTargets = targets;// collection of AnimationTarget
 
     this.animEvents = [];
 
@@ -101,37 +97,25 @@ var AnimationSession = function AnimationSession(playable, targets) {
 AnimationSession.app = null;
 
 /**
- * @param {Playable} playable
+ * @param {AnimationClip} playable
  * @returns {AnimationKeyable | AnimationClipSnapshot}
  */
 
 AnimationSession._allocatePlayableCache = function(playable) {
     if (!playable)
         return null;
-
-    if (playable instanceof AnimationCurve) {
-        return new_AnimationKeyable(playable.keyableType);
-    } else if (playable instanceof AnimationClip) {
-        var snapshot = new AnimationClipSnapshot();
-        for (var i = 0, len = playable.animCurves.length; i < len; i++) {
-            var cname = playable.animCurves[i].name;
-            snapshot.curveKeyable[cname] = new_AnimationKeyable(playable.animCurves[i].keyableType);
-        }
-        return snapshot;
+    var snapshot = new AnimationClipSnapshot();
+    for (var i = 0, len = playable.animCurves.length; i < len; i++) {
+        var cname = playable.animCurves[i].name;
+        snapshot.curveKeyable[cname] = new_AnimationKeyable(playable.animCurves[i].keyableType);
     }
-    return null;
+    return snapshot;
 };
 
-AnimationSession.prototype.allocateCache = function () { // 1215
+AnimationSession.prototype.allocateCache = function () {
     if (!this.playable)
         return;
-
-    if (this.playable instanceof AnimationCurve) {
-        this._cacheKeyIdx = 0;
-    } else if (this.playable instanceof AnimationClip) {
-        this._cacheKeyIdx = {};
-    }
-
+    this._cacheKeyIdx = {};
     this._cacheValue = AnimationSession._allocatePlayableCache(this.playable);
 };
 
@@ -155,12 +139,13 @@ AnimationSession.prototype.clone = function () {
     cloned.fadeSpeed = this.fadeSpeed;
 
     cloned.playable = this.playable;
-    cloned.allocateCache();// 1215
+    cloned.allocateCache();
 
     // targets
-    cloned.animTargets = {};
+    cloned.animTargets = [];
     for (key in this.animTargets) {
-        if (!this.animTargets.hasOwnProperty(key)) continue;
+        if (!this.animTargets.hasOwnProperty(key))
+            continue;
         var ttargets = this.animTargets[key];
         var ctargets = [];
         for (i = 0; i < ttargets.length; i++) {
@@ -345,8 +330,10 @@ AnimationSession.prototype.blendToTarget = function (input, p) {
 
         blendUpdateNone = eBlendType.PARTIAL_BLEND;
         if (this.playable.animCurves[i] && this.playable.animCurves[i].type === AnimationCurveType.STEP && this.fadeDir) {
-            if ((this.fadeDir == -1 && p <= 0.5) || (this.fadeDir == 1 && p > 0.5)) blendUpdateNone = eBlendType.FULL_UPDATE;
-            else blendUpdateNone = eBlendType.NONE;
+            if ((this.fadeDir == -1 && p <= 0.5) || (this.fadeDir == 1 && p > 0.5))
+                blendUpdateNone = eBlendType.FULL_UPDATE;
+            else
+                blendUpdateNone = eBlendType.NONE;
         }
 
         ctarget = this.animTargets[i];
@@ -424,8 +411,8 @@ AnimationSession.prototype.showAt = function (time, fadeDir, fadeBegTime, fadeEn
 };
 
 /**
- * @param {Playable} [playable]
- * @param {AnimationTargetsMap} [animTargets]
+ * @param {AnimationClip} [playable]
+ * @param {AnimationTarget[]} [animTargets]
  * @returns {AnimationSession}
  */
 
@@ -437,10 +424,7 @@ AnimationSession.prototype.play = function (playable, animTargets) {
         this.allocateCache();
     }
 
-    if (!(this.playable instanceof AnimationClip) && !(this.playable instanceof AnimationCurve))
-        return this;
-
-    if (this.isPlaying)// already playing
+    if (this.isPlaying) // already playing
         return this;
 
     this.begTime = 0;
@@ -522,7 +506,7 @@ AnimationSession.prototype.fadeOut = function (duration) {
 
 /**
  * @param {number} duration
- * @param {Playable} [playable]
+ * @param {AnimationClip} [playable]
  */
 
 AnimationSession.prototype.fadeIn = function (duration, playable) {
@@ -546,7 +530,7 @@ AnimationSession.prototype.fadeIn = function (duration, playable) {
 };
 
 /**
- * @param {Playable} playable
+ * @param {AnimationClip} playable
  * @param {number} duration
  */
 

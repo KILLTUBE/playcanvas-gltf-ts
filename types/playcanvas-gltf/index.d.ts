@@ -134,7 +134,7 @@ declare interface AnimationSession {
     bySpeed: number;
     isPlaying: boolean;
     animTargets: AnimationTarget[];
-    _cacheKeyIdx: number | object;
+    _cacheKeyIdx: object;
     speed: number;
     blendables: {[curveName: string]: Blendable};
     _cacheBlendValues: {[name: string]: AnimationClipSnapshot | AnimationKeyable};
