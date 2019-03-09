@@ -30,34 +30,8 @@ var AnimationCurve = function () {
     this.animTargets = [];// allow multiple targets
     this.duration = 0;
     this.animKeys = [];
-    this.session = new AnimationCurveSession(this);
+    //this.session = new AnimationCurveSession(this);
 };
-
-// getter and setter
-Object.defineProperty(AnimationCurve.prototype, 'isPlaying', {
-    get: function () {
-        return this.session.isPlaying;
-    },
-    set: function (isPlaying) {
-        this.session.isPlaying = isPlaying;
-    }
-});
-Object.defineProperty(AnimationCurve.prototype, 'loop', {
-    get: function () {
-        return this.session.loop;
-    },
-    set: function (loop) {
-        this.session.loop = loop;
-    }
-});
-Object.defineProperty(AnimationCurve.prototype, 'bySpeed', {
-    get: function () {
-        return this.session.bySpeed;
-    },
-    set: function (bySpeed) {
-        this.session.bySpeed = bySpeed;
-    }
-});
 
 /**
  * @param {AnimationCurve} curve
@@ -114,34 +88,6 @@ AnimationCurve.prototype.clearTargets = function () {
     this.animTargets = [];
 };
 
-AnimationCurve.prototype.resetSession = function () {
-    this.session.playable = this;
-    this.session.animTargets = this.getAnimTargets();
-    this.session.isPlaying = true;
-    this.session.begTime = 0;
-    this.session.endTime = this.duration;
-    this.session.curTime = 0;
-    this.session.bySpeed = 1;
-    this.session.loop = true;
-};
-
-/**
- * @param {AnimationKeyable} keyable
- * @param {number} p
- */
-
-AnimationCurve.prototype.blendToTarget = function (keyable, p) {
-    this.session.blendToTarget(keyable, p);
-};
-
-/**
- * @param {AnimationKeyable} keyable
- */
-
-AnimationCurve.prototype.updateToTarget = function (keyable) {
-    this.session.updateToTarget(keyable);
-};
-
 // this.animTargets wrapped in object, with curve name
 /**
  * @returns {AnimationTargetsMap}
@@ -151,87 +97,6 @@ AnimationCurve.prototype.getAnimTargets = function () {
     var result = {};
     result[this.name] = this.animTargets;// an array []
     return result;
-};
-
-// events related
-/**
- * @param {string} name
- * @param {number} time
- * @param {AnimationEventCallback} fnCallback
- * @param {any} context
- * @param {any} parameter
- */
-
-AnimationCurve.prototype.on = function (name, time, fnCallback, context, parameter) {
-    if (this.session)
-        this.session.on(name, time, fnCallback, context, parameter);
-    return this;
-};
-
-/**
- * @param {string} name
- * @param {number} time
- * @param {AnimationEventCallback} fnCallback
- */
-
-AnimationCurve.prototype.off = function (name, time, fnCallback) {
-    if (this.session)
-        this.session.off(name, time, fnCallback);
-    return this;
-};
-
-/**
- * @returns {AnimationCurve}
- */
-
-AnimationCurve.prototype.removeAllEvents = function () {
-    if (this.session)
-        this.session.removeAllEvents();
-    return this;
-};
-
-/**
- * @param {number} duration
- */
-
-AnimationCurve.prototype.fadeIn = function (duration) {
-    this.session.fadeIn(duration, this);
-};
-
-/**
- * @param {number} duration
- */
-
-AnimationCurve.prototype.fadeOut = function (duration) {
-    this.session.fadeOut(duration);
-};
-
-AnimationCurve.prototype.play = function () {
-    this.session.play(this);
-};
-
-AnimationCurve.prototype.resume = function () {
-    this.session.resume();
-};
-
-AnimationCurve.prototype.stop = function () {
-    this.session.stop();
-};
-
-AnimationCurve.prototype.pause = function () {
-    this.session.pause();
-};
-
-/**
- * @param {number} time
- * @param {number} fadeDir
- * @param {number} fadeBegTime
- * @param {number} fadeEndTime
- * @param {number} fadeTime
- */
-
-AnimationCurve.prototype.showAt = function (time, fadeDir, fadeBegTime, fadeEndTime, fadeTime) {
-    this.session.showAt(time, fadeDir, fadeBegTime, fadeEndTime, fadeTime);
 };
 
 /**
