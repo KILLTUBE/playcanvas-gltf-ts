@@ -27,7 +27,6 @@ var AnimationCurve = function () {
     this.type = AnimationCurveType.LINEAR;
     this.keyableType = AnimationKeyableType.NUM;
     this.tension = 0.5;// 0.5 catmul-rom
-    this.animTarget = undefined;// allow multiple targets
     this.duration = 0;
     this.animKeys = [];
     //this.session = new AnimationCurveSession(this);
@@ -45,7 +44,6 @@ AnimationCurve.prototype.copy = function (curve) {
     this.keyableType = curve.keyableType;
     this.tension = curve.tension;
     this.duration = curve.duration;
-    this.animTarget = curve.animTarget.clone();
 
     this.animKeys = [];
     for (i = 0; i < curve.animKeys.length; i ++) {
@@ -57,27 +55,6 @@ AnimationCurve.prototype.copy = function (curve) {
 
 AnimationCurve.prototype.clone = function () {
     return new AnimationCurve().copy(this);
-};
-
-/**
- * @param {pc.GraphNode} targetNode
- * @param {TargetPath} targetPath
- * @param {string} targetProp
- */
-
-AnimationCurve.prototype.addTarget = function (targetNode, targetPath, targetProp) {
-    var target = new AnimationTarget(targetNode, targetPath, targetProp);
-    this.animTarget = target;
-};
-
-/**
- * @param {pc.GraphNode} targetNode
- * @param {TargetPath} targetPath
- * @param {string} [targetProp]
- */
-
-AnimationCurve.prototype.setTarget = function (targetNode, targetPath, targetProp) {
-    this.addTarget(targetNode, targetPath, targetProp);
 };
 
 /**
@@ -183,6 +160,7 @@ AnimationCurve.prototype.shiftKeyTime = function (time) {
  */
 
 AnimationCurve.prototype.getSubCurve = function (tmBeg, tmEnd) {
+    /*
     var i;
     var subCurve = new AnimationCurve();
     subCurve.type = this.type;
@@ -204,6 +182,7 @@ AnimationCurve.prototype.getSubCurve = function (tmBeg, tmEnd) {
 
     subCurve.duration = (tmFirst === -1) ? 0 : (tmEnd - tmFirst);
     return subCurve;
+    */
 };
 
 /**

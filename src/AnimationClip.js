@@ -19,6 +19,7 @@ var AnimationClip = function (root) {
     this.name = "clip" + AnimationClip.count.toString();
     this.duration = 0;
     this.animCurves = [];
+    this.animTargets = [];
     this.root = null;
     if (root) {
         this.root = root;
@@ -72,6 +73,14 @@ AnimationClip.prototype.copy = function (clip) {
         this.addCurve(curve.clone());
     }
 
+    var n = clip.animTargets.length;
+    this.animTargets.length = n;
+
+    for (var i=0; i<n; i++) {
+        var target = clip.animTargets[i];
+        this.animTargets[i] = target.clone();
+    }
+
     return this;
 };
 
@@ -121,14 +130,7 @@ AnimationClip.prototype.updateToTarget = function (snapshot) {
  * @returns {AnimationTarget[]}
  */
 AnimationClip.prototype.getAnimTargets = function () {
-    /** @type {AnimationTarget[]} */
-    var animTargets = [];
-    var n = this.animCurves.length;
-    for (var i=0; i<n; i++) {
-        var curve = this.animCurves[i];
-        animTargets[curve.name] = curve.animTarget;
-    }
-    return animTargets;
+    return this.animTargets;
 };
 
 AnimationClip.prototype.resetSession = function () {
@@ -398,9 +400,9 @@ AnimationClip.prototype.transferToRoot = function (root) {
     AnimationTarget.constructTargetNodes(root, null, dictTarget);// contains localScale information
 
     for (var i = 0, len = this.animCurves.length; i < len; i++) {
-        var curve = this.animCurves[i];
-        var ctarget = curve.animTarget;
+        var ctarget = this.animTargets[i];
         var atarget = dictTarget[ctarget.targetNode.name];
+        //var atarget = this.animTargets[i];
         if (atarget) { // match by target name
             var cScale = AnimationTarget.getLocalScale(ctarget.targetNode);
             ctarget.targetNode = atarget.targetNode; // atarget contains scale information
@@ -420,10 +422,10 @@ AnimationClip.prototype.updateCurveNameFromTarget = function () {
     for (var i = 0, len = this.animCurves.length; i < len; i++) {
         var curve = this.animCurves[i];
 
-
+        var animTarget = this.animTargets[i];
         // change name to target string
         var oldName = curve.name;// backup before change
-        var newName = curve.animTarget.toString();
+        var newName = animTarget.toString();
         if (oldName == newName)// no need to change name
             continue;
 

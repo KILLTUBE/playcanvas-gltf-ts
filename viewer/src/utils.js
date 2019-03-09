@@ -108,9 +108,9 @@ function clone_gltf(entity) {
     for (var i = 0; i < animationClips.length; i++) {
         var clip = animationClips[i];
         for(var c = 0; c < clip.animCurves.length; c++) {
-            var curve = clip.animCurves[c];
-            if (curve.animTarget.targetNode === "model")
-                curve.animTarget.targetNode = entity_clone;
+            var animTarget = clip.animTargets[c];
+            if (animTarget.targetNode === "model")
+                animTarget.targetNode = entity_clone;
         }
     }
     // 6) Add all animations to the model's animation component

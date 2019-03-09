@@ -126,7 +126,7 @@
                     curve = new AnimationCurve();
                     keyType = AnimationKeyableType.NUM;
                     curve.keyableType = keyType;
-                    curve.addTarget("model", TargetPath.Weights, i);
+                    //curve.addTarget("model", TargetPath.Weights, i);
                     if (sampler.interpolation === "CUBIC")
                         curve.type = AnimationCurveType.CUBIC;
                     else if (sampler.interpolation === "STEP")
@@ -138,6 +138,7 @@
                         curve.insertKey(keyType, time, value);
                     }
                     clip.addCurve(curve);
+                    clip.animTargets[curve.name] = new AnimationTarget("model", TargetPath.Weights, i);
                 }
             } else {
                 // translation, rotation or scale
@@ -166,7 +167,6 @@
                 }
                 curve = new AnimationCurve();
                 curve.keyableType = keyType;
-                curve.setTarget(entity, targetPath);
 
                 if (sampler.interpolation !== "CUBICSPLINE") {
                     if (sampler.interpolation === "CUBIC")
@@ -183,7 +183,6 @@
                             value = values[i];// AnimationKeyableType.NUM
                         curve.insertKey(keyType, time, value);
                     }
-                    clip.addCurve(curve);
                 } else { // 10/15 one key contains (in-tangent, value, out-tangent)
                     console.log(clip.name, curve.name, path, "CUBICSPLINE");
                     curve.type = AnimationCurveType.CUBICSPLINE_GLTF;
@@ -211,8 +210,12 @@
                         }
                         curve.insertKeyable(keyable);
                     }
-                    clip.addCurve(curve);
                 }
+
+
+                clip.addCurve(curve);
+                clip.animTargets[curve.name] = new AnimationTarget(entity, targetPath);
+                //curve.setTarget(entity, targetPath);
             }
         });
 

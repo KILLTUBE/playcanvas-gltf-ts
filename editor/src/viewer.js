@@ -142,6 +142,13 @@ Viewer.prototype = {
         delete this.gltf;
     },
 
+/**
+ * 
+ * @param {pc.Entity} model 
+ * @param {any} textures 
+ * @param {AnimationClip[]} animationClips 
+ */
+
     initializeScene: function (model, textures, animationClips) {
         var i;
 
@@ -172,9 +179,9 @@ Viewer.prototype = {
             if (animationClips) {
                 for (i = 0; i < animationClips.length; i++) {
                     for(var c = 0; c < animationClips[i].animCurves.length; c++) {
-                        var curve = animationClips[i].animCurves[c];
-                        if (curve.animTarget.targetNode === "model")
-                            curve.animTarget.targetNode = this.gltf;
+                        var animTarget = animationClips[i].animTargets[c];
+                        if (animTarget.targetNode === "model")
+                            animTarget.targetNode = this.gltf;
                     }
                 }
             }
