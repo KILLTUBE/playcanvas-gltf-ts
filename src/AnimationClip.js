@@ -64,6 +64,7 @@ Object.defineProperty(AnimationClip.prototype, 'bySpeed', {
 AnimationClip.prototype.copy = function (clip) {
     this.name = clip.name;
     this.duration = clip.duration;
+    this.loop = clip.loop;
 
     // copy curves
     this.animCurves.length = 0;
