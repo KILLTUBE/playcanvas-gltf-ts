@@ -6,7 +6,8 @@ function Viewer() {
 
     var app = new pc.Application(canvas, {
         mouse: new pc.Mouse(document.body),
-        keyboard: new pc.Keyboard(window)
+        keyboard: new pc.Keyboard(window),
+        vr: true
     });
     app.start();
 

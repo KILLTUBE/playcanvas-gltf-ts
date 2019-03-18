@@ -185,3 +185,52 @@ function spawn8x8() {
         viewer.app.root.addChild(clone);
     }
 }
+
+enter_vr = function() {
+    viewer.camera.camera.enterVr(function (err) {
+        if (err) {
+            console.error(err); // could not enter VR
+        } else {
+            // in VR!
+        }
+    });
+}
+
+fetch_gltf = async function(url, options) {
+    var basePath = url.substring(0, url.lastIndexOf("/")) + "/";
+    if (typeof options === "undefined")
+        options = {};
+    if ("layers" in options === false)
+        options.layers = [0]; // should be worldLayer.id
+    //console.log("fetch_gltf", url, options);
+    return new Promise(function(resolve, reject) {
+        app.assets.loadFromUrl(url, 'json', function (err, asset) {
+            var json = asset.resource;
+            var gltf = JSON.parse(json);
+            loadGltf(gltf, app.graphicsDevice, function (model, textures, animationClips) {
+                var asset = new pc.Asset('gltf', 'model', {
+                    url: ''
+                });
+                asset.resource = model;
+                asset.loaded = true;
+                app.assets.add(asset);
+                var gltf = new pc.Entity('gltf');
+                gltf.addComponent('model', {
+                    asset: asset,
+                    layers: options.layers
+                });
+                if ( animationClips && animationClips.length > 0 ) {
+                    gltf.animComponent = new AnimationComponent();
+                    for (var i = 0; i < animationClips.length; i++) {
+                        animationClips[i].transferToRoot(gltf);
+                        gltf.animComponent.addClip(animationClips[i]);
+                    }
+                    gltf.animComponent.playClip(animationClips[0].name);
+                }
+                resolve(gltf)
+            }, {
+                basePath: basePath
+            });
+        });
+    })
+}
