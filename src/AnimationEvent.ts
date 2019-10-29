@@ -1,4 +1,4 @@
-interface AnimationEventCallback {
+export interface AnimationEventCallback {
     (context: any, parameter: any): void
 }
 

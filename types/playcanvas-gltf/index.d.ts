@@ -100,23 +100,6 @@ declare class AnimationClipSnapshot {
     _cacheKeyIdx: MapStringToNumber;
 }
 
-declare interface AnimationSession {
-    begTime: number;
-    endTime: number;
-    curTime: number;
-    accTime: number;
-    bySpeed: number;
-    isPlaying: boolean;
-    animTargets: AnimationTarget[];
-    _cacheKeyIdx: object;
-    speed: number;
-    blendables: {[curveName: string]: Blendable};
-    _cacheBlendValues: {[name: string]: AnimationClipSnapshot | AnimationKeyable};
-    blendWeights: {[name: string]: AnimationClip};
-    animEvents: AnimationEvent[];
-    onTimer: (dt: number) => void;
-    _allocatePlayableCache(): AnimationClip;
-}
 
 declare interface AnimationComponent {
     animClips: AnimationClip[];
