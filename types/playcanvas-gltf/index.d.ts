@@ -66,13 +66,6 @@ declare interface AnimationKeyableQuatCubicSpline {
     outTangent: pc.Quat;
 }
 
-declare interface AnimationTarget {
-    vScale?: pc.Vec3 | number[];
-    targetNode: pc.GraphNode;
-    targetPath: TargetPath;
-    targetProp: string;
-}
-
 declare type SingleDOF = number | pc.Vec2 | pc.Vec3 | pc.Vec4 | pc.Quat;
 declare type BlendValue = SingleDOF;
 declare type AnimationInput = AnimationCurve | AnimationKeyable | AnimationClip | AnimationClipSnapshot;
