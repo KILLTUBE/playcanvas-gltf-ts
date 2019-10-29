@@ -1,3 +1,6 @@
+import { AnimationCurveType } from "./AnimationCurve";
+import { AnimationClipSnapshot } from "./AnimationClipSnapshot";
+
 // *===============================================================================================================
 // * class AnimationClip:
 // * member

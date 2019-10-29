@@ -1,3 +1,4 @@
+import { AnimationKeyableType } from "./AnimationKeyable";
 
 // *===============================================================================================================
 // * class AnimationCurve: each curve corresponds to one channel
@@ -7,16 +8,12 @@
 // *
 // *===============================================================================================================
 
-/**
- * @enum {number}
- */
-
-export var AnimationCurveType = {
-	LINEAR:           0,
-	STEP:             1,
-	CUBIC:            2,
-	CUBICSPLINE_GLTF: 3
-};
+export enum AnimationCurveType {
+	LINEAR          = 0,
+	STEP            = 1,
+	CUBIC           = 2,
+	CUBICSPLINE_GLTF= 3,
+}
 
 /**
  * @constructor
@@ -30,13 +27,9 @@ export var AnimationCurve = function () {
 	this.duration = 0;
 	this.animKeys = [];
 	//this.session = new AnimationCurveSession(this);
-};
+}
 
-/**
- * @param {AnimationCurve} curve
- */
-
-AnimationCurve.prototype.copy = function (curve) {
+AnimationCurve.prototype.copy = function (curve: AnimationCurve) {
 	var i;
 
 	this.name = curve.name;

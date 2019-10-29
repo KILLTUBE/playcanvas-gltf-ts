@@ -5,21 +5,18 @@ import { AnimationKeyableNumCubicSpline } from "./AnimationKeyableNumCubicSpline
 import { AnimationKeyableVecCubicSpline } from "./AnimationKeyableVecCubicSpline";
 import { AnimationKeyableQuatCubicSpline } from "./AnimationKeyableQuatCubicSpline";
 
-/**
- * @enum {number}
- */
-export var AnimationKeyableType = {
-	NUM               : 0,
-	VEC2              : 1,
-	VEC               : 2, // todo: rename to VEC3
-	VEC4              : 3,
-	QUAT              : 4,
-	NUM_CUBICSCPLINE  : 5,
-	VEC2_CUBICSCPLINE : 6,
-	VEC_CUBICSCPLINE  : 7, // todo: rename to VEC3_CUBICSPLINE
-	VEC4_CUBICSCPLINE : 8,
-	QUAT_CUBICSCPLINE : 9
-};
+export enum AnimationKeyableType {
+	NUM               = 0,
+	VEC2              = 1,
+	VEC               = 2, // todo: rename to VEC3
+	VEC4              = 3,
+	QUAT              = 4,
+	NUM_CUBICSCPLINE  = 5,
+	VEC2_CUBICSCPLINE = 6,
+	VEC_CUBICSCPLINE  = 7, // todo: rename to VEC3_CUBICSPLINE
+	VEC4_CUBICSCPLINE = 8,
+	QUAT_CUBICSCPLINE = 9,
+}
 
 export interface AnimationKeyable {
 	clone(): AnimationKeyable;

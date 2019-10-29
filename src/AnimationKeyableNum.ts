@@ -1,3 +1,5 @@
+import { AnimationKeyableType } from "./AnimationKeyable";
+
 export class AnimationKeyableNum {
 	type: AnimationKeyableType;
 	time: number;

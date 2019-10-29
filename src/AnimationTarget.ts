@@ -1,13 +1,9 @@
-
-/**
- * @enum {number}
- */
-export var TargetPath = {
-	LocalPosition:    0,
-	LocalScale:       1,
-	LocalRotation:    2,
-	LocalEulerAngles: 3,
-	Weights:          4
+export enum TargetPath {
+	LocalPosition   = 0,
+	LocalScale      = 1,
+	LocalRotation   = 2,
+	LocalEulerAngles= 3,
+	Weights         = 4,
 };
 
 // *===============================================================================================================
@@ -15,13 +11,8 @@ export var TargetPath = {
 // *                        one AnimationCurve has a [] collection of AnimationTargets
 // *                        one AnimationClip has a {} dictionary of AnimationTargets, keyname matches curvename
 // *===============================================================================================================
-/**
- * @constructor
- * @param {pc.GraphNode} targetNode
- * @param {TargetPath} [targetPath]
- * @param {string} [targetProp]
- */
-export var AnimationTarget = function (targetNode, targetPath, targetProp) {
+
+export var AnimationTarget = function (targetNode: pc.GraphNode, targetPath?: TargetPath, targetProp?: string) {
 	this.targetNode = targetNode;
 	this.targetPath = targetPath;
 	this.targetProp = targetProp;
