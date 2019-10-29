@@ -3,6 +3,13 @@ import { AnimationClipSnapshot } from "./AnimationClipSnapshot";
 import { AnimationComponent } from "./AnimationComponent";
 import { AnimationCurveType, AnimationCurve } from "./AnimationCurve";
 import { AnimationEvent } from "./AnimationEvent";
+
+import {
+	AnimationKeyableType,
+	new_AnimationKeyable,
+	AnimationKeyable_linearBlendValue
+} from "./AnimationKeyable";
+
 import { AnimationKeyableNum } from "./AnimationKeyableNum";
 import { AnimationKeyableVec } from "./AnimationKeyableVec";
 import { AnimationKeyableQuat } from "./AnimationKeyableQuat";
@@ -22,6 +29,9 @@ Object.assign(window, {
 	AnimationCurveType,
 	AnimationCurve,
 	AnimationEvent,
+	AnimationKeyableType,
+	new_AnimationKeyable,
+	AnimationKeyable_linearBlendValue,
 	AnimationKeyableNum,
 	AnimationKeyableVec,
 	AnimationKeyableQuat,
