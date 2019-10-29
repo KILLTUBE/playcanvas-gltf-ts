@@ -2,11 +2,11 @@
 // *===============================================================================================================
 // * class AnimationClip:
 // * member
-// *       name: name of this animation clip
-// *       animCurves: an array of curves in the clip, each curve corresponds to one channel along timeline
+// *	   name: name of this animation clip
+// *	   animCurves: an array of curves in the clip, each curve corresponds to one channel along timeline
 // *
 // * e.g.:   for an animation clip of a character, name = "walk"
-// *       each joint has one curve with keys on timeline, thus animCurves stores curves of all joints
+// *	   each joint has one curve with keys on timeline, thus animCurves stores curves of all joints
 // *===============================================================================================================
 
 /**
@@ -15,46 +15,46 @@
  */
 
 var AnimationClip = function (root) {
-    AnimationClip.count ++;
-    this.name = "clip" + AnimationClip.count.toString();
-    this.duration = 0;
-    this.animCurves = [];
-    this.animTargets = [];
-    this.root = null;
-    if (root) {
-        this.root = root;
-        this.constructFromRoot(root);
-    }
+	AnimationClip.count ++;
+	this.name = "clip" + AnimationClip.count.toString();
+	this.duration = 0;
+	this.animCurves = [];
+	this.animTargets = [];
+	this.root = null;
+	if (root) {
+		this.root = root;
+		this.constructFromRoot(root);
+	}
 
-    this.session = new AnimationSession(this);
+	this.session = new AnimationSession(this);
 };
 AnimationClip.count = 0;
 
 
 // getter setter
 Object.defineProperty(AnimationClip.prototype, 'isPlaying', {
-    get: function () {
-        return this.session.isPlaying;
-    },
-    set: function (isPlaying) {
-        this.session.isPlaying = isPlaying;
-    }
+	get: function () {
+		return this.session.isPlaying;
+	},
+	set: function (isPlaying) {
+		this.session.isPlaying = isPlaying;
+	}
 });
 Object.defineProperty(AnimationClip.prototype, 'loop', {
-    get: function () {
-        return this.session.loop;
-    },
-    set: function (loop) {
-        this.session.loop = loop;
-    }
+	get: function () {
+		return this.session.loop;
+	},
+	set: function (loop) {
+		this.session.loop = loop;
+	}
 });
 Object.defineProperty(AnimationClip.prototype, 'bySpeed', {
-    get: function () {
-        return this.session.bySpeed;
-    },
-    set: function (bySpeed) {
-        this.session.bySpeed = bySpeed;
-    }
+	get: function () {
+		return this.session.bySpeed;
+	},
+	set: function (bySpeed) {
+		this.session.bySpeed = bySpeed;
+	}
 });
 
 /**
@@ -63,39 +63,39 @@ Object.defineProperty(AnimationClip.prototype, 'bySpeed', {
  */
 
 AnimationClip.prototype.copy = function (clip) {
-    this.name = clip.name;
-    this.duration = clip.duration;
-    this.loop = clip.loop;
+	this.name = clip.name;
+	this.duration = clip.duration;
+	this.loop = clip.loop;
 
-    // copy curves
-    this.animCurves.length = 0;
+	// copy curves
+	this.animCurves.length = 0;
 
-    for (var i = 0, len = clip.animCurves.length; i < len; i++) {
-        var curve = clip.animCurves[i];
-        this.addCurve(curve.clone());
-    }
+	for (var i = 0, len = clip.animCurves.length; i < len; i++) {
+		var curve = clip.animCurves[i];
+		this.addCurve(curve.clone());
+	}
 
-    var n = clip.animTargets.length;
-    this.animTargets.length = n;
+	var n = clip.animTargets.length;
+	this.animTargets.length = n;
 
-    for (var i=0; i<n; i++) {
-        var target = clip.animTargets[i];
-        this.animTargets[i] = target.clone();
-    }
+	for (var i=0; i<n; i++) {
+		var target = clip.animTargets[i];
+		this.animTargets[i] = target.clone();
+	}
 
-    return this;
+	return this;
 };
 
 AnimationClip.prototype.clone = function () {
-    return new AnimationClip().copy(this);
+	return new AnimationClip().copy(this);
 };
 
 AnimationClip.prototype.updateDuration = function () {
-    this.duration = 0;
-    for (var i = 0, len = this.animCurves.length; i < len; i++) {
-        var curve = this.animCurves[i];
-        this.duration = Math.max(this.duration, curve.duration);
-    }
+	this.duration = 0;
+	for (var i = 0, len = this.animCurves.length; i < len; i++) {
+		var curve = this.animCurves[i];
+		this.duration = Math.max(this.duration, curve.duration);
+	}
 };
 
 /**
@@ -107,7 +107,7 @@ AnimationClip.prototype.updateDuration = function () {
  */
 
 AnimationClip.prototype.showAt = function (time, fadeDir, fadeBegTime, fadeEndTime, fadeTime) {
-    this.session.showAt(time, fadeDir, fadeBegTime, fadeEndTime, fadeTime);
+	this.session.showAt(time, fadeDir, fadeBegTime, fadeEndTime, fadeTime);
 };
 
 /**
@@ -116,7 +116,7 @@ AnimationClip.prototype.showAt = function (time, fadeDir, fadeBegTime, fadeEndTi
  */
 
 AnimationClip.prototype.blendToTarget = function (snapshot, p) {
-    this.session.blendToTarget(snapshot, p);
+	this.session.blendToTarget(snapshot, p);
 };
 
 /**
@@ -124,7 +124,7 @@ AnimationClip.prototype.blendToTarget = function (snapshot, p) {
  */
 
 AnimationClip.prototype.updateToTarget = function (snapshot) {
-    this.session.updateToTarget(snapshot);
+	this.session.updateToTarget(snapshot);
 };
 
 // a dictionary: retrieve animTargets with curve name
@@ -132,34 +132,34 @@ AnimationClip.prototype.updateToTarget = function (snapshot) {
  * @returns {AnimationTarget[]}
  */
 AnimationClip.prototype.getAnimTargets = function () {
-    return this.animTargets;
+	return this.animTargets;
 };
 
 AnimationClip.prototype.resetSession = function () {
-    this.session.playable = this;
-    this.session.animTargets = this.getAnimTargets();
-    this.session.isPlaying = true;
-    this.session.begTime = 0;
-    this.session.endTime = this.duration;
-    this.session.curTime = 0;
-    this.session.bySpeed = 1;
-    this.session.loop = true;
+	this.session.playable = this;
+	this.session.animTargets = this.getAnimTargets();
+	this.session.isPlaying = true;
+	this.session.begTime = 0;
+	this.session.endTime = this.duration;
+	this.session.curTime = 0;
+	this.session.bySpeed = 1;
+	this.session.loop = true;
 };
 
 AnimationClip.prototype.play = function () {
-    this.session.play(this);
+	this.session.play(this);
 };
 
 AnimationClip.prototype.stop = function () {
-    this.session.stop();
+	this.session.stop();
 };
 
 AnimationClip.prototype.pause = function () {
-    this.session.pause();
+	this.session.pause();
 };
 
 AnimationClip.prototype.resume = function () {
-    this.session.resume();
+	this.session.resume();
 };
 
 /**
@@ -167,7 +167,7 @@ AnimationClip.prototype.resume = function () {
  */
 
 AnimationClip.prototype.fadeIn = function (duration) {
-    this.session.fadeIn(duration, this);
+	this.session.fadeIn(duration, this);
 };
 
 /**
@@ -175,7 +175,7 @@ AnimationClip.prototype.fadeIn = function (duration) {
  */
 
 AnimationClip.prototype.fadeOut = function (duration) {
-    this.session.fadeOut(duration);
+	this.session.fadeOut(duration);
 };
 
 /**
@@ -184,7 +184,7 @@ AnimationClip.prototype.fadeOut = function (duration) {
  */
 
 AnimationClip.prototype.fadeTo = function (toClip, duration) {
-    this.session.fadeTo(toClip, duration);
+	this.session.fadeTo(toClip, duration);
 };
 
 // curve related
@@ -194,10 +194,10 @@ AnimationClip.prototype.fadeTo = function (toClip, duration) {
  */
 
 AnimationClip.prototype.addCurve = function (curve) {
-    curve.name = this.animCurves.length;
-    this.animCurves.push(curve);
-    if (curve.duration > this.duration)
-        this.duration = curve.duration;
+	curve.name = this.animCurves.length;
+	this.animCurves.push(curve);
+	if (curve.duration > this.duration)
+		this.duration = curve.duration;
 };
 
 /**
@@ -205,16 +205,16 @@ AnimationClip.prototype.addCurve = function (curve) {
  */
 
 AnimationClip.prototype.removeCurve = function (id) {
-    var curve = this.animCurves[id];
-    if (curve) {
-        this.animCurves.splice(id, 1);
-        this.updateDuration();
-    }
+	var curve = this.animCurves[id];
+	if (curve) {
+		this.animCurves.splice(id, 1);
+		this.updateDuration();
+	}
 };
 
 AnimationClip.prototype.removeAllCurves = function () {
-    this.animCurves.length = 0;
-    this.duration = 0;
+	this.animCurves.length = 0;
+	this.duration = 0;
 };
 
 
@@ -229,9 +229,9 @@ AnimationClip.prototype.removeAllCurves = function () {
  */
 
 AnimationClip.prototype.on = function (name, time, fnCallback, context, parameter) {
-    if (this.session)
-        this.session.on(name, time, fnCallback, context, parameter);
-    return this;
+	if (this.session)
+		this.session.on(name, time, fnCallback, context, parameter);
+	return this;
 };
 
 /**
@@ -241,15 +241,15 @@ AnimationClip.prototype.on = function (name, time, fnCallback, context, paramete
  */
 
 AnimationClip.prototype.off = function (name, time, fnCallback) {
-    if (this.session)
-        this.session.off(name, time, fnCallback);
-    return this;
+	if (this.session)
+		this.session.off(name, time, fnCallback);
+	return this;
 };
 
 AnimationClip.prototype.removeAllEvents = function () {
-    if (this.session)
-        this.session.removeAllEvents();
-    return this;
+	if (this.session)
+		this.session.removeAllEvents();
+	return this;
 };
 
 // clip related
@@ -261,17 +261,17 @@ AnimationClip.prototype.removeAllEvents = function () {
  */
 
 AnimationClip.prototype.getSubClip = function (tmBeg, tmEnd) {
-    var subClip = new AnimationClip();
-    subClip.name = this.name + "_sub";
-    subClip.root = this.root;
+	var subClip = new AnimationClip();
+	subClip.name = this.name + "_sub";
+	subClip.root = this.root;
 
-    for (var i = 0, len = this.animCurves.length; i < len; i++) {
-        var curve = this.animCurves[i];
-        var subCurve = curve.getSubCurve(tmBeg, tmEnd);
-        subClip.addCurve(subCurve);
-    }
+	for (var i = 0, len = this.animCurves.length; i < len; i++) {
+		var curve = this.animCurves[i];
+		var subCurve = curve.getSubCurve(tmBeg, tmEnd);
+		subClip.addCurve(subCurve);
+	}
 
-    return subClip;
+	return subClip;
 };
 
 /**
@@ -282,33 +282,33 @@ AnimationClip.prototype.getSubClip = function (tmBeg, tmEnd) {
  */
 
 AnimationClip.prototype.eval_cache = function (time, cacheKeyIdx, cacheValue) { // 1226
-    if (!cacheValue) {
-        var ret = this.eval();
-        ret._cacheKeyIdx = cacheKeyIdx;
-        return ret;
-    }
+	if (!cacheValue) {
+		var ret = this.eval();
+		ret._cacheKeyIdx = cacheKeyIdx;
+		return ret;
+	}
 
-    var snapshot = cacheValue;
-    snapshot.time = time;
+	var snapshot = cacheValue;
+	snapshot.time = time;
 
-    for (var i = 0, len = this.animCurves.length; i < len; i++) {
-        var curve = this.animCurves[i];
-        var ki;
-        if (cacheKeyIdx) {
-            ki = cacheKeyIdx[curve.name];
-        }
-        var kv;
-        if (cacheValue) {
-            kv = cacheValue.curveKeyable[curve.name];
-        } else {
-            kv = new_AnimationKeyable(curve.keyableType);
-        }
-        var keyable = curve.eval_cache(time, ki, kv);// 0210
-        if (cacheKeyIdx && keyable) cacheKeyIdx[curve.name] = keyable._cacheKeyIdx;
-        snapshot.curveKeyable[curve.name] = keyable;
-    }
-    snapshot._cacheKeyIdx = cacheKeyIdx;
-    return snapshot;
+	for (var i = 0, len = this.animCurves.length; i < len; i++) {
+		var curve = this.animCurves[i];
+		var ki;
+		if (cacheKeyIdx) {
+			ki = cacheKeyIdx[curve.name];
+		}
+		var kv;
+		if (cacheValue) {
+			kv = cacheValue.curveKeyable[curve.name];
+		} else {
+			kv = new_AnimationKeyable(curve.keyableType);
+		}
+		var keyable = curve.eval_cache(time, ki, kv);// 0210
+		if (cacheKeyIdx && keyable) cacheKeyIdx[curve.name] = keyable._cacheKeyIdx;
+		snapshot.curveKeyable[curve.name] = keyable;
+	}
+	snapshot._cacheKeyIdx = cacheKeyIdx;
+	return snapshot;
 };
 
 // take a snapshot of clip at this moment
@@ -319,15 +319,15 @@ AnimationClip.prototype.eval_cache = function (time, cacheKeyIdx, cacheValue) { 
  */
 
 AnimationClip.prototype.eval = function (time) {
-    var snapshot = new AnimationClipSnapshot();
-    snapshot.time = time;
+	var snapshot = new AnimationClipSnapshot();
+	snapshot.time = time;
 
-    for (var i = 0, len = this.animCurves.length; i < len; i++) {
-        var curve = this.animCurves[i];
-        var keyable = curve.eval(time);
-        snapshot.curveKeyable[curve.name] = keyable;
-    }
-    return snapshot;
+	for (var i = 0, len = this.animCurves.length; i < len; i++) {
+		var curve = this.animCurves[i];
+		var keyable = curve.eval(time);
+		snapshot.curveKeyable[curve.name] = keyable;
+	}
+	return snapshot;
 };
 
 /**
@@ -335,61 +335,61 @@ AnimationClip.prototype.eval = function (time) {
  */
 
 AnimationClip.prototype.constructFromRoot = function (root) {
-    if (!root)
-        return;
+	if (!root)
+		return;
 
-    // scale
-    var curveScale = new AnimationCurve();
-    curveScale.keyableType = AnimationKeyableType.VEC;
-    //curveScale.name = root.name + ".localScale";
-    curveScale.setTarget(root, TargetPath.LocalScale);
-    this.addCurve(curveScale);
+	// scale
+	var curveScale = new AnimationCurve();
+	curveScale.keyableType = AnimationKeyableType.VEC;
+	//curveScale.name = root.name + ".localScale";
+	curveScale.setTarget(root, TargetPath.LocalScale);
+	this.addCurve(curveScale);
 
-    // translate
-    var curvePos = new AnimationCurve();
-    curvePos.keyableType = AnimationKeyableType.VEC;
-    //curvePos.name = root.name + ".localPosition";
-    curvePos.setTarget(root, TargetPath.LocalPosition);
-    this.addCurve(curvePos);
+	// translate
+	var curvePos = new AnimationCurve();
+	curvePos.keyableType = AnimationKeyableType.VEC;
+	//curvePos.name = root.name + ".localPosition";
+	curvePos.setTarget(root, TargetPath.LocalPosition);
+	this.addCurve(curvePos);
 
-    // rotate
-    var curveRotQuat = new AnimationCurve();
-    //curveRotQuat.name = root.name + ".localRotation.quat";
-    curveRotQuat.keyableType = AnimationKeyableType.QUAT;
-    curveRotQuat.setTarget(root, TargetPath.LocalRotation);
-    this.addCurve(curveRotQuat);
+	// rotate
+	var curveRotQuat = new AnimationCurve();
+	//curveRotQuat.name = root.name + ".localRotation.quat";
+	curveRotQuat.keyableType = AnimationKeyableType.QUAT;
+	curveRotQuat.setTarget(root, TargetPath.LocalRotation);
+	this.addCurve(curveRotQuat);
 
-    // children
-    for (var i = 0; i < root.children.length; i ++)
-        if (root.children[i]) this.constructFromRoot(root.children[i]);
+	// children
+	for (var i = 0; i < root.children.length; i ++)
+		if (root.children[i]) this.constructFromRoot(root.children[i]);
 };
 
 /*
 //this animation clip's target will now to root
 //Note that animationclip's original target may be on different scale from new root, for "localPosition", this needs to be adjusted
 //Example: animation clip is made under AS scale,
-//         AS will never change no matter how many times this animation clip is transferred, because it is bound with how it is made
-//         when it is transferred to a new root, which is under RS scale, define standard scale SS=1,
+//		 AS will never change no matter how many times this animation clip is transferred, because it is bound with how it is made
+//		 when it is transferred to a new root, which is under RS scale, define standard scale SS=1,
 //thus
-//         standardPos = curvePos / AS;          converting curvePos from AS to SS
-//         newRootPos = standardPos * RS;        converting position under SS to new RS
+//		 standardPos = curvePos / AS;		  converting curvePos from AS to SS
+//		 newRootPos = standardPos * RS;		converting position under SS to new RS
 //thus
-//         target.vScale = RS / AS;              how to update curve pos to target
-//         newRootPos = curvePos * target.vScale
+//		 target.vScale = RS / AS;			  how to update curve pos to target
+//		 newRootPos = curvePos * target.vScale
 //
 //given animation clip, it maybe transferred multiple times, and its original AS is unknown, to recover AS, we have
-//                      RS (scale of current root in scene) and
-//                      vScale (scale of animation curve's value update to target)
+//					  RS (scale of current root in scene) and
+//					  vScale (scale of animation curve's value update to target)
 //thus
-//         AS = RS / vScale;
+//		 AS = RS / vScale;
 //
 //to transfer again to a new root with scale NS
 //
-//         standardPos = curvePos / AS = curvePos * vScale / RS
-//         newTargetPos = standardPos * NS = curvePos * vScale * NS / RS
+//		 standardPos = curvePos / AS = curvePos * vScale / RS
+//		 newTargetPos = standardPos * NS = curvePos * vScale * NS / RS
 //
 //thus
-//         newTarget.vScale = NS / AS = vScale * NS / RS;
+//		 newTarget.vScale = NS / AS = vScale * NS / RS;
 //
 */
 
@@ -398,50 +398,50 @@ AnimationClip.prototype.constructFromRoot = function (root) {
  */
 
 AnimationClip.prototype.transferToRoot = function (root) {
-    var dictTarget = {};
-    AnimationTarget.constructTargetNodes(root, null, dictTarget);// contains localScale information
+	var dictTarget = {};
+	AnimationTarget.constructTargetNodes(root, null, dictTarget);// contains localScale information
 
-    for (var i = 0, len = this.animCurves.length; i < len; i++) {
-        var ctarget = this.animTargets[i];
-        var atarget = dictTarget[ctarget.targetNode.name];
-        //var atarget = this.animTargets[i];
-        if (atarget) { // match by target name
-            var cScale = AnimationTarget.getLocalScale(ctarget.targetNode);
-            ctarget.targetNode = atarget.targetNode; // atarget contains scale information
-            if (cScale && atarget.vScale) {
-                ctarget.vScale = new pc.Vec3(cScale.x, cScale.y, cScale.z);
-                if (atarget.vScale.x) ctarget.vScale.x /= atarget.vScale.x;
-                if (atarget.vScale.y) ctarget.vScale.y /= atarget.vScale.y;
-                if (atarget.vScale.z) ctarget.vScale.z /= atarget.vScale.z;
-            }
-        } else // not found
-            console.warn("transferToRoot: " + ctarget.targetNode.name + "in animation clip " + this.name + " has no transferred target under " + root.name);
-    }
+	for (var i = 0, len = this.animCurves.length; i < len; i++) {
+		var ctarget = this.animTargets[i];
+		var atarget = dictTarget[ctarget.targetNode.name];
+		//var atarget = this.animTargets[i];
+		if (atarget) { // match by target name
+			var cScale = AnimationTarget.getLocalScale(ctarget.targetNode);
+			ctarget.targetNode = atarget.targetNode; // atarget contains scale information
+			if (cScale && atarget.vScale) {
+				ctarget.vScale = new pc.Vec3(cScale.x, cScale.y, cScale.z);
+				if (atarget.vScale.x) ctarget.vScale.x /= atarget.vScale.x;
+				if (atarget.vScale.y) ctarget.vScale.y /= atarget.vScale.y;
+				if (atarget.vScale.z) ctarget.vScale.z /= atarget.vScale.z;
+			}
+		} else // not found
+			console.warn("transferToRoot: " + ctarget.targetNode.name + "in animation clip " + this.name + " has no transferred target under " + root.name);
+	}
 };
 
 // blend related
 AnimationClip.prototype.updateCurveNameFromTarget = function () {
-    for (var i = 0, len = this.animCurves.length; i < len; i++) {
-        var curve = this.animCurves[i];
+	for (var i = 0, len = this.animCurves.length; i < len; i++) {
+		var curve = this.animCurves[i];
 
-        var animTarget = this.animTargets[i];
-        // change name to target string
-        var oldName = curve.name;// backup before change
-        var newName = animTarget.toString();
-        if (oldName == newName)// no need to change name
-            continue;
+		var animTarget = this.animTargets[i];
+		// change name to target string
+		var oldName = curve.name;// backup before change
+		var newName = animTarget.toString();
+		if (oldName == newName)// no need to change name
+			continue;
 
-        curve.name = newName;
-    }
+		curve.name = newName;
+	}
 };
 
 AnimationClip.prototype.removeEmptyCurves = function () {
-    for (var i = 0, len = this.animCurves.length; i < len; i++) {
-        var curve = this.animCurves[i];
-        if (!curve || !curve.animKeys || curve.animKeys.length === 0) {
-            this.removeCurve(curve.name);
-        }
-    }
+	for (var i = 0, len = this.animCurves.length; i < len; i++) {
+		var curve = this.animCurves[i];
+		if (!curve || !curve.animKeys || curve.animKeys.length === 0) {
+			this.removeCurve(curve.name);
+		}
+	}
 };
 
 /**
@@ -449,15 +449,15 @@ AnimationClip.prototype.removeEmptyCurves = function () {
  */
 
 AnimationClip.prototype.setInterpolationType = function (type) {
-    for (var i = 0, len = this.animCurves.length; i < len; i++) {
-        var curve = this.animCurves[i];
-        if (curve) {
-            curve.type = type;
-        }
-    }
+	for (var i = 0, len = this.animCurves.length; i < len; i++) {
+		var curve = this.animCurves[i];
+		if (curve) {
+			curve.type = type;
+		}
+	}
 };
 
 
 export {
-    AnimationClip
+	AnimationClip
 }

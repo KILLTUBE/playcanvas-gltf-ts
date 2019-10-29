@@ -3,9 +3,9 @@
 // *===============================================================================================================
 // * class AnimationClipSnapshot: animation clip slice (pose) at a particular time
 // * member
-// *       curveKeyable: the collection of evaluated keyables on curves at a particular time
+// *	   curveKeyable: the collection of evaluated keyables on curves at a particular time
 // * e.g.: for an "walking" clip of a character, at time 1s, AnimationClipSnapshot corresponds to
-// *       evaluated keyables that makes a arm-swing pose
+// *	   evaluated keyables that makes a arm-swing pose
 // *===============================================================================================================
 
 /**
@@ -13,7 +13,7 @@
  */
 
 export var AnimationClipSnapshot = function () {
-    this.curveKeyable = [];
+	this.curveKeyable = [];
 };
 
 /**
@@ -21,18 +21,18 @@ export var AnimationClipSnapshot = function () {
  */
 
 AnimationClipSnapshot.prototype.copy = function (shot) {
-    if (!shot)
-        return this;
-    this.curveKeyable = [];
-    for (var i = 0; i < shot.curveKeyable.length; i ++) {
-        this.curveKeyable[i] = shot.curveKeyable[i].clone();
-    }
-    return this;
+	if (!shot)
+		return this;
+	this.curveKeyable = [];
+	for (var i = 0; i < shot.curveKeyable.length; i ++) {
+		this.curveKeyable[i] = shot.curveKeyable[i].clone();
+	}
+	return this;
 };
 
 AnimationClipSnapshot.prototype.clone = function () {
-    var cloned = new AnimationClipSnapshot().copy(this);
-    return cloned;
+	var cloned = new AnimationClipSnapshot().copy(this);
+	return cloned;
 };
 
 /**
@@ -44,25 +44,25 @@ AnimationClipSnapshot.prototype.clone = function () {
  */
 
 AnimationClipSnapshot.linearBlend = function (shot1, shot2, p) {
-    if (!shot1 || !shot2)
-        return null;
+	if (!shot1 || !shot2)
+		return null;
 
-    if (p === 0) return shot1;
-    if (p === 1) return shot2;
+	if (p === 0) return shot1;
+	if (p === 1) return shot2;
 
-    var resShot = new AnimationClipSnapshot();
-    resShot.copy(shot1);
-    for (var i = 0; i < shot2.curveKeyable.length; i ++) {
-        var cname = i;
-        if (shot1.curveKeyable[cname] && shot2.curveKeyable[cname]) {
-            var resKey = AnimationKeyable.linearBlend(shot1.curveKeyable[cname], shot2.curveKeyable[cname], p);
-            resShot.curveKeyable[cname] = resKey;
-        } else if (shot1.curveKeyable[cname])
-            resShot.curveKeyable[cname] = shot1.curveKeyable[cname];
-        else if (shot2.curveKeyable[cname])
-            resShot.curveKeyable[cname] = shot2.curveKeyable[cname];
-    }
-    return resShot;
+	var resShot = new AnimationClipSnapshot();
+	resShot.copy(shot1);
+	for (var i = 0; i < shot2.curveKeyable.length; i ++) {
+		var cname = i;
+		if (shot1.curveKeyable[cname] && shot2.curveKeyable[cname]) {
+			var resKey = AnimationKeyable.linearBlend(shot1.curveKeyable[cname], shot2.curveKeyable[cname], p);
+			resShot.curveKeyable[cname] = resKey;
+		} else if (shot1.curveKeyable[cname])
+			resShot.curveKeyable[cname] = shot1.curveKeyable[cname];
+		else if (shot2.curveKeyable[cname])
+			resShot.curveKeyable[cname] = shot2.curveKeyable[cname];
+	}
+	return resShot;
 };
 
 /**
@@ -75,35 +75,35 @@ AnimationClipSnapshot.linearBlend = function (shot1, shot2, p) {
  */
 
 AnimationClipSnapshot.linearBlendExceptStep = function (shot1, shot2, p, animCurveMap) {
-    if (!shot1 || !shot2) {
-        return null;
-    }
+	if (!shot1 || !shot2) {
+		return null;
+	}
 
-    if (p === 0) {
-        return shot1;
-    }
+	if (p === 0) {
+		return shot1;
+	}
 
-    if (p === 1) {
-        return shot2;
-    }
+	if (p === 1) {
+		return shot2;
+	}
 
-    var resShot = new AnimationClipSnapshot();
-    resShot.copy(shot1);
-    for (var i = 0; i < shot2.curveKeyable.length; i ++) {
-        var cname = i;
-        if (shot1.curveKeyable[cname] && shot2.curveKeyable[cname]) {
-            if (animCurveMap[cname] && animCurveMap[cname].type === AnimationCurveType.STEP) {
-                if (p > 0.5) resShot.curveKeyable[cname] = shot2.curveKeyable[cname];
-                else resShot.curveKeyable[cname] = shot1.curveKeyable[cname];
-            } else {
-                var resKey = AnimationKeyable.linearBlend(shot1.curveKeyable[cname], shot2.curveKeyable[cname], p);
-                resShot.curveKeyable[cname] = resKey;
-            }
-        } else if (shot1.curveKeyable[cname])
-            resShot.curveKeyable[cname] = shot1.curveKeyable[cname];
-        else if (shot2.curveKeyable[cname])
-            resShot.curveKeyable[cname] = shot2.curveKeyable[cname];
-    }
-    return resShot;
+	var resShot = new AnimationClipSnapshot();
+	resShot.copy(shot1);
+	for (var i = 0; i < shot2.curveKeyable.length; i ++) {
+		var cname = i;
+		if (shot1.curveKeyable[cname] && shot2.curveKeyable[cname]) {
+			if (animCurveMap[cname] && animCurveMap[cname].type === AnimationCurveType.STEP) {
+				if (p > 0.5) resShot.curveKeyable[cname] = shot2.curveKeyable[cname];
+				else resShot.curveKeyable[cname] = shot1.curveKeyable[cname];
+			} else {
+				var resKey = AnimationKeyable.linearBlend(shot1.curveKeyable[cname], shot2.curveKeyable[cname], p);
+				resShot.curveKeyable[cname] = resKey;
+			}
+		} else if (shot1.curveKeyable[cname])
+			resShot.curveKeyable[cname] = shot1.curveKeyable[cname];
+		else if (shot2.curveKeyable[cname])
+			resShot.curveKeyable[cname] = shot2.curveKeyable[cname];
+	}
+	return resShot;
 };
 
