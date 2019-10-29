@@ -1,36 +1,25 @@
+export class AnimationKeyableQuat {
+	type: AnimationKeyableType;
+	time: number;
+	value: pc.Quat;
 
-/**
- * @constructor
- * @param {number} [time]
- * @param {pc.Quat} [value]
- */
+	constructor(time: number, value: pc.Quat) {
+		this.type  = AnimationKeyableType.QUAT;
+		this.time  = time  || 0.0;
+		this.value = value || new pc.Quat();
+	}
 
-export var AnimationKeyableQuat = function (time, value) {
-    this.type  = AnimationKeyableType.QUAT;
-    this.time  = time  || 0.0;
-    this.value = value || new pc.Quat();
-};
+	clone() {
+		return new AnimationKeyableQuat(this.time, this.value.clone());
+	}
 
-AnimationKeyableQuat.prototype.clone = function () {
-    return new AnimationKeyableQuat(this.time, this.value.clone());
-};
+	copy(other: AnimationKeyableQuat) {
+		this.time = other.time;
+		this.value.copy(other.value);
+		return this;
+	}
 
-/**
- * @param {AnimationKeyableQuat} other
- */
-
-AnimationKeyableQuat.prototype.copy = function (other) {
-	this.time = other.time;
-    this.value.copy(other.value);
-    return this;
-};
-
-/**
- * @param {AnimationKeyableQuat} from
- * @param {AnimationKeyableQuat} to
- * @param {number} alpha
- */
-
-AnimationKeyableQuat.prototype.linearBlend = function (from, to, alpha) {
-    this.value.slerp(from.value, to.value, alpha);
-};
+	linearBlend(from: AnimationKeyableQuat, to: AnimationKeyableQuat, alpha: number) {
+		this.value.slerp(from.value, to.value, alpha);
+	}
+}

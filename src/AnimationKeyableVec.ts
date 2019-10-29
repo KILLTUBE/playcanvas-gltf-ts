@@ -1,36 +1,25 @@
+export class AnimationKeyableVec {
+    type: AnimationKeyableType;
+    time: number;
+    value: pc.Vec3;
 
-/**
- * @constructor
- * @param {number} [time]
- * @param {pc.Vec3} [value]
- */
+    constructor(time: number, value: pc.Vec3) {
+        this.type  = AnimationKeyableType.VEC;
+        this.time  = time  || 0.0;
+        this.value = value || new pc.Vec3();
+    }
 
-export var AnimationKeyableVec = function (time, value) {
-    this.type  = AnimationKeyableType.VEC;
-    this.time  = time  || 0.0;
-    this.value = value || new pc.Vec3();
-};
+    clone() {
+        return new AnimationKeyableVec(this.time, this.value.clone());
+    }
 
-AnimationKeyableVec.prototype.clone = function () {
-    return new AnimationKeyableVec(this.time, this.value.clone());
+    copy(other: AnimationKeyableVec) {
+        this.time = other.time;
+        this.value.copy(other.value);
+        return this;
+    }
+
+    linearBlend(from: AnimationKeyableVec, to: AnimationKeyableVec, alpha: number) {
+        this.value.lerp(from.value, to.value, alpha);
+    }
 }
-
-/**
- * @param {AnimationKeyableVec} other
- */
-
-AnimationKeyableVec.prototype.copy = function (other) {
-	this.time = other.time;
-    this.value.copy(other.value);
-    return this;
-};
-
-/**
- * @param {AnimationKeyableVec} from
- * @param {AnimationKeyableVec} to
- * @param {number} alpha
- */
-
-AnimationKeyableVec.prototype.linearBlend = function (from, to, alpha) {
-    this.value.lerp(from.value, to.value, alpha);
-};

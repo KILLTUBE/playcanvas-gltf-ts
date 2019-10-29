@@ -1,35 +1,25 @@
-/**
- * @constructor
- * @param {number} [time]
- * @param {number} [value]
- */
+export class AnimationKeyableNum {
+	type: AnimationKeyableType;
+	time: number;
+	value: number;
 
-export var AnimationKeyableNum = function (time, value) {
-    this.type  = AnimationKeyableType.NUM;
-    this.time  = time  || 0.0;
-    this.value = value || 0.0;
-};
+	constructor(time: number, value: number) {
+		this.type  = AnimationKeyableType.NUM;
+		this.time  = time  || 0.0;
+		this.value = value || 0.0;
+	}
 
-AnimationKeyableNum.prototype.clone = function () {
-    return new AnimationKeyableNum(this.time, this.value);
-};
+	clone() {
+		return new AnimationKeyableNum(this.time, this.value);
+	}
 
-/**
- * @param {AnimationKeyableNum} other
- */
+	copy(other: AnimationKeyableNum) {
+		this.time = other.time;
+		this.value = other.value;
+		return this;
+	}
 
-AnimationKeyableNum.prototype.copy = function (other) {
-	this.time = other.time;
-    this.value = other.value;
-    return this;
-};
-
-/**
- * @param {AnimationKeyableNum} from
- * @param {AnimationKeyableNum} to
- * @param {number} alpha
- */
-
-AnimationKeyableNum.prototype.linearBlend = function (from, to, alpha) {
-    this.value = (1.0 - alpha) * from.value + alpha * to.value;
+	linearBlend(from: AnimationKeyableNum, to: AnimationKeyableNum, alpha: number) {
+		this.value = (1.0 - alpha) * from.value + alpha * to.value;
+	}
 }
