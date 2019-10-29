@@ -91,13 +91,6 @@ declare class AnimationClipSnapshot {
     _cacheKeyIdx: MapStringToNumber;
 }
 
-
-declare interface AnimationComponent {
-    animClips: AnimationClip[];
-    animClipsMap: {[clipname: string]: AnimationClip};
-    animSessions: {[sessionname: string]: AnimationSession};
-}
-
 declare interface AnimationCurveMap {
     [name: number]: AnimationCurve;
 }
