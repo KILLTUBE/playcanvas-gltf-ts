@@ -10,7 +10,9 @@ import { AnimationKeyable, AnimationKeyable_linearBlendValue } from "./Animation
 
 export class AnimationClipSnapshot {
 	curveKeyable: AnimationKeyable[];
-
+	_cacheKeyIdx: number;
+	time: number;
+	
 	constructor() {
 		this.curveKeyable = [];
 	}

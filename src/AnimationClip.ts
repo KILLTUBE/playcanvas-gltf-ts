@@ -1,5 +1,9 @@
-import { AnimationCurveType } from "./AnimationCurve";
+import { AnimationCurveType, AnimationCurve } from "./AnimationCurve";
 import { AnimationClipSnapshot } from "./AnimationClipSnapshot";
+import { AnimationSession } from "./AnimationSession";
+import { AnimationTarget } from "./AnimationTarget";
+import { AnimationEventCallback } from "./AnimationEvent";
+import { new_AnimationKeyable } from "./AnimationKeyable";
 
 // *===============================================================================================================
 // * class AnimationClip:
@@ -20,7 +24,7 @@ export class AnimationClip {
     session: AnimationSession;
     root: pc.GraphNode;
 
-	constructor(root: pc.GraphNode) {
+	constructor(root?: pc.GraphNode) {
 		AnimationClip.count ++;
 		this.name = "clip" + AnimationClip.count.toString();
 		this.duration = 0;
@@ -31,7 +35,6 @@ export class AnimationClip {
 			this.root = root;
 			this.constructFromRoot(root);
 		}
-
 		this.session = new AnimationSession(this);
 	}
 
