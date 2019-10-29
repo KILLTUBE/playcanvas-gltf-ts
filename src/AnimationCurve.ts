@@ -1,5 +1,6 @@
 import { AnimationKeyableType, AnimationKeyable, new_AnimationKeyable } from "./AnimationKeyable";
 import { AnimationTarget } from "./AnimationTarget";
+import { SingleDOF } from "./Animation";
 
 // *===============================================================================================================
 // * class AnimationCurve: each curve corresponds to one channel
@@ -14,6 +15,10 @@ export enum AnimationCurveType {
 	STEP             = 1,
 	CUBIC            = 2,
 	CUBICSPLINE_GLTF = 3,
+}
+
+export interface AnimationCurveMap {
+    [name: number]: AnimationCurve;
 }
 
 export class AnimationCurve {

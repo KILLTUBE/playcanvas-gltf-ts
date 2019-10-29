@@ -1,5 +1,6 @@
 import { AnimationClip } from "./AnimationClip";
 import { AnimationSession } from "./AnimationSession";
+import { BlendValue } from "./Animation";
 
 // *===============================================================================================================
 // * class AnimationComponent:
@@ -91,8 +92,6 @@ export class AnimationComponent {
 		}
 	}
 
-	// blend related
-
 	setBlend(blendValue: BlendValue, weight: number, curveName: string) {
 		var curClip = this.getCurrentClip();
 		if (curClip && curClip.session)
@@ -105,9 +104,7 @@ export class AnimationComponent {
 			curClip.session.unsetBlend(curveName);
 	}
 
-
-	// APIs for sessions =================================================
-	getCurrentSession() {
+	getCurrentSession(): AnimationSession {
 		return this.animSessions[this.curClip];
 	}
 
@@ -117,7 +114,7 @@ export class AnimationComponent {
 			session.play();
 			this.curClip = name;
 		}
-	};
+	}
 
 	stopSession() {
 		var session = this.animSessions[this.curClip];

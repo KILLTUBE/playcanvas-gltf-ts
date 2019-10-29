@@ -1,9 +1,21 @@
 import { AnimationCurveType, AnimationCurve } from "./AnimationCurve";
 import { AnimationClipSnapshot } from "./AnimationClipSnapshot";
 import { AnimationSession } from "./AnimationSession";
-import { AnimationTarget } from "./AnimationTarget";
+import { AnimationTarget, TargetPath } from "./AnimationTarget";
 import { AnimationEventCallback } from "./AnimationEvent";
-import { new_AnimationKeyable } from "./AnimationKeyable";
+import { new_AnimationKeyable, AnimationKeyableType } from "./AnimationKeyable";
+
+// looks like: {
+//     ...
+//     curve13: 106,
+//     curve14: 106,
+//     curve15: 106,
+//     curve16: 66,
+//     curve17: 105,
+//     curve18: 106,
+//     ...
+// }
+type MapStringToNumber = {[curvenum: string]: number};
 
 // *===============================================================================================================
 // * class AnimationClip:

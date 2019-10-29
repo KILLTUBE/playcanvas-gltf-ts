@@ -3,6 +3,8 @@ import { AnimationTarget } from "./AnimationTarget";
 import { AnimationKeyable, new_AnimationKeyable } from "./AnimationKeyable";
 import { AnimationClipSnapshot } from "./AnimationClipSnapshot";
 import { AnimationEventCallback } from "./AnimationEvent";
+import { AnimationCurveType } from "./AnimationCurve";
+import { BlendValue, Blendable } from "./Animation";
 
 // *===============================================================================================================
 // * class AnimationSession: playback/runtime related thing
@@ -227,7 +229,7 @@ export class AnimationSession {
 			delete this._cacheBlendValues[curveName]; // 1226
 			delete this.blendWeights[curveName];
 		}
-	};
+	}
 
 	// events related
 
@@ -325,7 +327,7 @@ export class AnimationSession {
 		}
 	}
 
-	updateToTarget(input: AnimationInput) {
+	updateToTarget(input: AnimationClipSnapshot) {
 		var i;
 		var ctarget;
 		for (i = 0; i < input.curveKeyable.length; i ++) {
@@ -415,7 +417,7 @@ export class AnimationSession {
 		var app = pc.Application.getApplication();
 		app.on('update', this.onTimer);
 		return this;
-	};
+	}
 
 	stop() {
 		var app = pc.Application.getApplication();
@@ -462,7 +464,7 @@ export class AnimationSession {
 		this.fadeDir = -1;
 	}
 
-	fadeIn(duration: number, playable: AnimationClip) {
+	fadeIn(duration: number, playable?: AnimationClip) {
 		if (this.isPlaying) {
 			this.stop();
 		}
