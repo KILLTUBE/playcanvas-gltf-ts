@@ -1,7 +1,7 @@
 import { AnimationClip } from "./AnimationClip";
 import { AnimationClipSnapshot } from "./AnimationClipSnapshot";
 import { AnimationComponent } from "./AnimationComponent";
-import { AnimationCurve } from "./AnimationCurve";
+import { AnimationCurveType, AnimationCurve } from "./AnimationCurve";
 import { AnimationEvent } from "./AnimationEvent";
 import { AnimationKeyableNum } from "./AnimationKeyableNum";
 import { AnimationKeyableVec } from "./AnimationKeyableVec";
@@ -19,6 +19,7 @@ Object.assign(window, {
 	AnimationClip,
 	AnimationClipSnapshot,
 	AnimationComponent,
+	AnimationCurveType,
 	AnimationCurve,
 	AnimationEvent,
 	AnimationKeyableNum,

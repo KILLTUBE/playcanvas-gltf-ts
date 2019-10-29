@@ -11,7 +11,7 @@
  * @enum {number}
  */
 
-var AnimationCurveType = {
+export var AnimationCurveType = {
 	LINEAR:           0,
 	STEP:             1,
 	CUBIC:            2,
