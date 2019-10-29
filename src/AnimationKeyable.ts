@@ -19,10 +19,14 @@ export enum AnimationKeyableType {
 }
 
 export interface AnimationKeyable {
+	type: AnimationKeyableType;
+	time: number;
+	_cacheKeyIdx: number;
 	clone(): AnimationKeyable;
+	copy(other: AnimationKeyable): AnimationKeyable;
 }
 
-export function new_AnimationKeyable(type: AnimationKeyableType, time: number, value: BlendValue, inTangent: BlendValue, outTangent: BlendValue): AnimationKeyable {
+export function new_AnimationKeyable(type: AnimationKeyableType, time?: number, value?: BlendValue, inTangent?: BlendValue, outTangent?: BlendValue): AnimationKeyable {
 	switch (type) {
 		case AnimationKeyableType.NUM:
 			return new AnimationKeyableNum(time, value);

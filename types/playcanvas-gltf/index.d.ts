@@ -84,15 +84,6 @@ declare type Blendable = AnimationKeyable | BlendValue;
 // }
 declare type MapStringToNumber = {[curvenum: string]: number};
 
-declare class AnimationCurve {
-    name: number;
-    type: AnimationCurveType;
-    tension: number;
-    duration: number;
-    keyableType: AnimationKeyableType;
-    animTargets: AnimationTarget[];
-    animKeys: AnimationKeyable[];
-}
 
 declare class AnimationClipSnapshot {
     curveKeyable: AnimationKeyable[];
