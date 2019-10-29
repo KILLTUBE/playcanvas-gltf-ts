@@ -120,10 +120,6 @@ declare interface AnimationEvent {
 declare class AnimationClip {
     name: string;
     duration: number;
-    animCurves: AnimationCurve[];
-    animTargets: AnimationTarget[];
-    session: AnimationSession;
-    root: pc.GraphNode;
     getAnimTargets(): AnimationTarget[];
 }
 
