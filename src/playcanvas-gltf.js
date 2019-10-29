@@ -1,4 +1,4 @@
-(function () {
+Object.assign(window, function () {
 
     // Math utility functions
     function nearestPow2(n) {
@@ -1382,12 +1382,13 @@
         return model;
     }
 
-    function loadGltf(gltf, device, success, options) {
+    function loadGltf(gltf, device, done, options) {
         var buffers = (options && options.hasOwnProperty('buffers')) ? options.buffers : undefined;
         var basePath = (options && options.hasOwnProperty('basePath')) ? options.basePath : undefined;
         var processUri = (options && options.hasOwnProperty('processUri')) ? options.processUri : undefined;
         var processAnimationExtras = (options && options.hasOwnProperty('processAnimationExtras')) ? options.processAnimationExtras : undefined;
         var processMaterialExtras = (options && options.hasOwnProperty('processMaterialExtras')) ? options.processMaterialExtras : undefined;
+        var processGlobalExtras = (options && options.hasOwnProperty('processGlobalExtras')) ? options.processGlobalExtras : undefined;
 
         var resources = {
             basePath: basePath,
@@ -1417,9 +1418,16 @@
                 parse('skins', translateSkin, resources);
                 parse('animations', translateAnimation, resources);
 
-                buildHierarchy(resources);
+                if (gltf.hasOwnProperty('extras') && processGlobalExtras) {
+                    processGlobalExtras(gltf.extras);
+                }
 
-                success(createModel(resources), resources.textures, resources.animations);
+                buildHierarchy(resources);
+                done(null, {
+                    model: createModel(resources),
+                    textures: resources.textures,
+                    animations: resources.animations
+                });
 
                 if (gltf.hasOwnProperty('extensionsUsed')) {
                     if (gltf.extensionsUsed.indexOf('KHR_draco_mesh_compression') !== -1) {
@@ -1463,8 +1471,8 @@
         var chunkLength = dataView.getUint32(12, true);
         var chunkType = dataView.getUint32(16, true);
         if (chunkType !== 0x4E4F534A) {
-            console.error("Invalid chunk type found in glb file. Expected 0x4E4F534A, found 0x" + chunkType.toString(16));
-            return null;
+            done("Invalid chunk type found in glb file. Expected 0x4E4F534A, found 0x" + chunkType.toString(16));
+            return;
         }
         var jsonData = new Uint8Array(glb, 20, chunkLength);
         var gltf = JSON.parse(decodeBinaryUtf8(jsonData));
@@ -1476,8 +1484,8 @@
             chunkLength = dataView.getUint32(byteOffset, true);
             chunkType = dataView.getUint32(byteOffset + 4, true);
             if (chunkType !== 0x004E4942) {
-                console.error("Invalid chunk type found in glb file. Expected 0x004E4942, found 0x" + chunkType.toString(16));
-                return null;
+                done("Invalid chunk type found in glb file. Expected 0x004E4942, found 0x" + chunkType.toString(16));
+                return;
             }
 
             var buffer = glb.slice(byteOffset + 8, byteOffset + 8 + chunkLength);
@@ -1488,9 +1496,11 @@
 
         options = options || {};
         options.buffers = buffers;
-        loadGltf(gltf, device, success, options);
+        loadGltf(gltf, device, done, options);
     }
 
-    window.loadGltf = loadGltf;
-    window.loadGlb = loadGlb;
+    return {
+        loadGltf: loadGltf,
+        loadGlb: loadGlb,
+    };
 }());

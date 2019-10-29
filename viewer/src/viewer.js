@@ -34,23 +34,9 @@ function Viewer() {
 
     // Make the camera interactive
     app.assets.loadFromUrl('./src/orbit-camera.js', 'script', function (err, asset) {
-        camera.script.create('orbitCamera', {
-            attributes: {
-                inertiaFactor: 0,
-                distanceMin: 0,
-                distanceMax: 0,
-                pitchAngleMax: 90,
-                pitchAngleMin: -90,
-                frameOnStart: true
-            }
-        });
+        camera.script.create('orbitCamera');
         camera.script.create('keyboardInput');
-        camera.script.create('mouseInput', {
-            attributes: {
-                orbitSensitivity: 0.3,
-                distanceSensitivity: 0.15
-            }
-        });
+        camera.script.create('mouseInput');
 
         if (this.cameraPosition) {
             camera.script.orbitCamera.distance = this.cameraPosition.length();
@@ -147,8 +133,12 @@ Viewer.prototype = {
         delete this.gltf;
     },
 
-    initializeScene: function (model, textures, animationClips) {
+    initializeScene: function (err, res) {
         var i;
+
+        var model = res.model;
+        var textures = res.textures;
+        var animationClips = res.animations;
 
         if (!this.onlyLoadAnimations) {
             // Blow away whatever is currently loaded
@@ -242,6 +232,17 @@ Viewer.prototype = {
         }
     },
     
+    resumeCurrentAnimationClip: function() {
+        if (this.gltf && this.gltf.animComponent) {
+            var clip = this.gltf.animComponent.getCurrentClip();
+            clip.resume();
+            this.anim_slider.max = clip.duration;
+            this.playing = true;
+            this.anim_pause.value = "||";
+            this.clip = clip; // quick access for f12 devtools
+            this.timeline.resize();
+        }
+    },
     playCurrentAnimationClip: function() {
         if (this.gltf && this.gltf.animComponent) {
             //this.gltf.animComponent.getCurrentClip().resume(); // resume doesn't work yet
@@ -259,7 +260,7 @@ Viewer.prototype = {
         if (this.playing) {
             this.pauseAnimationClips();
         } else {
-            this.playCurrentAnimationClip();
+            this.resumeCurrentAnimationClip();
         }
     },
     
@@ -344,7 +345,7 @@ function loadScript(src) {
 }
 
 function main() {
-    if (true) {//typeof WebAssembly !== 'object') {
+    if (typeof WebAssembly !== 'object') {
         loadScript('../draco/draco_decoder.js').then(function () {
             decoderModule = DracoDecoderModule();
         });
