@@ -1,29 +1,31 @@
+interface AnimationEventCallback {
+    (context: any, parameter: any): void
+}
 
-/**
- * @constructor
- * @param {string} name
- * @param {number} time
- * @param {AnimationEventCallback} fnCallback
- * @param {any} context
- * @param {any} parameter
- */
+export class AnimationEvent {
+	name: string;
+	triggerTime: number;
+	fnCallback: AnimationEventCallback;
+	context: any;
+	parameter: any;
+	triggered: boolean;
 
-export var AnimationEvent = function (name, time, fnCallback, context, parameter) {
-	this.name = name;
-	this.triggerTime = time;
-	this.fnCallback = fnCallback;
-	this.context = context || this;
-	this.parameter = parameter;
-
-	this.triggered = false;
-};
-
-AnimationEvent.prototype.invoke = function () {
-	if (this.fnCallback) {
-		this.fnCallback.call(this.context, this.parameter);
-		this.triggered = true;
+	constructor(name: string, time: number, fnCallback: AnimationEventCallback, context: any, parameter: any) {
+		this.name = name;
+		this.triggerTime = time;
+		this.fnCallback = fnCallback;
+		this.context = context || this;
+		this.parameter = parameter;
+		this.triggered = false;
 	}
-};
+
+	invoke() {
+		if (this.fnCallback) {
+			this.fnCallback.call(this.context, this.parameter);
+			this.triggered = true;
+		}
+	}
+}
 
 /*
 // note: used in line 2127, but undefined... never used so far

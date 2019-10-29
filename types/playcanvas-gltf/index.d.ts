@@ -1,3 +1,4 @@
+import { AnimationClip } from "../../src/AnimationClip";
 
 // extend playcanvas-typings
 declare namespace pc {
@@ -65,10 +66,6 @@ declare interface AnimationKeyableQuatCubicSpline {
     outTangent: pc.Quat;
 }
 
-declare interface AnimationEventCallback {
-    (context: any, parameter: any): void
-}
-
 declare interface AnimationTarget {
     vScale?: pc.Vec3 | number[];
     targetNode: pc.GraphNode;
@@ -108,19 +105,6 @@ declare class AnimationClipSnapshot {
     curveKeyable: AnimationKeyable[];
     time: number;
     _cacheKeyIdx: MapStringToNumber;
-}
-
-// todo: rename AnimationEvent (name collision with CSS)
-declare interface AnimationEvent {
-    name: string;
-    triggerTime: number;
-    fnCallback: AnimationEventCallback;
-}
-
-declare class AnimationClip {
-    name: string;
-    duration: number;
-    getAnimTargets(): AnimationTarget[];
 }
 
 declare interface AnimationSession {
