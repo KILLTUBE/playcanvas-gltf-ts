@@ -30,6 +30,7 @@ var AnimationClip = function (root) {
 };
 AnimationClip.count = 0;
 
+
 // getter setter
 Object.defineProperty(AnimationClip.prototype, 'isPlaying', {
     get: function () {
@@ -455,3 +456,8 @@ AnimationClip.prototype.setInterpolationType = function (type) {
         }
     }
 };
+
+
+export {
+    AnimationClip
+}

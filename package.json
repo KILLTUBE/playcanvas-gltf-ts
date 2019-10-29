@@ -32,5 +32,9 @@
   },
   "engines": {
     "node": ">= 0.6.12"
+  },
+  "dependencies": {
+    "parcel": "^1.12.4",
+    "typescript": "^3.6.4"
   }
 }
