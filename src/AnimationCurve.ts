@@ -22,7 +22,7 @@ var AnimationCurveType = {
  * @constructor
  */
 
-var AnimationCurve = function () {
+export var AnimationCurve = function () {
     this.name = -1; // AnimationClip#addCurve will assign a proper ID
     this.type = AnimationCurveType.LINEAR;
     this.keyableType = AnimationKeyableType.NUM;

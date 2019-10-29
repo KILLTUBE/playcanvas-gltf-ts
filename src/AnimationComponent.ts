@@ -10,7 +10,7 @@
  * @constructor
  */
 
-var AnimationComponent = function () {
+export var AnimationComponent = function () {
     this.name = "";
     this.animClipsMap = {}; // make it a map, easy to query clip by name
     this.animClips = [];

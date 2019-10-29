@@ -4,7 +4,7 @@
  * @param {number} [value]
  */
 
-var AnimationKeyableNum = function (time, value) {
+export var AnimationKeyableNum = function (time, value) {
     this.type  = AnimationKeyableType.NUM;
     this.time  = time  || 0.0;
     this.value = value || 0.0;
@@ -40,7 +40,7 @@ AnimationKeyableNum.prototype.linearBlend = function (from, to, alpha) {
  * @param {pc.Vec3} [value]
  */
 
-var AnimationKeyableVec = function (time, value) {
+export var AnimationKeyableVec = function (time, value) {
     this.type  = AnimationKeyableType.VEC;
     this.time  = time  || 0.0;
     this.value = value || new pc.Vec3();
@@ -76,7 +76,7 @@ AnimationKeyableVec.prototype.linearBlend = function (from, to, alpha) {
  * @param {pc.Quat} [value]
  */
 
-var AnimationKeyableQuat = function (time, value) {
+export var AnimationKeyableQuat = function (time, value) {
     this.type  = AnimationKeyableType.QUAT;
     this.time  = time  || 0.0;
     this.value = value || new pc.Quat();
@@ -114,7 +114,7 @@ AnimationKeyableQuat.prototype.linearBlend = function (from, to, alpha) {
  * @param {number} [outTangent]
  */
 
-var AnimationKeyableNumCubicSpline = function (time, value, inTangent, outTangent) {
+export var AnimationKeyableNumCubicSpline = function (time, value, inTangent, outTangent) {
     this.type       = AnimationKeyableType.NUM_CUBICSCPLINE;
     this.time       = time       || 0.0;
     this.value      = value      || 0.0;
@@ -157,7 +157,7 @@ AnimationKeyableNumCubicSpline.prototype.cubicHermite = function (from, to, alph
  * @param {pc.Vec3} [outTangent]
  */
 
-var AnimationKeyableVecCubicSpline = function (time, value, inTangent, outTangent) {
+export var AnimationKeyableVecCubicSpline = function (time, value, inTangent, outTangent) {
     this.type       = AnimationKeyableType.VEC_CUBICSCPLINE;
     this.time       = time       || 0.0;
     this.value      = value      || new pc.Vec3();
@@ -203,7 +203,7 @@ AnimationKeyableVecCubicSpline.prototype.cubicHermite = function (from, to, alph
  * @param {pc.Quat} [outTangent]
  */
 
-var AnimationKeyableQuatCubicSpline = function (time, value, inTangent, outTangent) {
+export var AnimationKeyableQuatCubicSpline = function (time, value, inTangent, outTangent) {
     this.type       = AnimationKeyableType.QUAT_CUBICSCPLINE;
     this.time       = time       || 0.0;
     this.value      = value      || new pc.Quat();

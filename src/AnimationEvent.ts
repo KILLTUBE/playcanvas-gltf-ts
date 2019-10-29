@@ -8,7 +8,7 @@
  * @param {any} parameter
  */
 
-var AnimationEvent = function (name, time, fnCallback, context, parameter) {
+export var AnimationEvent = function (name, time, fnCallback, context, parameter) {
     this.name = name;
     this.triggerTime = time;
     this.fnCallback = fnCallback;

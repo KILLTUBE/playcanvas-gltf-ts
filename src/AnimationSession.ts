@@ -11,7 +11,7 @@
  * @param {AnimationClip} [playable]
  */
 
-var AnimationSession = function AnimationSession(playable) {
+export var AnimationSession = function AnimationSession(playable) {
     this._cacheKeyIdx = undefined;// integer if playable is curve, object {} if playable is clip
     this._cacheValue = undefined;// 1215, keyable if playable is curve, snapshot if playable is clip, all pre allocated
     this._cacheBlendValues = {};// 1226

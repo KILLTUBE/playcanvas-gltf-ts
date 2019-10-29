@@ -12,7 +12,7 @@
  * @constructor
  */
 
-var AnimationClipSnapshot = function () {
+export var AnimationClipSnapshot = function () {
     this.curveKeyable = [];
 };
 

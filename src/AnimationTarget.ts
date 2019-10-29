@@ -2,7 +2,7 @@
 /**
  * @enum {number}
  */
-var TargetPath = {
+export var TargetPath = {
     LocalPosition:    0,
     LocalScale:       1,
     LocalRotation:    2,
@@ -21,7 +21,7 @@ var TargetPath = {
  * @param {TargetPath} [targetPath]
  * @param {string} [targetProp]
  */
-var AnimationTarget = function (targetNode, targetPath, targetProp) {
+export var AnimationTarget = function (targetNode, targetPath, targetProp) {
     this.targetNode = targetNode;
     this.targetPath = targetPath;
     this.targetProp = targetProp;
