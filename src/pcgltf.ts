@@ -12,12 +12,13 @@ import { AnimationKeyableVecCubicSpline } from "./AnimationKeyableVecCubicSpline
 import { AnimationKeyableQuatCubicSpline } from "./AnimationKeyableQuatCubicSpline";
 import { AnimationSession } from "./AnimationSession";
 import { TargetPath, AnimationTarget } from "./AnimationTarget";
+import { loadGltf, loadGlb } from "./playcanvas-gltf";
 
 export type SingleDOF = number | pc.Vec2 | pc.Vec3 | pc.Vec4 | pc.Quat;
 export type BlendValue = SingleDOF;
 export type Blendable = AnimationKeyable | BlendValue;
 
-Object.assign(window, {
+var lib = {
 	AnimationClip,
 	AnimationClipSnapshot,
 	AnimationComponent,
@@ -35,5 +36,15 @@ Object.assign(window, {
 	AnimationKeyableQuatCubicSpline,
 	AnimationSession,
 	TargetPath,
-	AnimationTarget
+	AnimationTarget,
+	loadGltf,
+	loadGlb,
+};
+
+// export everything globally
+Object.assign(window, lib);
+
+// but also into pcgltf namespace
+Object.assign(window, {
+	pcgltf: lib
 });

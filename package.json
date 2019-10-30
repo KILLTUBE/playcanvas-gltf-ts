@@ -26,9 +26,8 @@
     "eslint-config-playcanvas": "^1.0.0"
   },
   "scripts": {
-    "viewer": "electron ./viewer/main.js",
-    "lint": "eslint src/playcanvas-anim.js src/playcanvas-gltf.js",
-    "watch": "parcel watch --public-url . ./src/Animation.ts --no-hmr"
+    "watch": "parcel watch --public-url . ./src/pcgltf.ts --no-hmr",
+    "lint": "eslint src/playcanvas-anim.js src/playcanvas-gltf.js"
   },
   "engines": {
     "node": ">= 0.6.12"

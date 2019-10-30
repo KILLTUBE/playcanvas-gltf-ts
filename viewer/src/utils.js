@@ -2,16 +2,16 @@ init_overlay = function () {
     var overlay = document.getElementById("overlay");
     // give scripts the ability to determine if the event should be ignored
     overlay.onkeydown = function(event) {
-        event.isOverlayEvent = true;
+        event.stopPropagation();
     };
     overlay.onmousedown = function(event) {
-        event.isOverlayEvent = true;
+        event.stopPropagation();
     };
     overlay.onmousemove = function(event) {
-        event.isOverlayEvent = true;
+        event.stopPropagation();
     };
     overlay.onmousewheel = function(event) {
-        event.isOverlayEvent = true;
+        event.stopPropagation();
     };
     return overlay;
 }

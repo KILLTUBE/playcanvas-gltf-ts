@@ -30,8 +30,6 @@ FirstPersonMovement.prototype.initialize = function() {
 
     // when the mouse is clicked hide the cursor
     app.mouse.on("mousedown", function (e) {
-        if (e.event.isOverlayEvent === true)
-            return;
         app.mouse.enablePointerLock();
     }, this);            
 
@@ -162,8 +160,6 @@ FirstPersonMovement.prototype.update = function(dt) {
 };
 
 FirstPersonMovement.prototype._onMouseMove = function (e) {
-    if (e.event.isOverlayEvent === true)
-        return;
     // If pointer is disabled
     // If the left mouse button is down update the camera from mouse movement
     if (pc.Mouse.isPointerLocked() || e.buttons[0]) {

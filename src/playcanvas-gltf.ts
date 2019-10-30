@@ -1,11 +1,11 @@
-Object.assign(window, function () {
+//Object.assign(window, function () {
 
     // Math utility functions
-    function nearestPow2(n) {
+    function nearestPow2(n: number) {
         return Math.pow(2, Math.round(Math.log(n) / Math.log(2)));
     }
 
-    function isPowerOf2(n) {
+    function isPowerOf2(n: number) {
         return n && (n & (n - 1)) === 0;
     }
 
@@ -1499,8 +1499,8 @@ Object.assign(window, function () {
         loadGltf(gltf, device, done, options);
     }
 
-    return {
-        loadGltf: loadGltf,
-        loadGlb: loadGlb,
-    };
-}());
+    export {
+        loadGltf,
+        loadGlb,
+    }
+//}());

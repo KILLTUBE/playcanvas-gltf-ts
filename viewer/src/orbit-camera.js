@@ -20,8 +20,6 @@ KeyboardInput.prototype.postInitialize = function() {
 KeyboardInput.prototype.update = function(dt) {};
 
 KeyboardInput.prototype.onKeyDown = function(event) {
-    if (event.event.isOverlayEvent === true)
-        return;
     if (this.orbitCamera) {
         if (event.key == pc.KEY_SPACE) {
             this.orbitCamera.reset(this.startYaw, this.startPitch, this.startDistance);
@@ -112,8 +110,6 @@ MouseInput.prototype.pan = function(screenPoint) {
 
 
 MouseInput.prototype.onMouseDown = function (event) {
-    if (event.event.isOverlayEvent === true)
-        return;
     switch (event.button) {
         case pc.MOUSEBUTTON_LEFT: {
             this.lookButtonDown = true;
@@ -156,10 +152,7 @@ MouseInput.prototype.onMouseMove = function (event) {
 
 
 MouseInput.prototype.onMouseWheel = function (event) {
-    if (event.event.isOverlayEvent === true)
-        return;
     this.orbitCamera.distance -= event.wheel * this.distanceSensitivity * (this.orbitCamera.distance * 0.1);
-    event.event.preventDefault();
 };
 
 

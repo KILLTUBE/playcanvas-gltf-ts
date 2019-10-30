@@ -1,100 +1,80 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <title>PlayCanvas glTF Viewer</title>
-        <meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no' />
-        <link rel="icon" type="image/png" href="icons/favicon.png">
-        <link rel="stylesheet" href="styles.css">
-		
-        <script>
-
-            function fetch_script(url) {
-                return new Promise(function(resolve, reject) {
-                    var script = document.createElement("script");
-                    script.type = "text/javascript";
-                    script.onload = function () {
-                        resolve(script);
-                    };
-                    script.src = url;
-                    document.head.appendChild(script);
-                });
-            }
-
-            window.onload = async function() {
-
-                window.wasm = false;
-                window.prefix_url = window.location.origin; // e.g. `window.location.origin == "http://127.0.0.1"`
-
-                if (window.wasm) {
-                    await fetch_script(window.prefix_url + "/MathAS/html5/main.js");
-                    await init_mathas (window.prefix_url + "/MathAS/");
-                    module.memory.grow((300 * 1024 * 1024 ) / 65536) // can use up to 300mb without regrowth (which fucks up dataviews :S)
-                    module.updateDataViews();
-                    await fetch_script(window.prefix_url + "/AssemblyCanvas/build/output/playcanvas-latest.js");
-                } else {
-                    await fetch_script(window.prefix_url + "/playcanvas-engine/build/output/playcanvas.js");
-                }
-                
-
-                if (window.wasm) {
-                    // todo
-                } else {
-                    await fetch_script('../dist/Animation.js');
-                    //await fetch_script('../src/AnimationClip.js');
-                    //await fetch_script('../src/AnimationClipSnapshot.js');
-                    //await fetch_script('../src/AnimationComponent.js');
-                    //await fetch_script('../src/AnimationCurve.js');
-                    //await fetch_script('../src/AnimationEvent.js');
-                    //await fetch_script('../src/AnimationKeyable.js');
-                    //await fetch_script('../src/AnimationSession.js');
-                    //await fetch_script('../src/AnimationTarget.js');
-                }
-				//await fetch_script('../src/playcanvas-anim.js');
-				await fetch_script('../src/playcanvas-gltf.js');
+	<head>
+		<meta charset="utf-8">
+		<title>PlayCanvas glTF Viewer</title>
+		<meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no' />
+		<link rel="icon" type="image/png" href="icons/favicon.png">
+		<link rel="stylesheet" href="styles.css">
+		<script>
+			function fetch_script(url) {
+				return new Promise(function(resolve, reject) {
+					var script = document.createElement("script");
+					script.type = "text/javascript";
+					script.onload = function () {
+						resolve(script);
+					};
+					script.src = url;
+					document.head.appendChild(script);
+				});
+			}
+			window.onload = async function() {
+				window.wasm = false;
+				window.prefix_url = window.location.origin; // e.g. `window.location.origin == "http://127.0.0.1"`
+				if (window.wasm) {
+					await fetch_script(window.prefix_url + "/MathAS/html5/main.js");
+					await init_mathas (window.prefix_url + "/MathAS/");
+					module.memory.grow((300 * 1024 * 1024 ) / 65536) // can use up to 300mb without regrowth (which fucks up dataviews :S)
+					module.updateDataViews();
+					await fetch_script(window.prefix_url + "/AssemblyCanvas/build/output/playcanvas-latest.js");
+				} else {
+					await fetch_script(window.prefix_url + "/playcanvas-engine/build/output/playcanvas.js");
+				}
+				if (window.wasm) {
+					// todo
+				} else {
+					await fetch_script('../dist/pcgltf.js');
+				}
 				await fetch_script('src/utils.js');
 				await fetch_script('src/viewer.js');
 				await fetch_script('src/shaderchunks.js');
 				await fetch_script('src/timeline.js');
-
 				//setup_scene();
 				main();
-            }
+			}
 		</script>
-		
-        <!--<script src='https://code.playcanvas.com/playcanvas-stable.js'></script>-->
-        <!--<script src="playcanvas-latest.js"></script>-->
+		<!--<script src='https://code.playcanvas.com/playcanvas-stable.js'></script>-->
+		<!--<script src="playcanvas-latest.js"></script>-->
 		<!--
-        <script src='../src/playcanvas-anim.js'></script>
-        <script src='../src/playcanvas-gltf.js'></script>
-        <script src='src/utils.js'></script>
-        <script src='src/viewer.js'></script>
-        <script src='src/shaderchunks.js'></script>
-        <script src='src/timeline.js'></script>
+		<script src='../dist/pcgltf.js'></script>
+		<script src='src/utils.js'></script>
+		<script src='src/viewer.js'></script>
+		<script src='src/shaderchunks.js'></script>
+		<script src='src/timeline.js'></script>
 		-->
-    </head>
-    <body>
-        <div id="overlay">
-            <div id="anim">
-                <select id="anim_select"></select>
-                <input  id="anim_pause"  type="button" value="||">
-                <input  id="anim_slider" type="range" min="0" max="1" value="0" step="any">
-                <input  id="anim_timeline_toggle" type="button" value="Show Timeline">
-                <input  id="shaderchunks_toggle"  type="button" value="Show ShaderChunks">
-                <input  id="shaderchunks_regen"  type="button" value="Regenerate Shaders">
-                <input  id="spawn_8x8"  type="button" value="Spawn 8x8" onclick="spawn8x8()">
-                <span   id="anim_info"></span>
-                <canvas id="anim_timeline" width=1000 height=200></canvas>
-            </div>
+	</head>
+	<body>
+		<div id="overlay">
+			<div id="anim">
+				<select id="anim_select"></select>
+				<input  id="anim_pause"  type="button" value="||">
+				<input  id="anim_slider" type="range" min="0" max="1" value="0" step="any">
+				<input  id="anim_timeline_toggle" type="button" value="Show Timeline">
+				<input  id="shaderchunks_toggle"  type="button" value="Show ShaderChunks">
+				<input  id="shaderchunks_regen"  type="button" value="Regenerate Shaders">
+				<input  id="spawn_8x8"  type="button" value="Spawn 8x8" onclick="spawn8x8()">
+				<span   id="anim_info"></span>
+				<canvas id="anim_timeline" width=1000 height=200></canvas>
+			</div>
 			<div id="shaderchunks"></div>
-        </div>
-        <div id="dropzone" class="dropzone">
-            <!--
-            <p>
-                Drag .glb files or embedded .gltf files<br>
-                For non-embedded .gltf files, drag the containing folder
-            </p>
-            -->
-        </div>
-    </body>
+		</div>
+		<div id="dropzone" class="dropzone">
+			<!--
+			<p>
+				Drag .glb files or embedded .gltf files<br>
+				For non-embedded .gltf files, drag the containing folder
+			</p>
+			-->
+		</div>
+	</body>
 </html>
