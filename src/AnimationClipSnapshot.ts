@@ -1,4 +1,5 @@
 import { AnimationKeyable, AnimationKeyable_linearBlendValue } from "./AnimationKeyable";
+import { AnimationCurveMap, AnimationCurveType } from "./AnimationCurve";
 
 // *===============================================================================================================
 // * class AnimationClipSnapshot: animation clip slice (pose) at a particular time
@@ -10,7 +11,7 @@ import { AnimationKeyable, AnimationKeyable_linearBlendValue } from "./Animation
 
 export class AnimationClipSnapshot {
 	curveKeyable: AnimationKeyable[];
-	_cacheKeyIdx: number;
+	_cacheKeyIdx: number[];
 	time: number;
 	
 	constructor() {
@@ -18,8 +19,9 @@ export class AnimationClipSnapshot {
 	}
 
 	copy(shot: AnimationClipSnapshot) {
-		if (!shot)
+		if (!shot) {
 			return this;
+		}
 		this.curveKeyable = [];
 		for (var i = 0; i < shot.curveKeyable.length; i ++) {
 			this.curveKeyable[i] = shot.curveKeyable[i].clone();
@@ -33,12 +35,15 @@ export class AnimationClipSnapshot {
 	}
 
 	static linearBlend(shot1: AnimationClipSnapshot, shot2: AnimationClipSnapshot, p: number): AnimationClipSnapshot {
-		if (!shot1 || !shot2)
+		if (!shot1 || !shot2) {
 			return null;
-
-		if (p === 0) return shot1;
-		if (p === 1) return shot2;
-
+		}
+		if (p === 0) {
+			return shot1;
+		}
+		if (p === 1) {
+			return shot2;
+		}
 		var resShot = new AnimationClipSnapshot();
 		resShot.copy(shot1);
 		for (var i = 0; i < shot2.curveKeyable.length; i ++) {
@@ -62,15 +67,12 @@ export class AnimationClipSnapshot {
 		if (!shot1 || !shot2) {
 			return null;
 		}
-
 		if (p === 0) {
 			return shot1;
 		}
-
 		if (p === 1) {
 			return shot2;
 		}
-
 		var resShot = new AnimationClipSnapshot();
 		resShot.copy(shot1);
 		for (var i = 0; i < shot2.curveKeyable.length; i ++) {
@@ -80,13 +82,14 @@ export class AnimationClipSnapshot {
 					if (p > 0.5) resShot.curveKeyable[cname] = shot2.curveKeyable[cname];
 					else resShot.curveKeyable[cname] = shot1.curveKeyable[cname];
 				} else {
-					var resKey = AnimationKeyable.linearBlend(shot1.curveKeyable[cname], shot2.curveKeyable[cname], p);
+					var resKey = AnimationKeyable_linearBlendValue(shot1.curveKeyable[cname], shot2.curveKeyable[cname], p);
 					resShot.curveKeyable[cname] = resKey;
 				}
-			} else if (shot1.curveKeyable[cname])
+			} else if (shot1.curveKeyable[cname]) {
 				resShot.curveKeyable[cname] = shot1.curveKeyable[cname];
-			else if (shot2.curveKeyable[cname])
+			} else if (shot2.curveKeyable[cname]) {
 				resShot.curveKeyable[cname] = shot2.curveKeyable[cname];
+			}
 		}
 		return resShot;
 	}

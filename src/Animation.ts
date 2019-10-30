@@ -3,7 +3,7 @@ import { AnimationClipSnapshot } from "./AnimationClipSnapshot";
 import { AnimationComponent } from "./AnimationComponent";
 import { AnimationCurveType, AnimationCurve } from "./AnimationCurve";
 import { AnimationEvent } from "./AnimationEvent";
-import { AnimationKeyableType, new_AnimationKeyable, AnimationKeyable_linearBlendValue } from "./AnimationKeyable";
+import { AnimationKeyableType, new_AnimationKeyable, AnimationKeyable_linearBlendValue, AnimationKeyable } from "./AnimationKeyable";
 import { AnimationKeyableNum } from "./AnimationKeyableNum";
 import { AnimationKeyableVec } from "./AnimationKeyableVec";
 import { AnimationKeyableQuat } from "./AnimationKeyableQuat";
@@ -27,7 +27,6 @@ declare namespace pc {
 export type SingleDOF = number | pc.Vec2 | pc.Vec3 | pc.Vec4 | pc.Quat;
 export type BlendValue = SingleDOF;
 export type Blendable = AnimationKeyable | BlendValue;
-
 
 Object.assign(window, {
 	AnimationClip,

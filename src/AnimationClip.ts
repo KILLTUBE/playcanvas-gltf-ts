@@ -5,27 +5,13 @@ import { AnimationTarget, TargetPath } from "./AnimationTarget";
 import { AnimationEventCallback } from "./AnimationEvent";
 import { new_AnimationKeyable, AnimationKeyableType } from "./AnimationKeyable";
 
-// looks like: {
-//     ...
-//     curve13: 106,
-//     curve14: 106,
-//     curve15: 106,
-//     curve16: 66,
-//     curve17: 105,
-//     curve18: 106,
-//     ...
-// }
-type MapStringToNumber = {[curvenum: string]: number};
-
-// *===============================================================================================================
-// * class AnimationClip:
-// * member
-// *	   name: name of this animation clip
-// *	   animCurves: an array of curves in the clip, each curve corresponds to one channel along timeline
-// *
-// * e.g.:   for an animation clip of a character, name = "walk"
-// *	   each joint has one curve with keys on timeline, thus animCurves stores curves of all joints
-// *===============================================================================================================
+/**
+ * @param name name of this animation clip
+ * @param animCurves an array of curves in the clip, each curve corresponds to one channel along timeline
+ * @summary
+ * e.g.: for an animation clip of a character, name = "walk"
+ * each joint has one curve with keys on timeline, thus animCurves stores curves of all joints
+ */
 
 export class AnimationClip {
 	static count = 0;
@@ -217,19 +203,18 @@ export class AnimationClip {
 		return subClip;
 	}
 
-	eval_cache(time: number, cacheKeyIdx: MapStringToNumber, cacheValue: AnimationClipSnapshot): AnimationClipSnapshot {
+	eval_cache(time: number, cacheKeyIdx: number[], cacheValue: AnimationClipSnapshot): AnimationClipSnapshot {
+		//console.log("cacheKeyIdx", cacheKeyIdx)
 		if (!cacheValue) {
 			var ret = this.eval();
 			ret._cacheKeyIdx = cacheKeyIdx;
 			return ret;
 		}
-
 		var snapshot = cacheValue;
 		snapshot.time = time;
-
 		for (var i = 0, len = this.animCurves.length; i < len; i++) {
 			var curve = this.animCurves[i];
-			var ki;
+			var ki: number;
 			if (cacheKeyIdx) {
 				ki = cacheKeyIdx[curve.name];
 			}
@@ -239,8 +224,10 @@ export class AnimationClip {
 			} else {
 				kv = new_AnimationKeyable(curve.keyableType);
 			}
-			var keyable = curve.eval_cache(time, ki, kv);// 0210
-			if (cacheKeyIdx && keyable) cacheKeyIdx[curve.name] = keyable._cacheKeyIdx;
+			var keyable = curve.eval_cache(time, ki, kv);
+			if (cacheKeyIdx && keyable) {
+				cacheKeyIdx[curve.name] = keyable._cacheKeyIdx;
+			}
 			snapshot.curveKeyable[curve.name] = keyable;
 		}
 		snapshot._cacheKeyIdx = cacheKeyIdx;

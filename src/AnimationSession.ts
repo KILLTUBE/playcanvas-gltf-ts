@@ -1,8 +1,8 @@
 import { AnimationClip } from "./AnimationClip";
 import { AnimationTarget } from "./AnimationTarget";
-import { AnimationKeyable, new_AnimationKeyable } from "./AnimationKeyable";
+import { AnimationEvent, AnimationEventCallback } from "./AnimationEvent";
+import { AnimationKeyable, new_AnimationKeyable, AnimationKeyableType } from "./AnimationKeyable";
 import { AnimationClipSnapshot } from "./AnimationClipSnapshot";
-import { AnimationEventCallback } from "./AnimationEvent";
 import { AnimationCurveType } from "./AnimationCurve";
 import { BlendValue, Blendable } from "./Animation";
 
@@ -21,21 +21,21 @@ export class AnimationSession {
     bySpeed: number;
     isPlaying: boolean;
     animTargets: AnimationTarget[];
-	_cacheKeyIdx: object;
+	_cacheKeyIdx: number[];
 	_cacheValue: any;
     speed: number;
     blendables: {[curveName: string]: Blendable};
     _cacheBlendValues: {[name: string]: AnimationClipSnapshot | AnimationKeyable};
-    blendWeights: {[name: string]: AnimationClip};
+    blendWeights: {[name: string]: number};
     animEvents: AnimationEvent[];
 	onTimer: (dt: number) => void;
 	loop: boolean;
 	fadeBegTime: number;
 	fadeEndTime: number;
 	fadeTime: number;
-	fadeDir: number;// 1 is in, -1 is out
+	fadeDir: number; // 1 is in, -1 is out
 	fadeSpeed: number;
-	playable: any;
+	playable: AnimationClip;
 
 	constructor(playable?: AnimationClip) {
 		this._cacheKeyIdx = undefined;// integer if playable is curve, object {} if playable is clip
@@ -134,7 +134,7 @@ export class AnimationSession {
 	allocateCache() {
 		if (!this.playable)
 			return;
-		this._cacheKeyIdx = {};
+		this._cacheKeyIdx = [];
 		this._cacheValue = AnimationSession._allocatePlayableCache(this.playable);
 	}
 
@@ -341,12 +341,15 @@ export class AnimationSession {
 	showAt(time: number, fadeDir: number, fadeBegTime: number, fadeEndTime: number, fadeTime: number) {
 		var p;
 		var input = this.playable.eval_cache(time, this._cacheKeyIdx, this._cacheValue);
-		if (input)
+		if (input) {
 			this._cacheKeyIdx = input._cacheKeyIdx;
+		}
 		// blend related==========================================================
 		// blend animations first
 		for (var bname in this.blendables) {
-			if (!this.blendables.hasOwnProperty(bname)) continue;
+			if (!this.blendables.hasOwnProperty(bname)) {
+				continue;
+			}
 			p = this.blendWeights[bname];
 			var blendClip = this.blendables[bname];
 			if (blendClip && (blendClip instanceof AnimationClip) && (typeof p === "number")) {
@@ -356,41 +359,39 @@ export class AnimationSession {
 		}
 		// blend custom bone second
 		for (var cname in this.blendables) {
-			if (!this.blendables.hasOwnProperty(cname)) continue;
+			if (!this.blendables.hasOwnProperty(cname)) {
+				continue;
+			}
 			p = this.blendWeights[cname];
 			var blendkey = this.blendables[cname];
-			if (!blendkey || !input.curveKeyable[cname] || (blendkey instanceof AnimationClip))
+			if (!blendkey || !input.curveKeyable[cname] || (blendkey instanceof AnimationClip)) {
 				continue;
+			}
 			var resKey = AnimationKeyable.linearBlend(input.curveKeyable[cname], blendkey, p);
 			input.curveKeyable[cname] = resKey;
 		}
-
-		if (fadeDir === 0 || fadeTime < fadeBegTime || fadeTime > fadeEndTime)
+		if (fadeDir === 0 || fadeTime < fadeBegTime || fadeTime > fadeEndTime) {
 			this.updateToTarget(input);
-		else {
+		} else {
 			p = (fadeTime - fadeBegTime) / (fadeEndTime - fadeBegTime);
-			if (fadeDir === -1)
+			if (fadeDir === -1) {
 				p = 1 - p;
-
+			}
 			if (this.fadeSpeed < 1 && fadeDir === -1) { // fadeOut from non-100%
 				p *= this.fadeSpeed;
 			}
-
 			this.blendToTarget(input, p);
 		}
 	}
 
 	play(playable?: AnimationClip, animTargets?: AnimationTarget[]) {
-		var i;
-
 		if (playable) {
 			this.playable = playable;
 			this.allocateCache();
 		}
-
-		if (this.isPlaying) // already playing
+		if (this.isPlaying) { // already playing
 			return this;
-
+		}
 		this.begTime = 0;
 		this.endTime = this.playable.duration;
 		this.curTime = 0;
@@ -400,20 +401,15 @@ export class AnimationSession {
 			this.bySpeed = playable.bySpeed;
 			this.loop = playable.loop;
 		}
-
-		if (!animTargets && playable && typeof playable.getAnimTargets === "function")
+		if (!animTargets && playable && typeof playable.getAnimTargets === "function") {
 			this.animTargets = playable.getAnimTargets();
-		else if (animTargets)
+		} else if (animTargets) {
 			this.animTargets = animTargets;
-
+		}
 		// reset events
-		for (i = 0; i < this.animEvents.length; i ++)
+		for (var i=0; i<this.animEvents.length; i++) {
 			this.animEvents[i].triggered = false;
-
-		// reset events
-		for (i = 0; i < this.animEvents.length; i ++)
-			this.animEvents[i].triggered = false;
-
+		}
 		var app = pc.Application.getApplication();
 		app.on('update', this.onTimer);
 		return this;
