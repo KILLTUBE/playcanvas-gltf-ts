@@ -1,107 +1,132 @@
-var decoderModule;
+import { AnimationComponent } from "./AnimationComponent";
+import { Timeline } from "./Timeline";
+import { ShaderChunks } from "./ShaderChunks";
+import { init_overlay, select_remove_options, select_add_option } from "./utils";
+import { loadGlb, loadGltf } from "./playcanvas-gltf";
 
-export function Viewer() {
-    var canvas = document.createElement('canvas');
-    document.body.appendChild(canvas);
+declare var viewer: Viewer;
 
-    var app = new pc.Application(canvas, {
-        mouse: new pc.Mouse(document.body),
-        keyboard: new pc.Keyboard(window),
-        vr: true
-    });
-    app.start();
+var decoderModule: any;
 
-    // Fill the available space at full resolution
-    app.setCanvasFillMode(pc.FILLMODE_FILL_WINDOW);
-    app.setCanvasResolution(pc.RESOLUTION_AUTO);
+export class Viewer {
+    onlyLoadAnimations: boolean;
+    app: pc.Application;
+    camera: pc.Entity;
+    playing: boolean;
+    overlay: any;
+    timeline: Timeline;
+    shaderChunks: ShaderChunks;
+    gltf: pc.Entity;
+    asset: any;
+    textures: any;
+    animationClips: any;
+    anim_info: HTMLElement;
+    anim_select: HTMLElement;
+    anim_slider: HTMLElement;
+    anim_pause: HTMLElement;
+    cameraPosition: pc.Vec3;
 
-    app.scene.gammaCorrection = pc.GAMMA_SRGB;
-    app.scene.toneMapping = pc.TONEMAP_ACES;
+    constructor() {
+        var canvas = document.createElement('canvas');
+        document.body.appendChild(canvas);
 
-    // Ensure canvas is resized when window changes size
-    window.addEventListener('resize', function() {
-        app.resizeCanvas();
-    });
+        var app = new pc.Application(canvas, {
+            mouse: new pc.Mouse(document.body),
+            keyboard: new pc.Keyboard(window),
+            vr: true
+        });
+        app.start();
 
-    // Create camera entity
-    var camera = new pc.Entity('camera');
-    camera.addComponent('camera', {
-        fov: 45.8366
-    });
-    camera.addComponent('script');
-    camera.setPosition(0, 0, 1);
-    app.root.addChild(camera);
+        // Fill the available space at full resolution
+        app.setCanvasFillMode(pc.FILLMODE_FILL_WINDOW);
+        app.setCanvasResolution(pc.RESOLUTION_AUTO);
 
-    // Make the camera interactive
-    app.assets.loadFromUrl('./src/orbit-camera.js', 'script', function (err, asset) {
-        camera.script.create('orbitCamera');
-        camera.script.create('keyboardInput');
-        camera.script.create('mouseInput');
+        app.scene.gammaCorrection = pc.GAMMA_SRGB;
+        app.scene.toneMapping = pc.TONEMAP_ACES;
 
-        if (this.cameraPosition) {
-            camera.script.orbitCamera.distance = this.cameraPosition.length();
-        } else if (this.gltf) {
-            camera.script.orbitCamera.focusEntity = this.gltf;
-        }
-    }.bind(this));
+        // Ensure canvas is resized when window changes size
+        window.addEventListener('resize', function() {
+            app.resizeCanvas();
+        });
 
-    // Create directional light entity
-    var light = new pc.Entity('light');
-    light.addComponent('light');
-    light.setEulerAngles(45, 0, 0);
-    app.root.addChild(light);
+        // Create camera entity
+        var camera = new pc.Entity('camera');
+        camera.addComponent('camera', {
+            fov: 45.8366
+        });
+        camera.addComponent('script');
+        camera.setPosition(0, 0, 1);
+        app.root.addChild(camera);
 
-    // Set a prefiltered cubemap as the skybox
-    var cubemapAsset = new pc.Asset('helipad', 'cubemap', {
-        url: "./assets/cubemap/6079289/Helipad.dds"
-    }, {
-        "textures": [
-            "./assets/cubemap/6079292/Helipad_posx.png",
-            "./assets/cubemap/6079290/Helipad_negx.png",
-            "./assets/cubemap/6079293/Helipad_posy.png",
-            "./assets/cubemap/6079298/Helipad_negy.png",
-            "./assets/cubemap/6079294/Helipad_posz.png",
-            "./assets/cubemap/6079300/Helipad_negz.png"
-        ],
-        "magFilter": 1,
-        "minFilter": 5,
-        "anisotropy": 1,
-        "name": "Helipad",
-        "rgbm": true,
-        "prefiltered": "Helipad.dds"
-    });
-    app.assets.add(cubemapAsset);
-    app.assets.load(cubemapAsset);
-    cubemapAsset.ready(function () {
-        app.scene.skyboxMip = 2;
-        app.scene.setSkybox(cubemapAsset.resources);
-    });
+        // Make the camera interactive
+        app.assets.loadFromUrl('./src/orbit-camera.js', 'script', function (err, asset) {
+            camera.script.create('orbitCamera');
+            camera.script.create('keyboardInput');
+            camera.script.create('mouseInput');
 
-    this.app = app;
-    this.camera = camera;
-    this.playing = true; // for play/pause button
-    this.overlay = init_overlay();
-    this.setupAnimControls();
-    this.timeline = new Timeline();
+            if (this.cameraPosition) {
+                camera.script.orbitCamera.distance = this.cameraPosition.length();
+            } else if (this.gltf) {
+                camera.script.orbitCamera.focusEntity = this.gltf;
+            }
+        }.bind(this));
 
-    this.shaderChunks = new ShaderChunks();
-    
-    // Press 'D' to delete the currently loaded model
-    app.on('update', function () {
-        if (viewer.shaderChunks.enabled == false && this.app.keyboard.wasPressed(pc.KEY_D)) {
-            this.destroyScene();
-        }
-        if (this.gltf && this.gltf.animComponent) {
-            // mirror the playback time of the playing clip into the html range slider
-            var curTime = this.gltf.animComponent.getCurrentClip().session.curTime;
-            this.anim_slider.value = curTime;
-        }
-        this.timeline.render();
-    }, this);
-}
+        // Create directional light entity
+        var light = new pc.Entity('light');
+        light.addComponent('light');
+        light.setEulerAngles(45, 0, 0);
+        app.root.addChild(light);
 
-Viewer.prototype = {
-    destroyScene: function () {
+        // Set a prefiltered cubemap as the skybox
+        var cubemapAsset = new pc.Asset('helipad', 'cubemap', {
+            url: "./assets/cubemap/6079289/Helipad.dds"
+        }, {
+            "textures": [
+                "./assets/cubemap/6079292/Helipad_posx.png",
+                "./assets/cubemap/6079290/Helipad_negx.png",
+                "./assets/cubemap/6079293/Helipad_posy.png",
+                "./assets/cubemap/6079298/Helipad_negy.png",
+                "./assets/cubemap/6079294/Helipad_posz.png",
+                "./assets/cubemap/6079300/Helipad_negz.png"
+            ],
+            "magFilter": 1,
+            "minFilter": 5,
+            "anisotropy": 1,
+            "name": "Helipad",
+            "rgbm": true,
+            "prefiltered": "Helipad.dds"
+        });
+        app.assets.add(cubemapAsset);
+        app.assets.load(cubemapAsset);
+        cubemapAsset.ready(function () {
+            app.scene.skyboxMip = 2;
+            app.scene.setSkybox(cubemapAsset.resources);
+        });
+
+        this.app = app;
+        this.camera = camera;
+        this.playing = true; // for play/pause button
+        this.overlay = init_overlay();
+        this.setupAnimControls();
+        this.timeline = new Timeline();
+
+        this.shaderChunks = new ShaderChunks();
+        
+        // Press 'D' to delete the currently loaded model
+        app.on('update', function () {
+            if (viewer.shaderChunks.enabled == false && this.app.keyboard.wasPressed(pc.KEY_D)) {
+                this.destroyScene();
+            }
+            if (this.gltf && this.gltf.animComponent) {
+                // mirror the playback time of the playing clip into the html range slider
+                var curTime = this.gltf.animComponent.getCurrentClip().session.curTime;
+                this.anim_slider.value = curTime;
+            }
+            this.timeline.render();
+        }, this);
+    }
+
+    destroyScene() {
         if (this.textures) {
             this.textures.forEach(function (texture) {
                 texture.destroy();
@@ -131,11 +156,9 @@ Viewer.prototype = {
         delete this.textures;
         delete this.animationClips;
         delete this.gltf;
-    },
+    }
 
-    initializeScene: function (err, res) {
-        var i;
-
+    initializeScene(err, res) {
         var model = res.model;
         var textures = res.textures;
         var animationClips = res.animations;
@@ -196,7 +219,7 @@ Viewer.prototype = {
             this.playCurrentAnimationClip();
             
             select_remove_options(this.anim_select);
-            for (i = 0; i < animationClips.length; i++) {
+            for (var i = 0; i < animationClips.length; i++) {
                 select_add_option(this.anim_select, animationClips[i].name);
             }
             this.anim_info.innerHTML = animationClips.length + " animation clips loaded";
@@ -210,29 +233,29 @@ Viewer.prototype = {
                 this.camera.script.orbitCamera.focusEntity = this.gltf;
             }
         }
-    },
+    }
 
-    loadGlb: function (arrayBuffer) {
+    loadGlb(arrayBuffer: ArrayBuffer) {
         loadGlb(arrayBuffer, this.app.graphicsDevice, this.initializeScene.bind(this));
-    },
+    }
 
-    loadGltf: function (gltf, basePath, processUri) {
+    loadGltf(gltf, basePath, processUri) {
         loadGltf(gltf, this.app.graphicsDevice, this.initializeScene.bind(this), {
             decoderModule: decoderModule,
             basePath: basePath,
             processUri: processUri
         });
-    },
+    }
     
-    pauseAnimationClips: function() {
+    pauseAnimationClips() {
         if (this.gltf && this.gltf.animComponent) {
             this.gltf.animComponent.pauseAll();
             this.playing = false;
             this.anim_pause.value = ">";
         }
-    },
+    }
     
-    resumeCurrentAnimationClip: function() {
+    resumeCurrentAnimationClip() {
         if (this.gltf && this.gltf.animComponent) {
             var clip = this.gltf.animComponent.getCurrentClip();
             clip.resume();
@@ -242,8 +265,9 @@ Viewer.prototype = {
             this.clip = clip; // quick access for f12 devtools
             this.timeline.resize();
         }
-    },
-    playCurrentAnimationClip: function() {
+    }
+
+    playCurrentAnimationClip() {
         if (this.gltf && this.gltf.animComponent) {
             //this.gltf.animComponent.getCurrentClip().resume(); // resume doesn't work yet
             var clip = this.gltf.animComponent.getCurrentClip();
@@ -254,17 +278,17 @@ Viewer.prototype = {
             this.clip = clip; // quick access for f12 devtools
             this.timeline.resize();
         }
-    },
+    }
     
-    togglePlayPauseAnimation: function() {
+    togglePlayPauseAnimation() {
         if (this.playing) {
             this.pauseAnimationClips();
         } else {
             this.resumeCurrentAnimationClip();
         }
-    },
+    }
     
-    pauseAnimationsAndSeekToTime: function(curTime) {
+    pauseAnimationsAndSeekToTime(curTime) {
         if (this.gltf && this.gltf.animComponent) {
             // once we seek into the animation, stop the default playing
             this.pauseAnimationClips();
@@ -278,9 +302,9 @@ Viewer.prototype = {
         } else {
             this.anim_info.innerHTML = "please load a gltf with animation clips";
         }
-    },
+    }
     
-    switchToClipByName: function(clipName) {
+    switchToClipByName(clipName) {
         if (this.gltf && this.gltf.animComponent) {
             var clip = this.gltf.animComponent.animClipsMap[clipName];
             this.anim_info.innerHTML = clip.duration + "s " + clipName;
@@ -290,9 +314,9 @@ Viewer.prototype = {
         } else {
             this.anim_info.innerHTML = "please load a gltf with animation clips";
         }
-    },
+    }
     
-    setupAnimControls: function() {
+    setupAnimControls() {
         this.anim_select = document.getElementById("anim_select");
         this.anim_select.onchange = function(e) {
             var clipName = this.anim_select.value;
@@ -316,12 +340,12 @@ Viewer.prototype = {
             this.timeline.resize();
             this.shaderChunks.resize();
         }.bind(this);
-    },
+    }
     
-    log: function(msg) {
+    log(msg: string) {
         this.anim_info.innerHTML = msg;
     }
-};
+}
 
 function getParameterByName(name, url) {
     if (!url) url = window.location.href;

@@ -1,7 +1,8 @@
-import { Viewer, main } from "./viewer";
+import "./bundle_pcgltf";
+import { Viewer, main } from "./Viewer";
 import * as utils from "./utils";
-import * as timeline from "./timeline";
-import * as shaderchunks from "./shaderchunks";
+import * as Timeline from "./Timeline";
+import * as ShaderChunks from "./ShaderChunks";
 
 //var viewer = new Viewer();
 
@@ -12,5 +13,5 @@ Object.assign(window, {
 })
 
 Object.assign(window, utils);
-Object.assign(window, timeline);
-Object.assign(window, shaderchunks);
+Object.assign(window, Timeline);
+Object.assign(window, ShaderChunks);

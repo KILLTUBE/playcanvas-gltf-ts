@@ -1382,7 +1382,7 @@
         return model;
     }
 
-    function loadGltf(gltf, device, done, options) {
+    function loadGltf(gltf, device: pc.GraphicsDevice, done: any, options?: any) {
         var buffers = (options && options.hasOwnProperty('buffers')) ? options.buffers : undefined;
         var basePath = (options && options.hasOwnProperty('basePath')) ? options.basePath : undefined;
         var processUri = (options && options.hasOwnProperty('processUri')) ? options.processUri : undefined;
@@ -1451,7 +1451,7 @@
         return decodeURIComponent(escape(str));
     }
 
-    function loadGlb(glb, device, success, options) {
+    function loadGlb(glb: ArrayBuffer, device: pc.GraphicsDevice, success: any, options?) {
         var dataView = new DataView(glb);
 
         // Read header
