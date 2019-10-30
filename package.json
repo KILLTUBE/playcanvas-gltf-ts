@@ -27,7 +27,8 @@
   },
   "scripts": {
     "watch": "parcel watch --public-url . ./src/bundle_*.ts --no-hmr",
-    "lint": "eslint src/playcanvas-anim.js src/playcanvas-gltf.js"
+    "lint": "eslint src/playcanvas-anim.js src/playcanvas-gltf.js",
+    "tsd": "tsc --declaration --declarationDir tsd --outDir src_js src\\bundle_pcgltf.ts"
   },
   "engines": {
     "node": ">= 0.6.12"
