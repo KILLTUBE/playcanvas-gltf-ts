@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "parcel": "^1.12.4",
+    "playcanvas": "^1.23.4",
     "typescript": "^3.6.4"
   }
 }

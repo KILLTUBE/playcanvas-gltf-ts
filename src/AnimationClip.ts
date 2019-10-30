@@ -1,7 +1,7 @@
 import { AnimationCurveType, AnimationCurve } from "./AnimationCurve";
 import { AnimationClipSnapshot } from "./AnimationClipSnapshot";
 import { AnimationSession } from "./AnimationSession";
-import { AnimationTarget, TargetPath } from "./AnimationTarget";
+import { AnimationTarget, TargetPath, AnimationTargetOutput } from "./AnimationTarget";
 import { AnimationEventCallback } from "./AnimationEvent";
 import { new_AnimationKeyable, AnimationKeyableType } from "./AnimationKeyable";
 
@@ -193,13 +193,11 @@ export class AnimationClip {
 		var subClip = new AnimationClip();
 		subClip.name = this.name + "_sub";
 		subClip.root = this.root;
-
 		for (var i = 0, len = this.animCurves.length; i < len; i++) {
 			var curve = this.animCurves[i];
 			var subCurve = curve.getSubCurve(tmBeg, tmEnd);
 			subClip.addCurve(subCurve);
 		}
-
 		return subClip;
 	}
 
@@ -238,7 +236,6 @@ export class AnimationClip {
 	eval(time: number): AnimationClipSnapshot {
 		var snapshot = new AnimationClipSnapshot();
 		snapshot.time = time;
-
 		for (var i = 0, len = this.animCurves.length; i < len; i++) {
 			var curve = this.animCurves[i];
 			var keyable = curve.eval(time);
@@ -248,33 +245,33 @@ export class AnimationClip {
 	}
 
 	constructFromRoot(root: pc.GraphNode) {
-		if (!root)
+		if (!root) {
 			return;
-
+		}
 		// scale
 		var curveScale = new AnimationCurve();
 		curveScale.keyableType = AnimationKeyableType.VEC;
 		//curveScale.name = root.name + ".localScale";
 		curveScale.setTarget(root, TargetPath.LocalScale);
 		this.addCurve(curveScale);
-
 		// translate
 		var curvePos = new AnimationCurve();
 		curvePos.keyableType = AnimationKeyableType.VEC;
 		//curvePos.name = root.name + ".localPosition";
 		curvePos.setTarget(root, TargetPath.LocalPosition);
 		this.addCurve(curvePos);
-
 		// rotate
 		var curveRotQuat = new AnimationCurve();
 		//curveRotQuat.name = root.name + ".localRotation.quat";
 		curveRotQuat.keyableType = AnimationKeyableType.QUAT;
 		curveRotQuat.setTarget(root, TargetPath.LocalRotation);
 		this.addCurve(curveRotQuat);
-
 		// children
-		for (var i = 0; i < root.children.length; i ++)
-			if (root.children[i]) this.constructFromRoot(root.children[i]);
+		for (var i=0; i<root.children.length; i++) {
+			if (root.children[i]) {
+				this.constructFromRoot(root.children[i]);
+			}
+		}
 	}
 
 	/*
@@ -307,9 +304,8 @@ export class AnimationClip {
 	*/
 
 	transferToRoot(root: pc.GraphNode) {
-		var dictTarget = {};
+		var dictTarget: AnimationTargetOutput = {};
 		AnimationTarget.constructTargetNodes(root, null, dictTarget); // contains localScale information
-
 		for (var i = 0, len = this.animCurves.length; i < len; i++) {
 			var ctarget = this.animTargets[i];
 			var atarget = dictTarget[ctarget.targetNode.name];
@@ -323,29 +319,30 @@ export class AnimationClip {
 					if (atarget.vScale.y) ctarget.vScale.y /= atarget.vScale.y;
 					if (atarget.vScale.z) ctarget.vScale.z /= atarget.vScale.z;
 				}
-			} else // not found
+			} else { // not found
 				console.warn("transferToRoot: " + ctarget.targetNode.name + "in animation clip " + this.name + " has no transferred target under " + root.name);
+			}
 		}
 	}
 
 	// blend related
 	updateCurveNameFromTarget() {
-		for (var i = 0, len = this.animCurves.length; i < len; i++) {
+		var n = this.animCurves.length;
+		for (var i=0; i<n; i++) {
 			var curve = this.animCurves[i];
-
 			var animTarget = this.animTargets[i];
 			// change name to target string
 			var oldName = curve.name;// backup before change
 			var newName = animTarget.toString();
 			if (oldName == newName)// no need to change name
 				continue;
-
 			curve.name = newName;
 		}
 	}
 
 	removeEmptyCurves() {
-		for (var i = 0, len = this.animCurves.length; i < len; i++) {
+		var n = this.animCurves.length;
+		for (var i=0; i<n; i++) {
 			var curve = this.animCurves[i];
 			if (!curve || !curve.animKeys || curve.animKeys.length === 0) {
 				this.removeCurve(curve.name);
@@ -354,7 +351,8 @@ export class AnimationClip {
 	}
 
 	setInterpolationType(type: AnimationCurveType) {
-		for (var i = 0, len = this.animCurves.length; i < len; i++) {
+		var n = this.animCurves.length;
+		for (var i=0; i<n; i++) {
 			var curve = this.animCurves[i];
 			if (curve) {
 				curve.type = type;

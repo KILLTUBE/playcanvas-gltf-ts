@@ -137,29 +137,25 @@ export class AnimationCurve {
 	}
 
 	getSubCurve(tmBeg: number, tmEnd: number) {
-		/*
 		var i;
 		var subCurve = new AnimationCurve();
 		subCurve.type = this.type;
 		subCurve.keyableType = this.keyableType;
 		subCurve.tension = this.tension;
 		subCurve.animTarget = this.animTarget.clone();
-
 		var tmFirst = -1;
 		for (i = 0; i < this.animKeys.length; i++) {
 			if (this.animKeys[i].time >= tmBeg && this.animKeys[i].time <= tmEnd) {
-				if (tmFirst < 0)
+				if (tmFirst < 0) {
 					tmFirst = this.animKeys[i].time;
-
+				}
 				var key = this.animKeys[i].clone();
 				key.time -= tmFirst;
 				subCurve.animKeys.push(key);
 			}
 		}
-
 		subCurve.duration = (tmFirst === -1) ? 0 : (tmEnd - tmFirst);
 		return subCurve;
-		*/
 	}
 
 	evalLINEAR_cache(time: number, cacheKeyIdx: number, cacheValue: AnimationKeyable): AnimationKeyable {

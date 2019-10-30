@@ -12,6 +12,8 @@ export enum TargetPath {
 // *                        one AnimationClip has a {} dictionary of AnimationTargets, keyname matches curvename
 // *===============================================================================================================
 
+export type AnimationTargetOutput = {[targetNodeName: string]: AnimationTarget};
+
 export class AnimationTarget {
     vScale?: pc.Vec3 | number[];
     targetNode: pc.GraphNode;
@@ -227,7 +229,9 @@ export class AnimationTarget {
 		} // switch (this.targetPath)
 	}
 
-	static constructTargetNodes(root: pc.GraphNode, vec3Scale: pc.Vec3, output: object) {
+
+
+	static constructTargetNodes(root: pc.GraphNode, vec3Scale: pc.Vec3, output: AnimationTargetOutput) {
 		if (!root)
 			return;
 
