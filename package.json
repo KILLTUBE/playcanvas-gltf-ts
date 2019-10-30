@@ -26,7 +26,7 @@
     "eslint-config-playcanvas": "^1.0.0"
   },
   "scripts": {
-    "watch": "parcel watch --public-url . ./src/pcgltf.ts --no-hmr",
+    "watch": "parcel watch --public-url . ./src/bundle_*.ts --no-hmr",
     "lint": "eslint src/playcanvas-anim.js src/playcanvas-gltf.js"
   },
   "engines": {

@@ -1,4 +1,4 @@
-ShaderChunks = function() {
+export function ShaderChunks() {
     this.shaderchunks = document.getElementById("shaderchunks");
     
     this.shaderchunks_toggle = document.getElementById("shaderchunks_toggle");

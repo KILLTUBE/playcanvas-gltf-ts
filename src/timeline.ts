@@ -1,4 +1,4 @@
-Timeline = function() {
+export function Timeline() {
     this.curveHeight = 12;
     this.colorLines        = "rgba(0,0,  0, 0.4)"; // grayish
     this.colorLinesHovered = "rgba(0,0,255, 0.8)"; // quite blue

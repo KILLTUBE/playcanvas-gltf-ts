@@ -1,4 +1,4 @@
-init_overlay = function () {
+export function init_overlay() {
     var overlay = document.getElementById("overlay");
     // give scripts the ability to determine if the event should be ignored
     overlay.onkeydown = function(event) {
@@ -16,7 +16,7 @@ init_overlay = function () {
     return overlay;
 }
 
-textarea_fit_text = function (textarea) {    
+export function textarea_fit_text(textarea) {    
     var numNewlines = 1;
     var str = textarea.value;
     for (var i=0; i<str.length; i++)
@@ -25,7 +25,7 @@ textarea_fit_text = function (textarea) {
     textarea.style.height = (numNewlines * 16) + "px";
 }
 
-textarea_enable_tab_indent = function (textarea) {    
+export function textarea_enable_tab_indent(textarea) {    
     textarea.onkeydown = function(e) {
         if (e.keyCode == 9 || e.which == 9){
             e.preventDefault();
@@ -39,14 +39,14 @@ textarea_enable_tab_indent = function (textarea) {
     }
 }
 
-select_add_option = function (select, option_text) {
+export function select_add_option(select, option_text) {
     var option = document.createElement("option");
     option.text = option_text;
     select.add(option);
     return option;
 }
 
-select_remove_options = function (select) {
+export function select_remove_options(select) {
     for (var i=select.options.length-1; i>=0; i--)
         select.remove(i);
 }
@@ -60,7 +60,7 @@ select_remove_options = function (select) {
  * add_infinite_ground(new pc.Vec3(0, 1, 0), new pc.Vec3(0, 0, 0), pc.Quat.IDENTITY);
  */
 
-function add_infinite_ground(normal_, position_, rotation_) {
+export function add_infinite_ground(normal_, position_, rotation_) {
     // there isn't any infinite plane in PlayCanvas (yet)
     // this just makes sure that entities arent falling into the void
     var normal        = new Ammo.btVector3   (  normal_.x,   normal_.y,   normal_.z             );
@@ -87,7 +87,7 @@ function add_infinite_ground(normal_, position_, rotation_) {
  * clones a pc.Entity including the GLTF animation component
  */
 
-function clone_gltf(entity) {
+export function clone_gltf(entity) {
     // 1) clone entity
     var entity_clone = entity.clone();
     for (var i=0; i<entity.model.meshInstances.length; i++) {
@@ -129,7 +129,7 @@ function clone_gltf(entity) {
  * @param {number} z
  */
 
-function gltf_clone_setpos_playclip(gltf, x, y, z) {
+export function gltf_clone_setpos_playclip(gltf, x, y, z) {
     var cloned = clone_gltf(gltf);
     cloned.enabled = true;
     cloned.setLocalPosition(x, y, z);
@@ -142,8 +142,9 @@ function gltf_clone_setpos_playclip(gltf, x, y, z) {
     return cloned;
 }
 
-clones = [];
-clonesNextHeight = 0;
+var clones: pc.Entity[] = [];
+var clonesNextHeight = 0;
+
 /**
  * @summary
  * clones the current viewer.gltf 64 times
@@ -151,7 +152,7 @@ clonesNextHeight = 0;
  * useful for performance tracing
  */
 
-function spawn8x8() {
+export function spawn8x8() {
     if (!viewer.gltf)
         return;
     var entity = viewer.gltf;
@@ -186,7 +187,7 @@ function spawn8x8() {
     }
 }
 
-enter_vr = function() {
+export function enter_vr() {
     viewer.camera.camera.enterVr(function (err) {
         if (err) {
             console.error(err); // could not enter VR
@@ -196,7 +197,7 @@ enter_vr = function() {
     });
 }
 
-fetch_gltf = async function(url, options) {
+export async function fetch_gltf(url, options) {
     var basePath = url.substring(0, url.lastIndexOf("/")) + "/";
     if (typeof options === "undefined")
         options = {};

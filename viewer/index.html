@@ -33,12 +33,12 @@
 				if (window.wasm) {
 					// todo
 				} else {
-					await fetch_script('../dist/pcgltf.js');
+					await fetch_script('../dist/bundle_pcgltf.js');
 				}
-				await fetch_script('src/utils.js');
-				await fetch_script('src/viewer.js');
-				await fetch_script('src/shaderchunks.js');
-				await fetch_script('src/timeline.js');
+				//await fetch_script('src/utils.js');
+				await fetch_script('../dist/bundle_viewer.js');
+				//await fetch_script('src/shaderchunks.js');
+				//await fetch_script('src/timeline.js');
 				//setup_scene();
 				main();
 			}

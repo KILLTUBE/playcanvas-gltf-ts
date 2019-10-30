@@ -1,6 +1,6 @@
 var decoderModule;
 
-function Viewer() {
+export function Viewer() {
     var canvas = document.createElement('canvas');
     document.body.appendChild(canvas);
 
@@ -344,7 +344,7 @@ function loadScript(src) {
     });
 }
 
-function main() {
+export function main() {
     if (typeof WebAssembly !== 'object') {
         loadScript('../draco/draco_decoder.js').then(function () {
             decoderModule = DracoDecoderModule();
@@ -359,7 +359,8 @@ function main() {
         });
     }
 
-    viewer = new Viewer();
+    var viewer = new Viewer();
+    Object.assign(window, {viewer});
 
     var assetUrl = getParameterByName('assetUrl');
     if (assetUrl) {
@@ -404,7 +405,7 @@ function main() {
 
         var loadFile = function (file, availableFiles) {
             var processUri = function (uri, success) {
-                for (filename in availableFiles) {
+                for (var filename in availableFiles) {
                     if (filename.endsWith(uri)) {
                         if (uri.endsWith('.bin')) {
                             var fr = new FileReader();
