@@ -4,7 +4,7 @@ import { AnimationEvent, AnimationEventCallback } from "./AnimationEvent";
 import { AnimationKeyable, new_AnimationKeyable, AnimationKeyableType } from "./AnimationKeyable";
 import { AnimationClipSnapshot } from "./AnimationClipSnapshot";
 import { AnimationCurveType } from "./AnimationCurve";
-import { BlendValue, Blendable } from "./Animation";
+import { BlendValue, Blendable } from "./bundle_pcgltf";
 
 // *===============================================================================================================
 // * class AnimationSession: playback/runtime related thing

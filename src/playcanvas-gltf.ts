@@ -842,7 +842,7 @@
 			var vertexDataF32 = new Float32Array(vertexData);
 			var vertexDataU8  = new Uint8Array(vertexData);
 
-			var getAttribute = function (semantic) {
+			var getAttribute = function (semantic: string) {
 				var elements = vertexFormat.elements;
 				for (i = 0; i < elements.length; i++) {
 					if (elements[i].name === semantic) {

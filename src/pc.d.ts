@@ -4,11 +4,12 @@
  */
 
 declare namespace pc {
-    interface Vec3 {
-        [prop: string]: any;
-    }
-    interface GraphNode {
-        name: string;
-        [prop: string]: any;
-    }
+	interface Vec3 {
+		[prop: string]: any;
+	}
+	interface GraphNode {
+		name: string;
+		[prop: string]: any;
+	}
+	var app: pc.Application;
 }
