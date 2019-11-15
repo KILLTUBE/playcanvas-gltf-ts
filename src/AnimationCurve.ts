@@ -18,17 +18,17 @@ export enum AnimationCurveType {
 }
 
 export interface AnimationCurveMap {
-    [name: number]: AnimationCurve;
+	[name: number]: AnimationCurve;
 }
 
 export class AnimationCurve {
-    name: number;
-    type: AnimationCurveType;
-    tension: number;
-    duration: number;
-    keyableType: AnimationKeyableType;
-    animTargets: AnimationTarget[];
-    animKeys: AnimationKeyable[];
+	name: number;
+	type: AnimationCurveType;
+	tension: number;
+	duration: number;
+	keyableType: AnimationKeyableType;
+	animTargets: AnimationTarget[];
+	animKeys: AnimationKeyable[];
 
 	constructor() {
 		this.name = -1; // AnimationClip#addCurve will assign a proper ID

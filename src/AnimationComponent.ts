@@ -12,8 +12,8 @@ import { BlendValue } from "./Animation";
 export class AnimationComponent {
 	name: string;
 	curClip: string;
-    animClips: AnimationClip[];
-    animClipsMap: {[clipname: string]: AnimationClip};
+	animClips: AnimationClip[];
+	animClipsMap: {[clipname: string]: AnimationClip};
 	animSessions: {[sessionname: string]: AnimationSession};
 
 	constructor() {

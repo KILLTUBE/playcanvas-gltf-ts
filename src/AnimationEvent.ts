@@ -1,5 +1,5 @@
 export interface AnimationEventCallback {
-    (context: any, parameter: any): void
+	(context: any, parameter: any): void
 }
 
 export class AnimationEvent {

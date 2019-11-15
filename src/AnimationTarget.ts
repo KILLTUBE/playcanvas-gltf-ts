@@ -15,10 +15,10 @@ export enum TargetPath {
 export type AnimationTargetOutput = {[targetNodeName: string]: AnimationTarget};
 
 export class AnimationTarget {
-    vScale?: pc.Vec3 | number[];
-    targetNode: pc.GraphNode;
-    targetPath: TargetPath;
-    targetProp: string;
+	vScale?: pc.Vec3 | number[];
+	targetNode: pc.GraphNode;
+	targetPath: TargetPath;
+	targetProp: string;
 
 	constructor(targetNode: pc.GraphNode, targetPath?: TargetPath, targetProp?: string) {
 		this.targetNode = targetNode;

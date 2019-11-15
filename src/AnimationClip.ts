@@ -17,10 +17,10 @@ export class AnimationClip {
 	static count = 0;
 	name: string;
 	duration: number;
-    animCurves: AnimationCurve[];
-    animTargets: AnimationTarget[];
-    session: AnimationSession;
-    root: pc.GraphNode;
+	animCurves: AnimationCurve[];
+	animTargets: AnimationTarget[];
+	session: AnimationSession;
+	root: pc.GraphNode;
 
 	constructor(root?: pc.GraphNode) {
 		AnimationClip.count ++;

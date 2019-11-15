@@ -14,20 +14,20 @@ import { BlendValue, Blendable } from "./bundle_pcgltf";
 // *===============================================================================================================
 
 export class AnimationSession {
-    begTime: number;
-    endTime: number;
-    curTime: number;
-    accTime: number;
-    bySpeed: number;
-    isPlaying: boolean;
-    animTargets: AnimationTarget[];
+	begTime: number;
+	endTime: number;
+	curTime: number;
+	accTime: number;
+	bySpeed: number;
+	isPlaying: boolean;
+	animTargets: AnimationTarget[];
 	_cacheKeyIdx: number[];
 	_cacheValue: any;
-    speed: number;
-    blendables: {[curveName: string]: Blendable};
-    _cacheBlendValues: {[name: string]: AnimationClipSnapshot | AnimationKeyable};
-    blendWeights: {[name: string]: number};
-    animEvents: AnimationEvent[];
+	speed: number;
+	blendables: {[curveName: string]: Blendable};
+	_cacheBlendValues: {[name: string]: AnimationClipSnapshot | AnimationKeyable};
+	blendWeights: {[name: string]: number};
+	animEvents: AnimationEvent[];
 	onTimer: (dt: number) => void;
 	loop: boolean;
 	fadeBegTime: number;
