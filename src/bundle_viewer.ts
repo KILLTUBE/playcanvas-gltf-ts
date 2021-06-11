@@ -7,9 +7,9 @@ import * as ShaderChunks from "./ShaderChunks";
 //var viewer = new Viewer();
 
 Object.assign(window, {
-	Viewer,
-	//viewer,
-	main
+  Viewer,
+  //viewer,
+  main
 })
 
 Object.assign(window, utils);

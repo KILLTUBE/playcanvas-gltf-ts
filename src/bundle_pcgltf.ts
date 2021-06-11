@@ -19,26 +19,26 @@ export type BlendValue = SingleDOF;
 export type Blendable = AnimationKeyable | BlendValue;
 
 var lib = {
-	AnimationClip,
-	AnimationClipSnapshot,
-	AnimationComponent,
-	AnimationCurveType,
-	AnimationCurve,
-	AnimationEvent,
-	AnimationKeyableType,
-	new_AnimationKeyable,
-	AnimationKeyable_linearBlendValue,
-	AnimationKeyableNum,
-	AnimationKeyableVec,
-	AnimationKeyableQuat,
-	AnimationKeyableNumCubicSpline,
-	AnimationKeyableVecCubicSpline,
-	AnimationKeyableQuatCubicSpline,
-	AnimationSession,
-	TargetPath,
-	AnimationTarget,
-	loadGltf,
-	loadGlb,
+  AnimationClip,
+  AnimationClipSnapshot,
+  AnimationComponent,
+  AnimationCurveType,
+  AnimationCurve,
+  AnimationEvent,
+  AnimationKeyableType,
+  new_AnimationKeyable,
+  AnimationKeyable_linearBlendValue,
+  AnimationKeyableNum,
+  AnimationKeyableVec,
+  AnimationKeyableQuat,
+  AnimationKeyableNumCubicSpline,
+  AnimationKeyableVecCubicSpline,
+  AnimationKeyableQuatCubicSpline,
+  AnimationSession,
+  TargetPath,
+  AnimationTarget,
+  loadGltf,
+  loadGlb,
 };
 
 // export everything globally
@@ -46,5 +46,5 @@ Object.assign(window, lib);
 
 // but also into pcgltf namespace
 Object.assign(window, {
-	pcgltf: lib
+  pcgltf: lib
 });
