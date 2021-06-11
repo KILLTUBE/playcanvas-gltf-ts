@@ -1,5 +1,5 @@
 import "./bundle_pcgltf";
-import { Viewer, main } from "./Viewer";
+import { Viewer, main } from "./viewer";
 import * as utils from "./utils";
 import * as Timeline from "./Timeline";
 import * as ShaderChunks from "./ShaderChunks";

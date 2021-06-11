@@ -25,7 +25,7 @@ export class Timeline {
 			this.toggle();
 		}.bind(this);
 		
-		this.anim_timeline = <HTMLCanvasElement>document.getElementById("anim_timeline");
+		this.anim_timeline = document.getElementById("anim_timeline") as HTMLCanvasElement;
 		this.anim_timeline_context = this.anim_timeline.getContext("2d");
 		this.anim_timeline.onmousemove = function(e) {
 			var pos_left = e.pageX - e.currentTarget.offsetLeft;

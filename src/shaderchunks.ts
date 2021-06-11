@@ -1,4 +1,4 @@
-import { Viewer } from "./Viewer";
+import { Viewer } from "./viewer";
 import { textarea_fit_text, textarea_enable_tab_indent } from "./utils";
 
 declare var viewer: Viewer;

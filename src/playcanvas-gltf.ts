@@ -1451,7 +1451,7 @@
 		return decodeURIComponent(escape(str));
 	}
 
-	function loadGlb(glb: ArrayBuffer, device: pc.GraphicsDevice, success: any, options?) {
+	function loadGlb(glb: ArrayBuffer, device: pc.GraphicsDevice, done: any, options?) {
 		var dataView = new DataView(glb);
 
 		// Read header

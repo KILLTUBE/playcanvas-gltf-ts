@@ -1,9 +1,9 @@
 {
   "name": "playcanvas-gltf",
   "version": "1.0.0",
-  "author": "PlayCanvas <support@playcanvas.com>",
-  "homepage": "https://playcanvas.com",
-  "description": "PlayCanvas glTF loader",
+  "author": "PlayCanvas/KILLTUBE",
+  "homepage": "https://killtube.org",
+  "description": "KILLTUBE glTF loader",
   "keywords": [
     "playcanvas",
     "gltf",
@@ -13,29 +13,17 @@
     "3d"
   ],
   "license": "MIT",
-  "main": "viewer/lib/playcanvas-gltf.js",
   "bugs": {
-    "url": "https://github.com/playcanvas/playcanvas-gltf/issues"
+    "url": "https://github.com/KILLTUBE/playcanvas-gltf/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/playcanvas/playcanvas-gltf.git"
-  },
-  "devDependencies": {
-    "eslint": "^4.19.0",
-    "eslint-config-playcanvas": "^1.0.0"
+    "url": "https://github.com/KILLTUBE/playcanvas-gltf.git"
   },
   "scripts": {
-    "watch": "parcel watch --public-url . ./src/bundle_*.ts --no-hmr",
-    "lint": "eslint src/playcanvas-anim.js src/playcanvas-gltf.js",
-    "tsd": "tsc --declaration --declarationDir tsd --outDir src_js src\\bundle_pcgltf.ts"
+    "lol": "echo wat"
   },
   "engines": {
     "node": ">= 0.6.12"
-  },
-  "dependencies": {
-    "parcel": "^1.12.4",
-    "playcanvas": "^1.23.4",
-    "typescript": "^3.6.4"
   }
 }

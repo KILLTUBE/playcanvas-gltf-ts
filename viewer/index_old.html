@@ -18,15 +18,37 @@
 					document.head.appendChild(script);
 				});
 			}
+
+			async function load_wasm() {
+				response = fetch(window.location.origin + "/playcanvas-engine-as/build/untouched.wasm");
+				//buffer = await response.arrayBuffer();
+				imports = {};
+				//module = Loader.instantiateBuffer(buffer, imports);
+				module = await Loader.instantiateStreaming(response, imports);
+				assemblyscript = {
+					module,
+					instance
+				}
+				//console.log(module.I8.length);
+				// next three lines just test the auto-generated demangled class, which isn't so useful currently
+				// this PR might change it: https://github.com/AssemblyScript/assemblyscript/pull/437
+				// a = new module.Vec3(1,2,3)
+				// b = new module.Vec3(11,22,33)
+				// console.log("a.add(b)", a.add(b)); // returns no class but a raw pointer
+			}
+
 			window.onload = async function() {
 				window.wasm = false;
 				window.prefix_url = window.location.origin; // e.g. `window.location.origin == "http://127.0.0.1"`
 				if (window.wasm) {
-					await fetch_script(window.prefix_url + "/MathAS/html5/main.js");
-					await init_mathas (window.prefix_url + "/MathAS/");
+				
+					await fetch_script(window.prefix_url + "/playcanvas-engine-as/examples/animation/Loader.js");
+					await load_wasm();
+					//await fetch_script(window.prefix_url + "/MathAS/html5/main.js");
+					//await init_mathas (window.prefix_url + "/MathAS/");
 					module.memory.grow((300 * 1024 * 1024 ) / 65536) // can use up to 300mb without regrowth (which fucks up dataviews :S)
 					module.updateDataViews();
-					await fetch_script(window.prefix_url + "/AssemblyCanvas/build/output/playcanvas-latest.js");
+					await fetch_script(window.prefix_url + "/playcanvas-engine-as/build/playcanvas.assemblyscript.js");
 				} else {
 					await fetch_script(window.prefix_url + "/playcanvas-engine/build/output/playcanvas.js");
 				}
