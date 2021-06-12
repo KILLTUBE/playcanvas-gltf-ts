@@ -1,9 +1,11 @@
+import * as pc from "playcanvas";
 import { AnimationComponent } from "./AnimationComponent";
 import { Timeline } from "./Timeline";
 import { ShaderChunks } from "./ShaderChunks";
 import { init_overlay, select_remove_options, select_add_option } from "./utils";
 import { loadGlb, loadGltf } from "./playcanvas-gltf";
 import { setup_ui } from "./setup_ui";
+import { AnimationClip } from "./AnimationClip";
 
 declare var viewer: Viewer;
 
@@ -20,12 +22,13 @@ export class Viewer {
   gltf: pc.Entity;
   asset: any;
   textures: any;
-  animationClips: any;
+  animationClips: AnimationClip[];
   anim_info: HTMLElement;
-  anim_select: HTMLElement;
-  anim_slider: HTMLElement;
+  anim_select: HTMLSelectElement;
+  anim_slider: HTMLInputElement;
   anim_pause: HTMLElement;
   cameraPosition: pc.Vec3;
+  clip: AnimationClip;
 
   constructor() {
     var canvas = document.createElement('canvas');
@@ -346,19 +349,40 @@ export class Viewer {
   log(msg: string) {
     this.anim_info.innerHTML = msg;
   }
+
+  get models() {
+    var models: pc.ModelComponent[];
+    var app: pc.Application;
+    // #########################
+    app = this.app;
+    models = [];
+    // #########################
+    app.root.forEach(function (e) {
+      if (e.model) {
+        models.push(e.model);
+      }
+    });
+    return models;
+  }
 }
 
-function getParameterByName(name, url) {
-  if (!url) url = window.location.href;
+function getParameterByName(name: string, url: string) {
+  if (!url) {
+    url = window.location.href;
+  }
   name = name.replace(/[\[\]]/g, '\\$&');
-  var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
-    results = regex.exec(url);
-  if (!results) return null;
-  if (!results[2]) return '';
+  var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+  var results = regex.exec(url);
+  if (!results) {
+    return null;
+  }
+  if (!results[2]) {
+    return '';
+  }
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
 
-function loadScript(src) {
+function loadScript(src: string) {
   var head = document.getElementsByTagName('head')[0];
   var script = document.createElement('script');
   script.type = 'text/javascript';

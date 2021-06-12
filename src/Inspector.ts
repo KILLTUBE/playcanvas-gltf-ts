@@ -2,12 +2,7 @@ import { pathfinder } from "./pathfinder";
 import "./pcuiExtension";
 import * as pcui from '@playcanvas/pcui';
 
-/**
- * 
- * @param {pc.ScriptType} script 
- */
-
-export function nonAttributeVars(script) {
+export function nonAttributeVars(script: pc.ScriptType) {
     var keys;
     var keep;
     keys = Object.keys(script);

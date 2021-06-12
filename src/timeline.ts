@@ -1,3 +1,5 @@
+import { Viewer } from "./viewer";
+
 declare var viewer: Viewer;
 
 export class Timeline {
@@ -27,12 +29,13 @@ export class Timeline {
     
     this.anim_timeline = document.getElementById("anim_timeline") as HTMLCanvasElement;
     this.anim_timeline_context = this.anim_timeline.getContext("2d");
-    this.anim_timeline.onmousemove = function(e) {
+    this.anim_timeline.onmousemove = function(e: MouseEvent) {
       var pos_left = e.pageX - e.currentTarget.offsetLeft;
       var pos_top  = e.pageY - e.currentTarget.offsetTop;
       this.mouseMove(pos_left, pos_top);
     }.bind(this);
-    this.anim_timeline.onmousedown = function(e) {
+    this.anim_timeline.onmousedown = function(/*this: Timeline,*/ e: MouseEvent) {
+      //var target = this.anim_timeline;
       var pos_left = e.pageX - e.currentTarget.offsetLeft;
       var pos_top  = e.pageY - e.currentTarget.offsetTop;
       if (e.button == 0) {
