@@ -153,8 +153,10 @@ var clonesNextHeight = 0;
  */
 
 export function spawn8x8() {
-  if (!viewer.gltf)
+  if (!viewer.gltf) {
+    console.log('spawn8x8> nothing to clone')
     return;
+  }
   var entity = viewer.gltf;
   var padding_x = 0;
   var padding_y = 0;

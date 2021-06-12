@@ -2,6 +2,7 @@ import * as pc from "playcanvas";
 import * as pcui from '@playcanvas/pcui';
 import { Hierarchy } from './Hierarchy';
 import { Inspector } from './Inspector';
+import { UiViewer } from "./UiViewer";
 
 class Ui {
   app: pc.Application;
@@ -9,6 +10,7 @@ class Ui {
   panel: pcui.Panel;
   hierarchy: Hierarchy;
   inspector: Inspector;
+  uiViewer: UiViewer;
 
   constructor(app: pc.Application) {
     this.app = app;
@@ -16,6 +18,7 @@ class Ui {
     this.appendPanel();
     this.hierarchy = new Hierarchy(this.app, this.panel.content);
     this.inspector = new Inspector(this.app, this.panel.content);
+    this.uiViewer = new UiViewer(this.app, this.panel.content);
   }
 
   appendContainer() {
