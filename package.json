@@ -25,5 +25,9 @@
   },
   "engines": {
     "node": ">= 0.6.12"
+  },
+  "dependencies": {
+    "@playcanvas/pcui": "^1.1.21",
+    "playcanvas": "^1.42.0"
   }
 }

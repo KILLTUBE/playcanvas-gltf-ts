@@ -3,6 +3,7 @@ import { Timeline } from "./Timeline";
 import { ShaderChunks } from "./ShaderChunks";
 import { init_overlay, select_remove_options, select_add_option } from "./utils";
 import { loadGlb, loadGltf } from "./playcanvas-gltf";
+import { setup_ui } from "./setup_ui";
 
 declare var viewer: Viewer;
 
@@ -517,4 +518,5 @@ export function main() {
     });
 
   }, false);
+  setup_ui(viewer.app);
 }
