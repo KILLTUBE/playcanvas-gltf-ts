@@ -1,4 +1,5 @@
 import * as pcui from '@playcanvas/pcui';
+import { delay } from './utils';
 
 export class Hierarchy {
     debug: boolean;
@@ -13,7 +14,7 @@ export class Hierarchy {
         this.parent = parent;
         this.addTreeView();
         this.update();
-        this.app.root.on("childinsert", this.onChildInsert.bind(this));
+        this.app.root.on("childinsert", delay(this.onChildInsert.bind(this), 100));
         window.hierarchy = this;
     }
 

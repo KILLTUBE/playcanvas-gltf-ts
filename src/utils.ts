@@ -237,3 +237,26 @@ export async function fetch_gltf(url, options) {
     });
   })
 }
+
+/**
+ * @example ```
+ * function test(a, b) {
+ *   console.log("test", a, b, this);
+ * }
+ * var delayedTest = delay(test.bind(333), 1000);
+ * delayedTest(111, 222);
+ * ```
+ */
+
+export function delay(callback: CallableFunction, ms: number) {
+  var id = -1;
+  return function() {
+    //console.log("this", this);
+    if (id != -1) {
+      //console.log(`clearTimeout(${id})`);
+      clearTimeout(id);
+    }
+    id = setTimeout(callback, ms, ...arguments);
+    //console.log(`id = setTimeout (id = ${id})`);
+  }
+}
