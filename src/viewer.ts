@@ -119,7 +119,7 @@ export class Viewer {
     this.shaderChunks = new ShaderChunks();
     
     // Press 'D' to delete the currently loaded model
-    app.on('update', function () {
+    app.on('update', function (this: Viewer) {
       if (typeof viewer != "undefined" && viewer.shaderChunks.enabled == false && this.app.keyboard.wasPressed(pc.KEY_D)) {
         this.destroyScene();
       }
@@ -133,31 +133,38 @@ export class Viewer {
 
     this.debugBounds = new DebugLines(app, camera);
 
-    //app.on('prerender', this.onPrerender, this);
-    //app.on('frameend', this.onFrameend, this);
+    app.on('prerender', this.onPrerender, this);
+    app.on('frameend', this.onFrameend, this);
   }
 
   //showBounds
   dirtyBounds = true;
   debugBounds: DebugLines;
-  meshInstances: pc.MeshInstance[] = [];
 
-  onPrerender()
-  {
+  onPrerender() {
     // debug bounds
-    if (this.dirtyBounds)
-    {
+    if (this.dirtyBounds) {
       this.dirtyBounds = false;
       this.debugBounds.clear();
-
       //if (this.showBounds)
       {
           const bbox = calcMeshBoundingBox(this.meshInstances);
-          
           this.debugBounds.box(bbox.getMin(), bbox.getMax());
       }
       this.debugBounds.update();
+    }
   }
+  firstFrame = true;
+
+  onFrameend() {
+    if (this.firstFrame) {
+      this.firstFrame = false;
+      // focus camera after first frame otherwise skinned model bounding
+      // boxes are incorrect
+      this.focusCamera();
+      this.dirtyBounds = true;
+      //this.renderNextFrame();
+    }
   }
 
   destroyScene() {
@@ -190,6 +197,9 @@ export class Viewer {
     delete this.textures;
     delete this.animationClips;
     delete this.gltf;
+
+    this.dirtyBounds = true;
+    this.firstFrame = true;
   }
 
   initializeScene(err, res) {
@@ -257,8 +267,10 @@ export class Viewer {
         select_add_option(this.anim_select, animationClips[i].name);
       }
       this.anim_info.innerHTML = animationClips.length + " animation clips loaded";
-    }
+    }    
+  }
 
+  focusCamera() {
     // Focus the camera on the newly loaded scene
     if (this.camera.script.orbitCamera) {
       if (this.cameraPosition) {
@@ -393,6 +405,21 @@ export class Viewer {
       }
     });
     return models;
+  }
+
+  get meshInstances() {
+    var all: pc.MeshInstance[];
+    var app: pc.Application;
+    // #########################
+    app = this.app;
+    all = [];
+    // #########################
+    app.root.forEach(function (e) {
+      if (e.model) {
+        all.push(...e.model.meshInstances);
+      }
+    });
+    return all;
   }
 }
 

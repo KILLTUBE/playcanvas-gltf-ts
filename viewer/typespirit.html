@@ -73,9 +73,8 @@
 
       function inject_into_window(lib) {
         let keys;
-        let key;
         keys = Object.keys(lib);
-        for (key of keys) {
+        for (let key of keys) {
           // only set getters/setters once
           if (Object.getOwnPropertyDescriptor(window.__proto__, key)) {
             continue;
