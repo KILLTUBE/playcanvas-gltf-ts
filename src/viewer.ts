@@ -410,12 +410,14 @@ export class Viewer {
   get meshInstances() {
     var all: pc.MeshInstance[];
     var app: pc.Application;
+    var model: pc.ModelComponent;
     // #########################
-    app = this.app;
     all = [];
+    app = this.app;
     // #########################
     app.root.forEach(function (e) {
-      if (e.model) {
+      model = e.model;
+      if (model && model.meshInstances) {
         all.push(...e.model.meshInstances);
       }
     });
