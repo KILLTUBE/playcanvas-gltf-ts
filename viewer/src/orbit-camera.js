@@ -583,8 +583,7 @@ OrbitCamera.prototype._checkAspectRatio = function () {
 
 OrbitCamera.prototype._buildAabb = function (entity, modelsAdded) {
     var i = 0;
-
-    if (entity.model) {
+    if (entity.model && entity.model.meshInstances) {
         var mi = entity.model.meshInstances;
         for (i = 0; i < mi.length; i++) {
             if (modelsAdded === 0) {
@@ -596,11 +595,9 @@ OrbitCamera.prototype._buildAabb = function (entity, modelsAdded) {
             modelsAdded += 1;
         }
     }
-
     for (i = 0; i < entity.children.length; ++i) {
         modelsAdded += this._buildAabb(entity.children[i], modelsAdded);
     }
-
     return modelsAdded;
 };
 
