@@ -6,6 +6,8 @@ import { init_overlay, select_remove_options, select_add_option } from "./utils"
 import { loadGlb, loadGltf } from "./playcanvas-gltf";
 import { setup_ui } from "./setup_ui";
 import { AnimationClip } from "./AnimationClip";
+import { DebugLines } from "./DebugLines";
+import { calcMeshBoundingBox } from "./utils_bbox";
 
 declare var viewer: Viewer;
 
@@ -118,7 +120,7 @@ export class Viewer {
     
     // Press 'D' to delete the currently loaded model
     app.on('update', function () {
-      if (viewer.shaderChunks.enabled == false && this.app.keyboard.wasPressed(pc.KEY_D)) {
+      if (typeof viewer != "undefined" && viewer.shaderChunks.enabled == false && this.app.keyboard.wasPressed(pc.KEY_D)) {
         this.destroyScene();
       }
       if (this.gltf && this.gltf.animComponent) {
@@ -128,6 +130,34 @@ export class Viewer {
       }
       this.timeline.render();
     }, this);
+
+    this.debugBounds = new DebugLines(app, camera);
+
+    //app.on('prerender', this.onPrerender, this);
+    //app.on('frameend', this.onFrameend, this);
+  }
+
+  //showBounds
+  dirtyBounds = true;
+  debugBounds: DebugLines;
+  meshInstances: pc.MeshInstance[] = [];
+
+  onPrerender()
+  {
+    // debug bounds
+    if (this.dirtyBounds)
+    {
+      this.dirtyBounds = false;
+      this.debugBounds.clear();
+
+      //if (this.showBounds)
+      {
+          const bbox = calcMeshBoundingBox(this.meshInstances);
+          
+          this.debugBounds.box(bbox.getMin(), bbox.getMax());
+      }
+      this.debugBounds.update();
+  }
   }
 
   destroyScene() {

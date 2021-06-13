@@ -8,7 +8,10 @@
     <link rel="stylesheet" href="styles.css">
     <script src="http://127.0.0.1/TypeSpirit/TypeSpirit.js"></script>
     <script src='http://127.0.0.1/pcui-review/dist/pcui.js'></script>
-    <script src="http://127.0.0.1/playcanvas-engine/build/output/playcanvas.js"></script>
+    <!--
+      <script src="http://127.0.0.1/playcanvas-engine/build/output/playcanvas.js"></script>
+    -->
+    <script src='https://code.playcanvas.com/playcanvas-stable.min.js'></script>
     <script>
       function fetch_script(url) {
         return new Promise(function(resolve, reject) {
@@ -68,6 +71,28 @@
         main();
       }
 
+      function inject_into_window(lib) {
+        let keys;
+        let key;
+        keys = Object.keys(lib);
+        for (key of keys) {
+          // only set getters/setters once
+          if (Object.getOwnPropertyDescriptor(window.__proto__, key)) {
+            continue;
+          }
+          Object.defineProperty(
+            window.__proto__,
+            key, {
+              get: function() {
+                return lib[key]
+              },
+              set: function(newValue) {
+                lib[key] = newValue;
+              }
+          });
+        }
+      }
+
       async function main_ts() {
         var bundler = new TypeSpirit.BundlerWeb({
           debug: false,
@@ -77,6 +102,7 @@
         var lib = await bundler.imp0rt('viewer.ts');
         //window.viewer = new lib.Viewer;
         lib.main();
+        inject_into_window(lib);
         //lib.main({
         //  url_libwebgame: 'http://127.0.0.1/STUFF/libwebgame/'
         //});
