@@ -31,12 +31,20 @@ export class Viewer {
   anim_pause: HTMLElement;
   cameraPosition: pc.Vec3;
   clip: AnimationClip;
-  showBounds = true;
   ui: Ui;
-
-  //showBounds
+  firstFrame = true;
   dirtyBounds = true;
   debugBounds: DebugLines;
+  
+  _showBounds = true;
+  get showBounds() {
+    return this._showBounds;
+  }
+  set showBounds(newValue) {
+    this.dirtyBounds = true;
+    this._showBounds = newValue;
+    this.ui.uiViewer.update();
+  }
 
   constructor() {
     var canvas = document.createElement('canvas');
@@ -143,7 +151,7 @@ export class Viewer {
     app.on('frameend', this.onFrameend, this);
 
     // Setup Ui
-    this.ui = new Ui(this.app);
+    this.ui = new Ui(this.app, this);
   }
 
   onPrerender() {
@@ -151,14 +159,13 @@ export class Viewer {
     if (this.dirtyBounds) {
       this.dirtyBounds = false;
       this.debugBounds.clear();
-      if (this.showBounds) {
+      if (this._showBounds) {
           const bbox = calcMeshBoundingBox(this.meshInstances);
           this.debugBounds.box(bbox.getMin(), bbox.getMax());
       }
       this.debugBounds.update();
     }
   }
-  firstFrame = true;
 
   onFrameend() {
     if (this.firstFrame) {

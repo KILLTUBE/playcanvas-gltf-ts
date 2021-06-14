@@ -3,20 +3,23 @@ import * as pcui from '@playcanvas/pcui';
 import { Hierarchy } from './Hierarchy';
 import { Inspector } from './Inspector';
 import { UiViewer } from "./UiViewer";
+import { Viewer } from "./viewer";
 
 export class Ui {
   app: pc.Application;
+  viewer: Viewer;
   container: pcui.Container;
   panel: pcui.Panel;
   uiViewer: UiViewer;
   inspector: Inspector;
   hierarchy: Hierarchy;
 
-  constructor(app: pc.Application) {
+  constructor(app: pc.Application, viewer: Viewer) {
     this.app = app;
+    this.viewer = viewer;
     this.appendContainer();
     this.appendPanel();
-    this.uiViewer = new UiViewer(this.app, this.panel.content);
+    this.uiViewer = new UiViewer(this.app, this.panel.content, this.viewer);
     this.inspector = new Inspector(this.app, this.panel.content);
     this.hierarchy = new Hierarchy(this.app, this.panel.content);
   }
