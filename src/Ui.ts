@@ -4,21 +4,21 @@ import { Hierarchy } from './Hierarchy';
 import { Inspector } from './Inspector';
 import { UiViewer } from "./UiViewer";
 
-class Ui {
+export class Ui {
   app: pc.Application;
   container: pcui.Container;
   panel: pcui.Panel;
-  hierarchy: Hierarchy;
-  inspector: Inspector;
   uiViewer: UiViewer;
+  inspector: Inspector;
+  hierarchy: Hierarchy;
 
   constructor(app: pc.Application) {
     this.app = app;
     this.appendContainer();
     this.appendPanel();
-    this.hierarchy = new Hierarchy(this.app, this.panel.content);
-    this.inspector = new Inspector(this.app, this.panel.content);
     this.uiViewer = new UiViewer(this.app, this.panel.content);
+    this.inspector = new Inspector(this.app, this.panel.content);
+    this.hierarchy = new Hierarchy(this.app, this.panel.content);
   }
 
   appendContainer() {
@@ -63,13 +63,4 @@ class Ui {
     });
     this.container.append(this.panel);
   }
-}
-
-export function setup_ui(app: pc.Application) {
-  var ui: Ui;
-  // #########################
-  ui = new Ui(app);
-  Object.assign(window, {
-    ui
-  });
 }

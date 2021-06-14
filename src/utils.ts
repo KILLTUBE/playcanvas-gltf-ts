@@ -1,3 +1,5 @@
+import { Viewer } from "./viewer";
+
 export function init_overlay() {
   var overlay = document.getElementById("overlay");
   // give scripts the ability to determine if the event should be ignored
@@ -102,8 +104,9 @@ export function clone_gltf(entity) {
   // 4) clone animation clips
   var numClips = entity.animComponent.animClips.length;
   var animationClips = Array(numClips);
-  for (var i=0; i<numClips; i++)
+  for (var i=0; i<numClips; i++) {
     animationClips[i] = entity.animComponent.animClips[i].clone();
+  }
   // 5) assign entity_clone to each clip->curve->target
   for (var i = 0; i < animationClips.length; i++) {
     var clip = animationClips[i];
@@ -140,53 +143,6 @@ export function gltf_clone_setpos_playclip(gltf, x, y, z) {
     activeClip.play();
   }
   return cloned;
-}
-
-var clones: pc.Entity[] = [];
-var clonesNextHeight = 0;
-
-/**
- * @summary
- * clones the current viewer.gltf 64 times
- * 8 rows, 8 cols
- * useful for performance tracing
- */
-
-export function spawn8x8() {
-  if (!viewer.gltf) {
-    console.log('spawn8x8> nothing to clone')
-    return;
-  }
-  var entity = viewer.gltf;
-  var padding_x = 0;
-  var padding_y = 0;
-  var padding_z = 0;
-  for (var i=0; i<entity.model.meshInstances.length; i++) {
-    var aabb = entity.model.meshInstances[i].aabb;
-    //console.log(aabb.halfExtents);
-    padding_x = Math.max(padding_x, aabb.halfExtents.x * 2);
-    padding_y = Math.max(padding_y, aabb.halfExtents.y * 2);
-    padding_z = Math.max(padding_z, aabb.halfExtents.z * 2);
-  }
-  for (var i=1; i<=8; i++) {
-    for (var j=1; j<=8; j++) {
-      var clone = gltf_clone_setpos_playclip(
-        entity,
-        i * padding_x,     // x
-        clonesNextHeight,  // y
-        j * padding_z * -1 // z
-      );
-      clones.push(clone);
-    }
-  }
-  clonesNextHeight += padding_y;
-  // add all clones to scene
-  for (var i=0; i<clones.length; i++) {
-    var clone = clones[i];
-    if (clone.parent) // only add non-parented clones to scene
-      continue;
-    viewer.app.root.addChild(clone);
-  }
 }
 
 export function enter_vr() {

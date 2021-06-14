@@ -1,6 +1,8 @@
 import * as pc from "playcanvas";
 import * as pcui from '@playcanvas/pcui';
-import { spawn8x8 } from "./utils";
+import { Viewer } from "./viewer";
+
+declare var viewer: Viewer;
 
 export class UiViewer {
     app: pc.Application;
@@ -19,9 +21,8 @@ export class UiViewer {
         });
         this.parent.append(button);
         button.on('click', e => {
-            spawn8x8();
+            viewer.spawn8x8();
         })
-        window.button = button;
     }
 
     appendBounds() {
@@ -30,10 +31,9 @@ export class UiViewer {
             type: 'toggle'
         });
         element.on('click', function(e: MouseEvent) {
-            console.log('Bounds New Value: ', element.value);
+            //console.log('Bounds New Value: ', element.value);
+            viewer.showBounds = element.value;
         })
         this.parent.append(element);
-        window.uiviewer_bounds = element;
-
     }
 }

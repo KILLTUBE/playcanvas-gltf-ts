@@ -1,3 +1,4 @@
+import * as pc from 'playcanvas';
 import * as pcui from '@playcanvas/pcui';
 import { delay } from './utils';
 
@@ -8,14 +9,13 @@ export class Hierarchy {
     treeView: pcui.TreeView;
     panelHierarchy: pcui.Panel;
 
-    constructor(app, parent) {
+    constructor(app: pc.Application, parent: pcui.Element) {
         this.debug = true;
         this.app = app;
         this.parent = parent;
         this.addTreeView();
         this.update();
         this.app.root.on("childinsert", delay(this.onChildInsert.bind(this), 100));
-        window.hierarchy = this;
     }
 
     update() {
@@ -24,7 +24,7 @@ export class Hierarchy {
     }
 
     // test = new pc.Entity(`Test #${Math.round(Math.random()*1000)}`); app.root.addChild(test);
-    onChildInsert(child) {
+    onChildInsert(child: pc.Entity | pc.GraphNode) {
         //console.log("INSERT CHILD", child);
         this.update();
     }

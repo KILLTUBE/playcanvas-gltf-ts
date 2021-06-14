@@ -2,12 +2,12 @@ import * as pc from "playcanvas";
 import { AnimationComponent } from "./AnimationComponent";
 import { Timeline } from "./Timeline";
 import { ShaderChunks } from "./ShaderChunks";
-import { init_overlay, select_remove_options, select_add_option } from "./utils";
+import { init_overlay, select_remove_options, select_add_option, gltf_clone_setpos_playclip } from "./utils";
 import { loadGlb, loadGltf } from "./playcanvas-gltf";
-import { setup_ui } from "./setup_ui";
 import { AnimationClip } from "./AnimationClip";
 import { DebugLines } from "./DebugLines";
 import { calcMeshBoundingBox } from "./utils_bbox";
+import { Ui } from "./Ui";
 
 declare var viewer: Viewer;
 
@@ -31,6 +31,12 @@ export class Viewer {
   anim_pause: HTMLElement;
   cameraPosition: pc.Vec3;
   clip: AnimationClip;
+  showBounds = true;
+  ui: Ui;
+
+  //showBounds
+  dirtyBounds = true;
+  debugBounds: DebugLines;
 
   constructor() {
     var canvas = document.createElement('canvas');
@@ -135,19 +141,17 @@ export class Viewer {
 
     app.on('prerender', this.onPrerender, this);
     app.on('frameend', this.onFrameend, this);
-  }
 
-  //showBounds
-  dirtyBounds = true;
-  debugBounds: DebugLines;
+    // Setup Ui
+    this.ui = new Ui(this.app);
+  }
 
   onPrerender() {
     // debug bounds
     if (this.dirtyBounds) {
       this.dirtyBounds = false;
       this.debugBounds.clear();
-      //if (this.showBounds)
-      {
+      if (this.showBounds) {
           const bbox = calcMeshBoundingBox(this.meshInstances);
           this.debugBounds.box(bbox.getMin(), bbox.getMax());
       }
@@ -200,6 +204,9 @@ export class Viewer {
 
     this.dirtyBounds = true;
     this.firstFrame = true;
+
+    this.ui.hierarchy.update();
+    this.deleteClones();
   }
 
   initializeScene(err, res) {
@@ -423,6 +430,55 @@ export class Viewer {
     });
     return all;
   }
+
+  
+  clones: pc.Entity = undefined;
+  clonesNextHeight = 0;
+
+  deleteClones() {
+    this.clonesNextHeight = 0;
+  }
+
+  /**
+   * @summary
+   * clones the current viewer.gltf 64 times
+   * 8 rows, 8 cols
+   * useful for performance tracing
+   */
+
+  spawn8x8() {
+    if (!this.gltf) {
+      console.log('spawn8x8> nothing to clone');
+      return;
+    }
+    if (typeof this.clones == 'undefined') {
+      this.clones = new pc.Entity('Clones');
+      this.app.root.addChild(this.clones);
+    }
+    var entity = this.gltf;
+    var padding_x = 0;
+    var padding_y = 0;
+    var padding_z = 0;
+    for (var i=0; i<entity.model.meshInstances.length; i++) {
+      var aabb = entity.model.meshInstances[i].aabb;
+      //console.log(aabb.halfExtents);
+      padding_x = Math.max(padding_x, aabb.halfExtents.x * 2);
+      padding_y = Math.max(padding_y, aabb.halfExtents.y * 2);
+      padding_z = Math.max(padding_z, aabb.halfExtents.z * 2);
+    }
+    for (var i=1; i<=8; i++) {
+      for (var j=1; j<=8; j++) {
+        var clone = gltf_clone_setpos_playclip(
+          entity,
+          i * padding_x,     // x
+          this.clonesNextHeight,  // y
+          j * padding_z * -1 // z
+        );
+        this.clones.addChild(clone);
+      }
+    }
+    this.clonesNextHeight += padding_y;
+  }
 }
 
 function getParameterByName(name: string, url: string) {
@@ -601,5 +657,4 @@ export function main() {
     });
 
   }, false);
-  setup_ui(viewer.app);
 }
