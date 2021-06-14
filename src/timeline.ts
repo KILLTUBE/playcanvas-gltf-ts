@@ -1,3 +1,5 @@
+import { AnimationCurve } from "./AnimationCurve";
+import { AnimationKeyable } from "./AnimationKeyable";
 import { Viewer } from "./viewer";
 
 declare var viewer: Viewer;
@@ -9,10 +11,16 @@ export class Timeline {
   colorRectHovered: string;
   colorRectSelected: string;
   colorLineSlider: string;
-  anim_timeline_toggle: HTMLElement;
+  //anim_timeline_toggle: HTMLElement;
   anim_timeline: HTMLCanvasElement;
   anim_timeline_context: CanvasRenderingContext2D;
   enabled: boolean;
+  curve_id: number;
+  animkey_id: number;
+  hoveredCurve: AnimationCurve;
+  hoveredAnimKey: AnimationKeyable;
+  selectedCurve: AnimationCurve;
+  selectedAnimKey: AnimationKeyable;
 
   constructor() {
     this.curveHeight = 12;
@@ -22,10 +30,10 @@ export class Timeline {
     this.colorRectSelected = "rgba(0,255,0, 0.1)"; // greenish transparent
     this.colorLineSlider   = "white";
     
-    this.anim_timeline_toggle = document.getElementById("anim_timeline_toggle");
-    this.anim_timeline_toggle.onclick = function(e) {
-      this.toggle();
-    }.bind(this);
+    //this.anim_timeline_toggle = document.getElementById("anim_timeline_toggle");
+    //this.anim_timeline_toggle.onclick = function(e) {
+    //  this.toggle();
+    //}.bind(this);
     
     this.anim_timeline = document.getElementById("anim_timeline") as HTMLCanvasElement;
     this.anim_timeline_context = this.anim_timeline.getContext("2d");
@@ -78,7 +86,7 @@ export class Timeline {
   enable() {
     this.anim_timeline.style.display = "";
     this.enabled = true;
-    this.anim_timeline_toggle.value = "Hide Timeline";
+    //this.anim_timeline_toggle.value = "Hide Timeline";
     this.resize();
     if ( (viewer.gltf && viewer.gltf.animComponent) === undefined) {
       viewer.log("please load a gltf/glb with animation data to see the timeline \uD83C\uDF4B");
@@ -88,7 +96,7 @@ export class Timeline {
   disable() {
     this.anim_timeline.style.display = "none";
     this.enabled = false;
-    this.anim_timeline_toggle.value = "Show Timeline";
+    //this.anim_timeline_toggle.value = "Show Timeline";
     this.resize();
   }
 
@@ -99,7 +107,7 @@ export class Timeline {
       this.enable();
   }
 
-  mouseMove(left, top) {
+  mouseMove(left: number, top: number) {
     if (viewer.clip === undefined) {
       return;
     }
@@ -114,10 +122,10 @@ export class Timeline {
     }
   }
 
-  mouseClickLeft(left, top) {
+  mouseClickLeft(left: number, top: number) {
     this.selectedCurve   = this.hoveredCurve;
     this.selectedAnimKey   = this.hoveredAnimKey;
-    if (this.gltf && this.gltf.animComponent) {
+    if (viewer.gltf && viewer.gltf.animComponent) {
       var msg = "open f12/devtools and check <code>viewer.selectedAnimKey</code> or ";
       msg += "<code>";
       if (this.curve_id !== undefined)
@@ -131,11 +139,11 @@ export class Timeline {
     }
   }
 
-  mouseClickMiddle(left, top) {
+  mouseClickMiddle(left: number, top: number) {
     viewer.log("scrolling not implemented yet \uD83D\uDE09");
   }
 
-  mouseClickRight(left, top) {
+  mouseClickRight(left: number, top: number) {
     viewer.log("what happens on rightclick? \uD83E\uDD14");
   }
 
@@ -143,61 +151,63 @@ export class Timeline {
     if (this.enabled === false) {
       return;
     }
-    if (viewer.gltf && viewer.gltf.animComponent) {
-      var ctx = this.anim_timeline_context;
-      var clip = viewer.gltf.animComponent.getCurrentClip();
-      var canvasWidth = ctx.canvas.width;
-      var multiplier = canvasWidth / clip.duration; // multiply with this for animKey.time to canvas "left"
-      var left = 0;
-      var top = 0;
-      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-      ctx.lineWidth = 1;
-      for (var animcurve_id = 0; animcurve_id < clip.animCurves.length; animcurve_id++) {
-        var animCurve = clip.animCurves[animcurve_id];
-        var linecolor = this.colorLines;
-        if (animCurve == this.hoveredCurve) {
-          linecolor = this.colorLinesHovered;
-        }
-        var steptime = clip.duration / animCurve.animKeys.length;
-        var eg250 = canvasWidth / animCurve.animKeys.length;
-        for (var animkey_id=0; animkey_id<animCurve.animKeys.length; animkey_id++) {
-          var animKey = animCurve.animKeys[animkey_id];
-          var left = animkey_id * eg250;
-          if (left != 0) { // dont draw a marker line on left==0px
-            ctx.beginPath();
-            ctx.strokeStyle = linecolor;
-            ctx.moveTo(left, top);
-            ctx.lineTo(left, top + this.curveHeight);
-            ctx.stroke();
-          }
-          if (animKey == this.hoveredAnimKey) {
-            ctx.beginPath();
-            ctx.fillStyle = this.colorRectHovered;
-            ctx.fillRect( // left, top, width, height
-              left + 1, top + 1,
-              eg250 - 2, this.curveHeight - 2
-            );
-            ctx.stroke();
-          }
-          if (animKey == this.selectedAnimKey) {
-            ctx.beginPath();
-            ctx.fillStyle = this.colorRectSelected;
-            ctx.fillRect( // left, top, width, height
-              left + 1, top + 1,
-              eg250 - 2, this.curveHeight - 2
-            );
-            ctx.stroke();
-          }
-        }
-        top += this.curveHeight;
-      }
-      // draw the time slider position
-      var slider_left = clip.session.curTime * multiplier;
-      ctx.strokeStyle = this.colorLineSlider;
-      ctx.beginPath();
-      ctx.moveTo(slider_left, 0);
-      ctx.lineTo(slider_left, ctx.canvas.height);
-      ctx.stroke();
+    if (!(viewer.gltf && viewer.gltf.animComponent)) {
+      viewer.log('Timeline#render> nothing to render');
+      return;
     }
+    var ctx = this.anim_timeline_context;
+    var clip = viewer.gltf.animComponent.getCurrentClip();
+    var canvasWidth = ctx.canvas.width;
+    var multiplier = canvasWidth / clip.duration; // multiply with this for animKey.time to canvas "left"
+    var left = 0;
+    var top = 0;
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.lineWidth = 1;
+    for (var animcurve_id = 0; animcurve_id < clip.animCurves.length; animcurve_id++) {
+      var animCurve = clip.animCurves[animcurve_id];
+      var linecolor = this.colorLines;
+      if (animCurve == this.hoveredCurve) {
+        linecolor = this.colorLinesHovered;
+      }
+      var steptime = clip.duration / animCurve.animKeys.length;
+      var eg250 = canvasWidth / animCurve.animKeys.length;
+      for (var animkey_id=0; animkey_id<animCurve.animKeys.length; animkey_id++) {
+        var animKey = animCurve.animKeys[animkey_id];
+        var left = animkey_id * eg250;
+        if (left != 0) { // don't draw a marker line on left==0px
+          ctx.beginPath();
+          ctx.strokeStyle = linecolor;
+          ctx.moveTo(left, top);
+          ctx.lineTo(left, top + this.curveHeight);
+          ctx.stroke();
+        }
+        if (animKey == this.hoveredAnimKey) {
+          ctx.beginPath();
+          ctx.fillStyle = this.colorRectHovered;
+          ctx.fillRect( // left, top, width, height
+            left + 1, top + 1,
+            eg250 - 2, this.curveHeight - 2
+          );
+          ctx.stroke();
+        }
+        if (animKey == this.selectedAnimKey) {
+          ctx.beginPath();
+          ctx.fillStyle = this.colorRectSelected;
+          ctx.fillRect( // left, top, width, height
+            left + 1, top + 1,
+            eg250 - 2, this.curveHeight - 2
+          );
+          ctx.stroke();
+        }
+      }
+      top += this.curveHeight;
+    }
+    // draw the time slider position
+    var slider_left = clip.session.curTime * multiplier;
+    ctx.strokeStyle = this.colorLineSlider;
+    ctx.beginPath();
+    ctx.moveTo(slider_left, 0);
+    ctx.lineTo(slider_left, ctx.canvas.height);
+    ctx.stroke();
   }
 }

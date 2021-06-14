@@ -13,21 +13,22 @@ export class ShaderChunks {
   constructor() {
     this.shaderchunks = document.getElementById("shaderchunks");
     
-    this.shaderchunks_toggle = document.getElementById("shaderchunks_toggle");
-    this.shaderchunks_toggle.onclick = function(e) {
-      this.toggle();
-    }.bind(this);
+    //this.shaderchunks_toggle = document.getElementById("shaderchunks_toggle");
+    //this.shaderchunks_toggle.onclick = function(e) {
+    //  this.toggle();
+    //}.bind(this);
     
-    this.shaderchunks_regen = document.getElementById("shaderchunks_regen");
-    this.shaderchunks_regen.onclick = function(e) {
-      this.regenerateShaders();
-    }.bind(this);
+    //this.shaderchunks_regen = document.getElementById("shaderchunks_regen");
+    //this.shaderchunks_regen.onclick = function(e) {
+    //  this.regenerateShaders();
+    //}.bind(this);
     
     this.textareas = {};
     for (var name in pc.shaderChunks) {
       var shaderChunk = pc.shaderChunks[name];
-      if (typeof shaderChunk !== "string") // there are a few functions
+      if (typeof shaderChunk !== "string") { // there are a few functions
         continue;
+      }
       // add text
       var text = document.createElement("div");
       text.innerHTML = name;
@@ -58,23 +59,24 @@ export class ShaderChunks {
 
   enable() {
     this.shaderchunks.style.display = "";
-    this.shaderchunks_regen.style.display = "";
-    this.shaderchunks_toggle.value = "Hide ShaderChunks";
+    //this.shaderchunks_regen.style.display = "";
+    //this.shaderchunks_toggle.value = "Hide ShaderChunks";
     this.enabled = true;
   }
 
   disable() {
     this.shaderchunks.style.display = "none";
-    this.shaderchunks_regen.style.display = "none";
-    this.shaderchunks_toggle.value = "Show ShaderChunks";
+    //this.shaderchunks_regen.style.display = "none";
+    //this.shaderchunks_toggle.value = "Show ShaderChunks";
     this.enabled = false;
   }
 
   toggle() {
-    if (this.enabled)
+    if (this.enabled) {
       this.disable();
-    else
+    } else {
       this.enable();
+    }
   }
 
   resize() {
@@ -83,8 +85,8 @@ export class ShaderChunks {
   }
 
   regenerateShaders() {
-    if (viewer.gltf == undefined) {
-      viewer.log("please load a model first");
+    if (!viewer.gltf) {
+      viewer.log('ShaderChunks#regenerateShaders> please load a model first');
       return;
     }
     pc.app.graphicsDevice.programLib._cache = {};

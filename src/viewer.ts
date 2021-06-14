@@ -135,7 +135,7 @@ export class Viewer {
     // Press 'D' to delete the currently loaded model
     app.on('update', function (this: Viewer) {
       if (typeof viewer != "undefined" && viewer.shaderChunks.enabled == false && this.app.keyboard.wasPressed(pc.KEY_D)) {
-        this.destroyScene();
+        this.resetScene();
       }
       if (this.gltf && this.gltf.animComponent) {
         // mirror the playback time of the playing clip into the html range slider
@@ -178,7 +178,7 @@ export class Viewer {
     }
   }
 
-  destroyScene() {
+  resetScene() {
     if (this.textures) {
       this.textures.forEach(function (texture) {
         texture.destroy();
@@ -212,8 +212,9 @@ export class Viewer {
     this.dirtyBounds = true;
     this.firstFrame = true;
 
-    this.ui.hierarchy.update();
     this.deleteClones();
+    this.ui.hierarchy.update();
+    viewer.log('');
   }
 
   initializeScene(err, res) {
@@ -223,7 +224,7 @@ export class Viewer {
 
     if (!this.onlyLoadAnimations) {
       // Blow away whatever is currently loaded
-      this.destroyScene();
+      this.resetScene();
 
       // Wrap the model as an asset and add to the asset registry
       var asset = new pc.Asset('gltf', 'model', {
@@ -444,6 +445,10 @@ export class Viewer {
 
   deleteClones() {
     this.clonesNextHeight = 0;
+    if (this.clones) {
+      this.clones.destroy();
+      this.clones = undefined;
+    }
   }
 
   /**
@@ -458,7 +463,7 @@ export class Viewer {
       console.log('spawn8x8> nothing to clone');
       return;
     }
-    if (typeof this.clones == 'undefined') {
+    if (!this.clones) {
       this.clones = new pc.Entity('Clones');
       this.app.root.addChild(this.clones);
     }
@@ -477,9 +482,9 @@ export class Viewer {
       for (var j=1; j<=8; j++) {
         var clone = gltf_clone_setpos_playclip(
           entity,
-          i * padding_x,     // x
+          i * padding_x,          // x
           this.clonesNextHeight,  // y
-          j * padding_z * -1 // z
+          j * padding_z * -1      // z
         );
         this.clones.addChild(clone);
       }
