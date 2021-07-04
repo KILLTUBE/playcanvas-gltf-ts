@@ -19,6 +19,7 @@ export class Hierarchy {
     }
 
     update() {
+        //console.log('Hierarchy#update');
         this.treeView.clearTreeItems();
         this.addTreeViewItems(this.app.root, this.treeView);
     }

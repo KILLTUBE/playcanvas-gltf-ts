@@ -60,7 +60,8 @@ export class DebugLines {
         material.update();
 
         // construct the mesh instance
-        const meshInstance = new pc.MeshInstance(mesh, material, new pc.GraphNode());
+        //const meshInstance = new pc.MeshInstance(mesh, material, new pc.GraphNode());
+        const meshInstance = new pc.MeshInstance(new pc.GraphNode(), mesh, material);
         meshInstance.cull = false;
         meshInstance.visible = false;
 

@@ -8,10 +8,17 @@
     <link rel="stylesheet" href="styles.css">
     <script src="http://127.0.0.1/TypeSpirit/TypeSpirit.js"></script>
     <script src='http://127.0.0.1/pcui-review/dist/pcui.js'></script>
+    <script src='http://127.0.0.1/pcui-review/dist/pcui-binding.js'></script>
+    <script>
+      // Make a pcuiBinding shortcut
+      window.pcuiBinding = window['pcui-binding'];
+      // Augment pcui with pcui-binding classes
+      Object.assign(pcui, window['pcui-binding']);
+    </script>
     <!--
-      <script src="http://127.0.0.1/playcanvas-engine/build/output/playcanvas.js"></script>
+      <script src='https://code.playcanvas.com/playcanvas-stable.min.js'></script>
     -->
-    <script src='https://code.playcanvas.com/playcanvas-stable.min.js'></script>
+    <script src="http://127.0.0.1/playcanvas-engine-as/build/playcanvas.js"></script>
     <script>
       function fetch_script(url) {
         return new Promise(function(resolve, reject) {

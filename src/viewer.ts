@@ -6,7 +6,7 @@ import { init_overlay, select_remove_options, select_add_option, gltf_clone_setp
 import { loadGlb, loadGltf } from "./playcanvas-gltf";
 import { AnimationClip } from "./AnimationClip";
 import { DebugLines } from "./DebugLines";
-import { calcMeshBoundingBox } from "./utils_bbox";
+import { calcHierBoundingBox, calcMeshBoundingBox } from "./utils_bbox";
 import { Ui } from "./Ui";
 
 declare var viewer: Viewer;
@@ -35,7 +35,10 @@ export class Viewer {
   firstFrame = true;
   dirtyBounds = true;
   debugBounds: DebugLines;
-  
+  sceneRoot: pc.Entity;
+  debugRoot: pc.Entity;
+  light: pc.Entity;
+
   _showBounds = true;
   get showBounds() {
     return this._showBounds;
@@ -92,11 +95,11 @@ export class Viewer {
     }.bind(this));
 
     // Create directional light entity
-    var light = new pc.Entity('light');
-    light.addComponent('light');
-    light.setEulerAngles(45, 0, 0);
-    app.root.addChild(light);
-
+    this.light = new pc.Entity('light');
+    this.light.addComponent('light');
+    this.light.setEulerAngles(45, 0, 0);
+    app.root.addChild(this.light);
+  
     // Set a prefiltered cubemap as the skybox
     var cubemapAsset = new pc.Asset('helipad', 'cubemap', {
       url: "./assets/cubemap/6079289/Helipad.dds"
@@ -149,6 +152,13 @@ export class Viewer {
 
     app.on('prerender', this.onPrerender, this);
     app.on('frameend', this.onFrameend, this);
+
+    // create the scene and debug root nodes
+    this.sceneRoot = new pc.Entity("sceneRoot", app);
+    app.root.addChild(this.sceneRoot);
+
+    this.debugRoot = new pc.Entity("debugRoot", app);
+    app.root.addChild(this.debugRoot);
 
     // Setup Ui
     this.ui = new Ui(this.app, this);
@@ -243,7 +253,7 @@ export class Viewer {
       this.gltf.addComponent('model', {
         asset: asset
       });
-      this.app.root.addChild(this.gltf);
+      this.sceneRoot.addChild(this.gltf);
 
       // Now that the model is created, after translateAnimation, we have to hook here
       if (animationClips) {
@@ -255,6 +265,8 @@ export class Viewer {
           }
         }
       }
+
+      this.ui.hierarchy.update();
     }
 
     // Load any animations
@@ -284,16 +296,58 @@ export class Viewer {
       this.anim_info.innerHTML = animationClips.length + " animation clips loaded";
     }    
   }
+  get bbox() {
+    if (this.meshInstances.length) {
+      return calcMeshBoundingBox(this.meshInstances);
+    } else {
+      return calcHierBoundingBox(this.sceneRoot);
+    }
+  }
 
   focusCamera() {
     // Focus the camera on the newly loaded scene
-    if (this.camera.script.orbitCamera) {
+    //if (this.camera.script.orbitCamera) {
+    //  if (this.cameraPosition) {
+    //    this.camera.script.orbitCamera.distance = this.cameraPosition.length();
+    //  } else {
+    //    this.camera.script.orbitCamera.focusEntity = this.gltf;
+    //  }
+    //}
+    const bbox = this.bbox;
+    const orbitCamera = this.camera.script.orbitCamera;
+    const camera = this.camera.camera;
+
+    //if (this.cameraFocusBBox) {
+    //    const intersection = Viewer.calcBoundingBoxIntersection(this.cameraFocusBBox, bbox);
+    //    if (intersection) {
+    //        const len1 = bbox.halfExtents.length();
+    //        const len2 = this.cameraFocusBBox.halfExtents.length();
+    //        const len3 = intersection.halfExtents.length();
+    //        if ((Math.abs(len3 - len1) / len1 < 0.1) &&
+    //            (Math.abs(len3 - len2) / len2 < 0.1)) {
+    //            return;
+    //        }
+    //    }
+    //}
+
+
+    // calculate scene bounding box
+    const radius = bbox.halfExtents.length();
+    const distance = (radius * 1.4) / Math.sin(0.5 * camera.fov * camera.aspectRatio * pc.math.DEG_TO_RAD);
+
+    if (orbitCamera) {
       if (this.cameraPosition) {
-        this.camera.script.orbitCamera.distance = this.cameraPosition.length();
+          orbitCamera.resetAndLookAtPoint(this.cameraPosition, bbox.center);
+          this.cameraPosition = null;
       } else {
-        this.camera.script.orbitCamera.focusEntity = this.gltf;
+          orbitCamera.pivotPoint = bbox.center;
+          orbitCamera.distance = distance;
       }
     }
+    camera.nearClip = distance / 10;
+    camera.farClip = distance * 10;
+
+    this.light.light.shadowDistance = distance * 2;
   }
 
   loadGlb(arrayBuffer: ArrayBuffer) {
