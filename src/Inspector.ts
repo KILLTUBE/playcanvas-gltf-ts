@@ -1,5 +1,6 @@
 import { pathfinder } from "./pathfinder";
 import "./pcuiExtension";
+import * as pc from 'playcanvas';
 import * as pcui from '@playcanvas/pcui';
 
 export function nonAttributeVars(script: pc.ScriptType) {
@@ -28,7 +29,7 @@ export class Inspector {
     panel: pcui.Panel;
     panelScripts: pcui.Panel;
 
-    constructor(app, parent) {
+    constructor(app: pc.Application, parent: pcui.Element) {
         this.app = app;
         this.parent = parent;
         this.addInspector();
@@ -110,7 +111,8 @@ export class Inspector {
 
         // LOCAL EULER
         this.vectorInputEuler = new pcui.VectorInput({
-            placeholder: ["X", "Y", "Z"]
+            placeholder: ["X", "Y", "Z"],
+            step: 45
         })
         td_euler_right.append(this.vectorInputEuler.dom);
         var euler = entity.getLocalEulerAngles();
@@ -131,7 +133,7 @@ export class Inspector {
         });
     }
 
-    select(entity) {
+    select(entity: pc.Entity) {
         this.panel.content.clear();
 
         this.addVectorInputs(entity);
@@ -147,7 +149,7 @@ export class Inspector {
             this.panelScripts.style.paddingLeft = "5px";
             this.panel.content.append(this.panelScripts);
         } else {
-            var scripts = entity.script.scripts;
+            var scripts = entity.script.scripts as unknown as ScriptType[];
             // TODO: Add button to add a script
             this.panelScripts = new pcui.Panel({
                 collapsible: true,
@@ -196,7 +198,7 @@ export class Inspector {
         }
     }
 
-    addAttributes(panel, script, scriptId) {
+    addAttributes(panel: pcui.Panel, script: pc.ScriptType, scriptId: number) {
         var attributes = Object.keys(script.__scriptType.attributes.index);
         var table = document.createElement("table");
         panel.append(table);

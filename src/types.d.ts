@@ -1,14 +1,18 @@
 /*
-log = console.log;
 pcKeys = Object.keys(pc);
-function createTSD(value, name) {
+function dumpAsObject(value, depth) {
+  if (value === null) {
+    return 'null';
+  }
+  if (value === undefined) {
+    return 'undefined';
+  }
   var out = '';
+  var spaces = "  ".repeat(depth);
   var keys = Object.keys(value);
-  log(keys);
-  out += `interface ${name} {\n`;
   for (var key of keys) {
     var type = typeof value[key];
-    //out += `  // typeof == ${type}\n`
+    //out += `${spaces}// typeof == ${type}\n`
     if (value[key] instanceof Array) {
       type = '[]';
     } else if (value[key] instanceof Object) {
@@ -16,27 +20,41 @@ function createTSD(value, name) {
       if (type == 'Object') {
         type = 'object';
       }
+    } else if (1) {
+      // convert function to "name" key etc.
     }
     if (type == "function") {
         type = "Function";
     }
-    if (pcKeys.includes(type)) {
+    if (pcKeys.includes(type) && type != "string") {
         type = 'pc.' + type;
     }
-    out += `  ${key}: ${type};\n`;
+    out += `${spaces}${key}: ${type};\n`;
   }
+  return out;
+}
+function tsd(value, name) {
+  console.log(tsdRet(value, name));
+}
+function tsdRet(value, name) {
+  if (!name && value instanceof Object) {
+    name = value.constructor.name;
+  }
+  var out = '';
+  out += `interface ${name} {\n`;
+  out += dumpAsObject(value, 1);
   out += `}\n`;
   return out;
 }
 
-log(createTSD(entity.script.scripts[0], 'ScriptTypeOrbitCamera'));
+tsd(entity.script.scripts[0], 'ScriptTypeOrbitCamera');
 */
 
-interface ScriptType {
+interface ScriptTypeOrbitCamera {
   _callbacks: object;
   _callbackActive: object;
-  app: pc.Application;
-  entity: pc.Entity;
+  app: Application;
+  entity: Entity;
   _enabled: boolean;
   _enabledOld: boolean;
   __destroyed: boolean;
@@ -45,8 +63,8 @@ interface ScriptType {
   __scriptType: Function;
   __executionOrder: number;
   _initialized: boolean;
-  _modelsAabb: pc.BoundingBox;
-  _pivotPoint: pc.Vec3;
+  _modelsAabb: BoundingBox;
+  _pivotPoint: Vec3;
   _yaw: number;
   _pitch: number;
   _distance: number;
@@ -54,4 +72,131 @@ interface ScriptType {
   _targetPitch: number;
   _targetDistance: number;
   _postInitialized: boolean;
+}
+
+// tsd(entity.script.scripts[1].__scriptType);
+
+
+// tsd(entity, 'Entity');
+
+interface Entity {
+  _callbacks: object;
+  _callbackActive: object;
+  name: string;
+  tags: pc.Tags;
+  _labels: object;
+  localPosition: pc.Vec3;
+  localRotation: pc.Quat;
+  localScale: pc.Vec3;
+  localEulerAngles: pc.Vec3;
+  position: pc.Vec3;
+  rotation: pc.Quat;
+  eulerAngles: pc.Vec3;
+  _scale: object;
+  localTransform: pc.Mat4;
+  _dirtyLocal: boolean;
+  _aabbVer: number;
+  _frozen: boolean;
+  worldTransform: pc.Mat4;
+  _dirtyWorld: boolean;
+  normalMatrix: pc.Mat3;
+  _dirtyNormal: boolean;
+  _right: object;
+  _up: object;
+  _forward: pc.Vec3;
+  _parent: pc.Entity;
+  _children: [];
+  _graphDepth: number;
+  _enabled: boolean;
+  _enabledInHierarchy: boolean;
+  scaleCompensation: boolean;
+  _batchHandle: object;
+  c: object;
+  _app: pc.Application;
+  _guid: string;
+  _destroying: boolean;
+  _template: boolean;
+  camera: pc.CameraComponent;
+  script: pc.ScriptComponent;
+  _beingEnabled: boolean;
+  treeViewItem: TreeViewItem;
+}
+
+// tsd(entity.treeViewItem, 'TreeViewItem');
+
+interface TreeViewItem {
+  _suspendEvents: boolean;
+  _destroyed: boolean;
+  _parent: TreeView;
+  _domEventClick: Function;
+  _domEventMouseOver: Function;
+  _domEventMouseOut: Function;
+  _eventsParent: [];
+  _dom: HTMLDivElement;
+  _enabled: boolean;
+  _hiddenParents: boolean;
+  _hidden: boolean;
+  _readOnly: boolean;
+  _ignoreParent: boolean;
+  _flashTimeout: object;
+  _domEventScroll: Function;
+  _domContent: HTMLDivElement;
+  _scrollable: boolean;
+  _flex: boolean;
+  _grid: boolean;
+  _domResizeHandle: object;
+  _domEventResizeStart: Function;
+  _domEventResizeMove: Function;
+  _domEventResizeEnd: Function;
+  _domEventResizeTouchStart: Function;
+  _domEventResizeTouchMove: Function;
+  _domEventResizeTouchEnd: Function;
+  _resizeTouchId: object;
+  _resizeData: object;
+  _resizeHorizontally: boolean;
+  _resizable: object;
+  _resizeMin: number;
+  _resizeMax: number;
+  _draggedStartIndex: number;
+  _containerContents: Container;
+  _labelIcon: Label;
+  _labelText: Label;
+  _allowSelect: boolean;
+  _allowDrop: boolean;
+  _allowDrag: boolean;
+  _numChildren: number;
+  _treeOrder: number;
+  _domEvtFocus: Function;
+  _domEvtBlur: Function;
+  _domEvtKeyDown: Function;
+  _domEvtDragStart: Function;
+  _domEvtMouseDown: Function;
+  _domEvtMouseUp: Function;
+  _domEvtMouseOver: Function;
+  _domEvtClick: Function;
+  _domEvtDblClick: Function;
+  _domEvtContextMenu: Function;
+  entity: pc.Entity;
+  _treeView: TreeView;
+}
+
+/*
+entity = new pc.Entity("test");
+entity.addComponent('script');
+scriptType = new pc.ScriptType({app: viewer.app, entity})
+tsd(scriptType);
+*/
+
+interface ScriptType {
+  _callbacks: object;
+  _callbackActive: object;
+  app: Application;
+  entity: Entity;
+  _enabled: boolean;
+  _enabledOld: boolean;
+  __destroyed: boolean;
+  __attributes: object;
+  __attributesRaw: object;
+  __scriptType: Function;
+  __executionOrder: number;
 }
