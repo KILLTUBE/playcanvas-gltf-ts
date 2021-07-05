@@ -8,6 +8,7 @@ import { AnimationClip } from "./AnimationClip";
 import { DebugLines } from "./DebugLines";
 import { calcHierBoundingBox, calcMeshBoundingBox } from "./utils_bbox";
 import { Ui } from "./Ui";
+import './tsd';
 
 declare var viewer: Viewer;
 
@@ -38,6 +39,8 @@ export class Viewer {
   sceneRoot: pc.Entity;
   debugRoot: pc.Entity;
   light: pc.Entity;
+  loadStart = 0;
+  loadStop = 0;
 
   _showBounds = true;
   get showBounds() {
@@ -306,6 +309,10 @@ export class Viewer {
       }
       this.anim_info.innerHTML = animationClips.length + " animation clips loaded";
     }
+
+    this.loadStop = Date.now();
+    console.log(`Time: ${this.loadStop - this.loadStart}ms`);
+
     setTimeout(() => {
       this.updateCameraAndBounds();
     }, 100);
@@ -370,6 +377,7 @@ export class Viewer {
   }
 
   loadGltf(gltf, basePath, processUri) {
+    this.loadStart = Date.now();
     loadGltf(gltf, this.app.graphicsDevice, this.initializeScene.bind(this), {
       decoderModule: decoderModule,
       basePath: basePath,
@@ -692,6 +700,10 @@ export function main() {
       var files = {};
 
       var loadEntries = function (entries) {
+        // Happens when you drag&drop some text:
+        if (entries.length == 0) {
+          return;
+        }
         var entry = entries.pop();
         if (entry.isFile) {
           filesRequested++;
@@ -720,10 +732,22 @@ export function main() {
 
       var i;
       var items = event.dataTransfer.items;
+      var item;
       if (items) {
         var entries = [];
         for (i = 0; i < items.length; i++) {
-          entries[i] = items[i].webkitGetAsEntry();
+          item = items[i];
+          // Object.keys(o).map(key=>`${key} is ${o[key]}`).join(' and ')
+          // "kind is string and type is text/plain"
+          var iteminfo = JSON.stringify({kind: item.kind, type: item.type});
+          console.log(`items[${i}]: ${iteminfo}`);
+          if (item.kind == 'string') {
+            item.getAsString(function(str) {
+              console.log('Got string: ', str);
+            });
+          } else {
+            entries[i] = item.webkitGetAsEntry();
+          }
         }
         loadEntries(entries);
       }
