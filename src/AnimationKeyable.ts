@@ -21,7 +21,7 @@ export enum AnimationKeyableType {
 export interface AnimationKeyable {
   type: AnimationKeyableType;
   time: number;
-  _cacheKeyIdx: number;
+  _cacheKeyIdx?: number;
   clone(): AnimationKeyable;
   copy(other: AnimationKeyable): AnimationKeyable;
 }

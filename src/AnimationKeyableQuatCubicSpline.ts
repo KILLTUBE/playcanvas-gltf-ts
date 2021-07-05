@@ -1,11 +1,14 @@
-export class AnimationKeyableQuatCubicSpline {
+import { AnimationCurve } from "./AnimationCurve";
+import { AnimationKeyable, AnimationKeyableType } from "./AnimationKeyable";
+
+export class AnimationKeyableQuatCubicSpline implements AnimationKeyable {
   type: AnimationKeyableType;
   time: number;
   value: pc.Quat;
   inTangent: pc.Quat;
   outTangent: pc.Quat;
 
-  constructor(time: number, value: pc.Quat, inTangent: pc.Quat, outTangent: pc.Quat) {
+  constructor(time?: number, value?: pc.Quat, inTangent?: pc.Quat, outTangent?: pc.Quat) {
     this.type       = AnimationKeyableType.QUAT_CUBICSCPLINE;
     this.time       = time       || 0.0;
     this.value      = value      || new pc.Quat();

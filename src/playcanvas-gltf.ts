@@ -1,3 +1,12 @@
+import * as pc from 'playcanvas';
+import { AnimationClip } from "./AnimationClip";
+import { AnimationCurve, AnimationCurveType } from "./AnimationCurve";
+import { AnimationKeyable, AnimationKeyableType } from "./AnimationKeyable";
+import { AnimationKeyableNumCubicSpline } from "./AnimationKeyableNumCubicSpline";
+import { AnimationKeyableQuatCubicSpline } from "./AnimationKeyableQuatCubicSpline";
+import { AnimationKeyableVecCubicSpline } from "./AnimationKeyableVecCubicSpline";
+import { AnimationTarget, TargetPath } from "./AnimationTarget";
+
 //Object.assign(window, function () {
 
   // Math utility functions
@@ -9,81 +18,121 @@
     return n && (n & (n - 1)) === 0;
   }
 
-  function getPrimitiveType(primitive) {
-    var primType = pc.PRIMITIVE_TRIANGLES;
+  type Gltf = {
+    accessors: Accessor[];
+    animations: [];
+    asset: object;
+    bufferViews: BufferView[];
+    buffers: [];
+    images: [];
+    materials: [];
+    meshes: [];
+    nodes: [];
+    samplers: [];
+    scene: number;
+    scenes: [];
+    skins: [];
+    textures: [];
+  };
 
+  // tsd(gltf.accessors[0])
+  type Accessor = {
+    byteOffset?: number;
+    bufferView: number; // 0
+    componentType: number; // 5123
+    count: number; // 39024
+    max: []; // [7289]
+    min: []; // [0]
+    type: string; // SCALAR
+  };
+
+  type BufferView = {
+    buffer: number; // 0
+    byteLength: number; // 78048
+    byteOffset: number; // 0
+    target: number; // 34963
+  }
+
+  export type Attributes = {
+    JOINTS_0: number;
+    JOINTS_1: number; // Unhandled?
+    NORMAL: number;
+    POSITION: number;
+    TANGENT: number;
+    TEXCOORD_0: number;
+    WEIGHTS_0: number;
+    WEIGHTS_1: number; // Unhandled?
+  };
+
+  export type Primitive = {
+    attributes: Attributes;
+    indices: number;
+    material: number;
+    mode: number;
+    extensions?: object;
+  };
+
+  function getPrimitiveType(primitive: Primitive) {
     if (primitive.hasOwnProperty('mode')) {
       switch (primitive.mode) {
-        case 0: primType = pc.PRIMITIVE_POINTS; break;
-        case 1: primType = pc.PRIMITIVE_LINES; break;
-        case 2: primType = pc.PRIMITIVE_LINELOOP; break;
-        case 3: primType = pc.PRIMITIVE_LINESTRIP; break;
-        case 4: primType = pc.PRIMITIVE_TRIANGLES; break;
-        case 5: primType = pc.PRIMITIVE_TRISTRIP; break;
-        case 6: primType = pc.PRIMITIVE_TRIFAN; break;
+        case 0: return pc.PRIMITIVE_POINTS;
+        case 1: return pc.PRIMITIVE_LINES;
+        case 2: return pc.PRIMITIVE_LINELOOP;
+        case 3: return pc.PRIMITIVE_LINESTRIP;
+        case 4: return pc.PRIMITIVE_TRIANGLES;
+        case 5: return pc.PRIMITIVE_TRISTRIP;
+        case 6: return pc.PRIMITIVE_TRIFAN;
       }
     }
-
-    return primType;
+    return pc.PRIMITIVE_TRIANGLES;
   }
 
-  function getAccessorTypeSize(type) {
-    var size = 3;
-
+  function getAccessorTypeSize(type: string) {
     switch (type) {
-      case 'SCALAR': size = 1; break;
-      case 'VEC2': size = 2; break;
-      case 'VEC3': size = 3; break;
-      case 'VEC4': size = 4; break;
-      case 'MAT2': size = 4; break;
-      case 'MAT3': size = 9; break;
-      case 'MAT4': size = 16; break;
+      case 'SCALAR': return  1;
+      case 'VEC2'  : return  2;
+      case 'VEC3'  : return  3;
+      case 'VEC4'  : return  4;
+      case 'MAT2'  : return  4;
+      case 'MAT3'  : return  9;
+      case 'MAT4'  : return 16;
     }
-
-    return size;
+    return 3;
   }
 
-  function getFilter(filter) {
-    var pcFilter = pc.FILTER_LINEAR;
-
+  function getFilter(filter: number) {
     switch (filter) {
-      case 9728: pcFilter = pc.FILTER_NEAREST; break;
-      case 9729: pcFilter = pc.FILTER_LINEAR; break;
-      case 9984: pcFilter = pc.FILTER_NEAREST_MIPMAP_NEAREST; break;
-      case 9985: pcFilter = pc.FILTER_LINEAR_MIPMAP_NEAREST; break;
-      case 9986: pcFilter = pc.FILTER_NEAREST_MIPMAP_LINEAR; break;
-      case 9987: pcFilter = pc.FILTER_LINEAR_MIPMAP_LINEAR; break;
+      case 9728: return pc.FILTER_NEAREST;
+      case 9729: return pc.FILTER_LINEAR;
+      case 9984: return pc.FILTER_NEAREST_MIPMAP_NEAREST;
+      case 9985: return pc.FILTER_LINEAR_MIPMAP_NEAREST;
+      case 9986: return pc.FILTER_NEAREST_MIPMAP_LINEAR;
+      case 9987: return pc.FILTER_LINEAR_MIPMAP_LINEAR;
     }
-
-    return pcFilter;
+    return pc.FILTER_LINEAR;
   }
 
-  function getWrap(wrap) {
-    var pcWrap = pc.ADDRESS_REPEAT;
-
+  function getWrap(wrap: number) {
     switch (wrap) {
-      case 33071: pcWrap = pc.ADDRESS_CLAMP_TO_EDGE; break;
-      case 33648: pcWrap = pc.ADDRESS_MIRRORED_REPEAT; break;
-      case 10497: pcWrap = pc.ADDRESS_REPEAT; break;
+      case 33071: return pc.ADDRESS_CLAMP_TO_EDGE;
+      case 33648: return pc.ADDRESS_MIRRORED_REPEAT;
+      case 10497: return pc.ADDRESS_REPEAT;
     }
-
-    return pcWrap;
+    return pc.ADDRESS_REPEAT;
   }
 
-  function isDataURI(uri) {
+  function isDataURI(uri: string) {
     return /^data:.*,.*$/i.test(uri);
   }
 
-  function getAccessorData(gltf, accessor, buffers) {
+  function getAccessorData(gltf: Gltf, accessor: Accessor, buffers) {
     var bufferView = gltf.bufferViews[accessor.bufferView];
     var arrayBuffer = buffers[bufferView.buffer];
     var accessorByteOffset = accessor.hasOwnProperty('byteOffset') ? accessor.byteOffset : 0;
     var bufferViewByteOffset = bufferView.hasOwnProperty('byteOffset') ? bufferView.byteOffset : 0;
     var byteOffset = accessorByteOffset + bufferViewByteOffset;
     var length = accessor.count * getAccessorTypeSize(accessor.type);
-
     var data = null;
-
     switch (accessor.componentType) {
       case 5120: data = new Int8Array(arrayBuffer, byteOffset, length); break;
       case 5121: data = new Uint8Array(arrayBuffer, byteOffset, length); break;
@@ -92,7 +141,6 @@
       case 5125: data = new Uint32Array(arrayBuffer, byteOffset, length); break;
       case 5126: data = new Float32Array(arrayBuffer, byteOffset, length); break;
     }
-
     return data;
   }
 
@@ -188,7 +236,7 @@
           curve.type = AnimationCurveType.CUBICSPLINE_GLTF;
           for (i = 0; i < times.length; i++) {
             time = times[i];
-            var keyable;
+            var keyable: AnimationKeyableVecCubicSpline | AnimationKeyableQuatCubicSpline | AnimationKeyableNumCubicSpline;
             if ((path === 'translation') || (path === 'scale')) {
               keyable = new AnimationKeyableVecCubicSpline();
               keyable.time = time;
@@ -639,15 +687,40 @@
     return material;
   }
 
+  type Data = {
+    name: string; // Untitled.005
+    primitives: Primitive[];
+  };
+
+  type MeshArray = pc.Mesh[];
+
+  type Resources = {
+    basePath: undefined; // undefined
+    buffers: ArrayBuffer[]; // [[object ArrayBuffer]]
+    device: pc.GraphicsDevice; // [object Object]
+    defaultMaterial: pc.StandardMaterial; // [object Object]
+    gltf: Gltf; // [object Object]
+    imagesLoaded: number; // 12
+    nodeCounter: number; // 91
+    processUri: Function; // name: processUri, length: 2
+    processAnimationExtras: undefined; // undefined
+    processMaterialExtras: undefined; // undefined
+    textures: pc.Texture[]; // [[object Object], [object Object], [object Object], [object Object], [...
+    images: HTMLImageElement[]; // [[object HTMLImageElement], [object HTMLImageElement], [object HTMLIma...
+    materials: pc.StandardMaterial[]; // [[object Object], [object Object], [object Object], [object Object], [...
+    meshes: MeshArray[]; // [[object Object],[object Object], [object Object],[object Object],[obj...
+    nodes: pc.GraphNode[]; // [[object Object], [object Object], [object Object], [object Object], [...
+    skins: pc.Skin[]; // [[object Object], [object Object], [object Object], [object Object], [...
+    animations: AnimationClip[]; // [[object Object], [object Object], [object Object], [object Object], [...
+  };
+
   // Specification:
   //   https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#mesh
-  function translateMesh(data, resources) {
+  function translateMesh(data: Data, resources: Resources) {
     var gltf = resources.gltf;
-    var meshes = [];
-
+    var meshes: pc.Mesh[] = [];
     data.primitives.forEach(function (primitive) {
       var attributes = primitive.attributes;
-
       var positions = null;
       var normals = null;
       var tangents = null;
@@ -657,9 +730,7 @@
       var joints = null;
       var weights = null;
       var indices = null;
-
       var i;
-
       // Start by looking for compressed vertex data for this primitive
       if (primitive.hasOwnProperty('extensions')) {
         var extensions = primitive.extensions;
@@ -1010,7 +1081,7 @@
       mesh.aabb = aabb;
 
       if (primitive.hasOwnProperty('targets')) {
-        var targets = [];
+        var targets: pc.MorphTarget[] = [];
 
         primitive.targets.forEach(function (target) {
           var options = {};
@@ -1382,7 +1453,7 @@
     return model;
   }
 
-  function loadGltf(gltf, device: pc.GraphicsDevice, done: any, options?: any) {
+  function loadGltf(gltf, device: pc.GraphicsDevice, done: CallableFunction, options?: any) {
     var buffers = (options && options.hasOwnProperty('buffers')) ? options.buffers : undefined;
     var basePath = (options && options.hasOwnProperty('basePath')) ? options.basePath : undefined;
     var processUri = (options && options.hasOwnProperty('processUri')) ? options.processUri : undefined;

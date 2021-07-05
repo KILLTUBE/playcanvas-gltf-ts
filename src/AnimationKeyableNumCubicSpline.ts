@@ -1,11 +1,14 @@
-export class AnimationKeyableNumCubicSpline {
+import { AnimationCurve } from "./AnimationCurve";
+import { AnimationKeyable, AnimationKeyableType } from "./AnimationKeyable";
+
+export class AnimationKeyableNumCubicSpline implements AnimationKeyable {
   type: AnimationKeyableType;
   time: number;
   value: number;
   inTangent: number;
   outTangent: number;
 
-  constructor(time: number, value: number, inTangent: number, outTangent: number) {
+  constructor(time?: number, value?: number, inTangent?: number, outTangent?: number) {
     this.type       = AnimationKeyableType.NUM_CUBICSCPLINE;
     this.time       = time       || 0.0;
     this.value      = value      || 0.0;

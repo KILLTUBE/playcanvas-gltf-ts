@@ -1,4 +1,6 @@
-export class AnimationKeyableQuat {
+import { AnimationKeyable, AnimationKeyableType } from "./AnimationKeyable";
+
+export class AnimationKeyableQuat implements AnimationKeyable {
   type: AnimationKeyableType;
   time: number;
   value: pc.Quat;

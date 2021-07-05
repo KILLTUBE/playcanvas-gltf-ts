@@ -1,4 +1,6 @@
-export class AnimationKeyableVec {
+import { AnimationKeyable, AnimationKeyableType } from "./AnimationKeyable";
+
+export class AnimationKeyableVec implements AnimationKeyable {
   type: AnimationKeyableType;
   time: number;
   value: pc.Vec3;
