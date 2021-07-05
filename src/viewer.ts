@@ -82,7 +82,7 @@ export class Viewer {
     app.root.addChild(camera);
 
     // Make the camera interactive
-    app.assets.loadFromUrl('./src/orbit-camera.js', 'script', function (err, asset) {
+    app.assets.loadFromUrl('./src/orbit-camera.js', 'script', function (this: Viewer, err, asset) {
       camera.script.create('orbitCamera');
       camera.script.create('keyboardInput');
       camera.script.create('mouseInput');
@@ -92,6 +92,8 @@ export class Viewer {
       } else if (this.gltf) {
         camera.script.orbitCamera.focusEntity = this.gltf;
       }
+
+      //this.updateCameraAndBounds();
     }.bind(this));
 
     // Create directional light entity
@@ -151,7 +153,7 @@ export class Viewer {
     this.debugBounds = new DebugLines(app, camera);
 
     app.on('prerender', this.onPrerender, this);
-    app.on('frameend', this.onFrameend, this);
+    //app.on('frameend', this.onFrameend, this);
 
     // create the scene and debug root nodes
     this.sceneRoot = new pc.Entity("sceneRoot", app);
@@ -178,14 +180,23 @@ export class Viewer {
   }
 
   onFrameend() {
+    if (!this.camera.script.orbitCamera) {
+      console.log("no camera yet");
+      return;
+    }
     if (this.firstFrame) {
       this.firstFrame = false;
+      this.updateCameraAndBounds();
       // focus camera after first frame otherwise skinned model bounding
       // boxes are incorrect
-      this.focusCamera();
-      this.dirtyBounds = true;
       //this.renderNextFrame();
     }
+  }
+
+  updateCameraAndBounds() {
+
+    this.focusCamera();
+    this.dirtyBounds = true;
   }
 
   resetScene() {
@@ -294,8 +305,12 @@ export class Viewer {
         select_add_option(this.anim_select, animationClips[i].name);
       }
       this.anim_info.innerHTML = animationClips.length + " animation clips loaded";
-    }    
+    }
+    setTimeout(() => {
+      this.updateCameraAndBounds();
+    }, 100);
   }
+
   get bbox() {
     if (this.meshInstances.length) {
       return calcMeshBoundingBox(this.meshInstances);

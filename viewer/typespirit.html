@@ -104,6 +104,10 @@
           debug: false,
           base: window.location.href + "/../../src",
           //base: 'http://127.0.0.1/playcanvas-gltf-killtube/src/'
+          ignore: [
+            'playcanvas',
+            '@playcanvas/pcui'
+          ]
         });
         var lib = await bundler.imp0rt('viewer.ts');
         //window.viewer = new lib.Viewer;
