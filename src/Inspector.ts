@@ -230,7 +230,7 @@ export class Inspector {
 
             switch (scriptAttribute.type) {
                 case "boolean": {
-                    const booleanInput = new pcui.BooleanInput({});
+                    const booleanInput = new pcui.BooleanInput();
                     booleanInput.value = script[attribute];
                     booleanInput.on("change", newValue => {
                         //console.log("attribute", attribute);
@@ -275,7 +275,7 @@ export class Inspector {
                     break;
                 }
                 case "string": {
-                    const textInput = new pcui.TextInput({});
+                    const textInput = new pcui.TextInput();
                     textInput.value = String(script[attribute]);
                     textInput.on("change", newValue => {
                         script[attribute] = newValue;

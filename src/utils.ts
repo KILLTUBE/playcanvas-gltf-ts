@@ -1,4 +1,11 @@
+import Ammo from "../types/ammo";
+import { ToDo } from "../types/todo";
+import { AnimationComponent } from "./AnimationComponent";
+import { loadGltf } from "./playcanvas-gltf";
 import { Viewer } from "./viewer";
+
+declare var viewer: Viewer;
+declare var app: pc.Application;
 
 export function init_overlay() {
   var overlay = document.getElementById("overlay");
@@ -18,7 +25,7 @@ export function init_overlay() {
   return overlay;
 }
 
-export function textarea_fit_text(textarea) {
+export function textarea_fit_text(textarea: HTMLTextAreaElement) {
   var numNewlines = 1;
   var str = textarea.value;
   for (var i=0; i<str.length; i++)
@@ -27,7 +34,7 @@ export function textarea_fit_text(textarea) {
   textarea.style.height = (numNewlines * 16) + "px";
 }
 
-export function textarea_enable_tab_indent(textarea) {
+export function textarea_enable_tab_indent(textarea: HTMLTextAreaElement) {
   textarea.onkeydown = function(e) {
     if (e.keyCode == 9 || e.which == 9){
       e.preventDefault();
@@ -41,30 +48,25 @@ export function textarea_enable_tab_indent(textarea) {
   }
 }
 
-export function select_add_option(select, option_text) {
+export function select_add_option(select: HTMLSelectElement, option_text: string) {
   var option = document.createElement("option");
   option.text = option_text;
   select.add(option);
   return option;
 }
 
-export function select_remove_options(select) {
+export function select_remove_options(select: HTMLSelectElement) {
   for (var i=select.options.length-1; i>=0; i--)
     select.remove(i);
 }
 
 /**
- * @param {pc.Vec3} normal_ 
- * @param {pc.Vec3} position_ 
- * @param {pc.Quat} rotation_ 
- * @returns {pc.Entity}
  * @example
  * add_infinite_ground(new pc.Vec3(0, 1, 0), new pc.Vec3(0, 0, 0), pc.Quat.IDENTITY);
  */
-
-export function add_infinite_ground(normal_, position_, rotation_) {
-  // there isn't any infinite plane in PlayCanvas (yet)
-  // this just makes sure that entities arent falling into the void
+export function add_infinite_ground(normal_: pc.Vec3, position_: pc.Vec3, rotation_: pc.Quat) {
+  // There isn't any infinite plane in PlayCanvas (yet).
+  // This just makes sure that entities aren't falling into the void.
   var normal      = new Ammo.btVector3   (  normal_.x,   normal_.y,   normal_.z             );
   var origin      = new Ammo.btVector3   (position_.x, position_.y, position_.z             );
   var rotation    = new Ammo.btQuaternion(rotation_.x, rotation_.y, rotation_.z, rotation_.w);
@@ -89,7 +91,7 @@ export function add_infinite_ground(normal_, position_, rotation_) {
  * clones a pc.Entity including the GLTF animation component
  */
 
-export function clone_gltf(entity) {
+export function clone_gltf(entity: pc.Entity) {
   // 1) clone entity
   var entity_clone = entity.clone();
   for (var i=0; i<entity.model.meshInstances.length; i++) {
@@ -97,8 +99,9 @@ export function clone_gltf(entity) {
     entity_clone.model.meshInstances[i].visible = entity.model.meshInstances[i].visible;
   }
   // 2) clone existing AnimationComponent, otherwise we are done
-  if (!entity.animComponent)
+  if (!entity.animComponent) {
     return entity_clone;
+  }
   // 3) assign new AnimationComponent
   entity_clone.animComponent = new AnimationComponent();
   // 4) clone animation clips
@@ -125,14 +128,7 @@ export function clone_gltf(entity) {
   return entity_clone;
 }
 
-/**
- * @param {pc.Entity} gltf
- * @param {number} x
- * @param {number} y
- * @param {number} z
- */
-
-export function gltf_clone_setpos_playclip(gltf, x, y, z) {
+export function gltf_clone_setpos_playclip(gltf: pc.Entity, x: number, y: number, z: number) {
   var cloned = clone_gltf(gltf);
   cloned.enabled = true;
   cloned.setLocalPosition(x, y, z);
@@ -146,7 +142,7 @@ export function gltf_clone_setpos_playclip(gltf, x, y, z) {
 }
 
 export function enter_vr() {
-  viewer.camera.camera.enterVr(function (err) {
+  viewer.camera.camera.enterVr(function (err: any) {
     if (err) {
       console.error(err); // could not enter VR
     } else {
@@ -155,18 +151,25 @@ export function enter_vr() {
   });
 }
 
-export async function fetch_gltf(url, options) {
+export interface FetchGltfOptions extends Object {
+  layers?: any;
+};
+
+
+export async function fetch_gltf(url: string, options: FetchGltfOptions) {
   var basePath = url.substring(0, url.lastIndexOf("/")) + "/";
-  if (typeof options === "undefined")
+  if (!options) {
     options = {};
-  if ("layers" in options === false)
+  }
+  if (!options.hasOwnProperty('layers')) {
     options.layers = [0]; // should be worldLayer.id
+  }
   //console.log("fetch_gltf", url, options);
   return new Promise(function(resolve, reject) {
-    app.assets.loadFromUrl(url, 'json', function (err, asset) {
+    app.assets.loadFromUrl(url, 'json', function (err: ToDo, asset: ToDo) {
       var json = asset.resource;
       var gltf = JSON.parse(json);
-      loadGltf(gltf, app.graphicsDevice, function (model, textures, animationClips) {
+      loadGltf(gltf, app.graphicsDevice, function (model: ToDo, textures: ToDo, animationClips: ToDo[]) {
         var asset = new pc.Asset('gltf', 'model', {
           url: ''
         });
@@ -178,7 +181,7 @@ export async function fetch_gltf(url, options) {
           asset: asset,
           layers: options.layers
         });
-        if ( animationClips && animationClips.length > 0 ) {
+        if (animationClips && animationClips.length > 0) {
           gltf.animComponent = new AnimationComponent();
           for (var i = 0; i < animationClips.length; i++) {
             animationClips[i].transferToRoot(gltf);
@@ -186,9 +189,9 @@ export async function fetch_gltf(url, options) {
           }
           gltf.animComponent.playClip(animationClips[0].name);
         }
-        resolve(gltf)
+        resolve(gltf);
       }, {
-        basePath: basePath
+        basePath
       });
     });
   })

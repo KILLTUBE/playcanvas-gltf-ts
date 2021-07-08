@@ -9,7 +9,7 @@ import { DebugLines } from "./DebugLines";
 import { calcHierBoundingBox, calcMeshBoundingBox } from "./utils_bbox";
 import { Ui } from "./Ui";
 import './tsd';
-import './editor.js';
+import { Editor } from "./editor";
 
 declare var viewer: Viewer;
 
@@ -624,6 +624,8 @@ export function main() {
 
   var viewer = new Viewer();
   Object.assign(window, {viewer});
+  window.app = viewer.app;
+  window.editor = new Editor();
 
   var assetUrl = getParameterByName('assetUrl');
   if (assetUrl) {

@@ -7,10 +7,11 @@
         "sourceMap": true,
         "allowJs": true,
         "checkJs": true,
-        //"types": ["playcanvas"],
         "moduleResolution": "node"
     },
     "include": [
-        "./src/**/*"
+        "./src/**/*",
+        "./types/*",
+        "./types/**/*"
     ]
 }
