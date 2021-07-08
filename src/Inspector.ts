@@ -1,6 +1,6 @@
 import { pathfinder } from "./pathfinder";
 import "./pcuiExtension";
-import * as pc from 'playcanvas';
+//import * as pc from 'playcanvas';
 import * as pcui from '@playcanvas/pcui';
 
 export function nonAttributeVars(script: pc.ScriptType) {
@@ -49,7 +49,11 @@ export class Inspector {
         this.parent.append(this.panel);
     }
 
-    addVectorInputs(entity) {
+    vectorInput: pcui.VectorInput;
+    vectorInputEuler: pcui.VectorInput;
+    vectorInputScale: pcui.VectorInput;
+    
+    addVectorInputs(entity: pc.Entity) {
         // SET UP <TABLE>
 
         var table = document.createElement("table");
@@ -96,6 +100,7 @@ export class Inspector {
 
         // SET UP VECTOR INPUTS
         // SET UP VECTOR INPUTS
+
 
         // LOCAL POSITION
         this.vectorInput = new pcui.VectorInput({
@@ -149,7 +154,7 @@ export class Inspector {
             this.panelScripts.style.paddingLeft = "5px";
             this.panel.content.append(this.panelScripts);
         } else {
-            var scripts = entity.script.scripts as unknown as ScriptType[];
+            var scripts = entity.script.scripts; // as unknown as ScriptType[];
             // TODO: Add button to add a script
             this.panelScripts = new pcui.Panel({
                 collapsible: true,

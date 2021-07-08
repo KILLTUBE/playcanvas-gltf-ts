@@ -1,4 +1,4 @@
-function createMaterial (color) {
+function createMaterial(color) {
     var material = new pc.StandardMaterial();
     material.diffuse = color;
     // we need to call material.update when we change its properties
@@ -6,7 +6,7 @@ function createMaterial (color) {
     return material;
 }
 
-collide_dynamic = function (entity) {
+function collide_dynamic(entity) {
     if (entity) {
         entity.addComponent("rigidbody", {type: "dynamic"});
         entity.addComponent("collision", {type: "mesh", model: entity.model.model});
@@ -17,7 +17,7 @@ collide_dynamic = function (entity) {
     }
 };
 
-collide_static = function (entity) {
+function collide_static(entity) {
     if (entity) {
         entity.addComponent("rigidbody", {type: "static"});
         entity.addComponent("collision", {type: "mesh", model: entity.model.model});
@@ -28,7 +28,7 @@ collide_static = function (entity) {
     }
 };
 
-Editor = function () {
+Editor = function() {
     this.infinite_ground = add_infinite_ground(pc.Vec3.UP, pc.Vec3.ZERO, pc.Quat.IDENTITY);
     
     // create a few materials for our objects

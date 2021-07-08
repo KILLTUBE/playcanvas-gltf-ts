@@ -3,12 +3,13 @@ import { AnimationComponent } from "./AnimationComponent";
 import { Timeline } from "./Timeline";
 import { ShaderChunks } from "./ShaderChunks";
 import { init_overlay, select_remove_options, select_add_option, gltf_clone_setpos_playclip } from "./utils";
-import { loadGlb, loadGltf } from "./playcanvas-gltf";
+import { Gltf, loadGlb, loadGltf } from "./playcanvas-gltf";
 import { AnimationClip } from "./AnimationClip";
 import { DebugLines } from "./DebugLines";
 import { calcHierBoundingBox, calcMeshBoundingBox } from "./utils_bbox";
 import { Ui } from "./Ui";
 import './tsd';
+import './editor.js';
 
 declare var viewer: Viewer;
 
@@ -315,7 +316,16 @@ export class Viewer {
 
     setTimeout(() => {
       this.updateCameraAndBounds();
+      this.fixArchipack();
     }, 100);
+  }
+
+  // Blender addon for Architecture
+  // glTF addon is exporting some artifacts that I need to fix
+  fixArchipack() {
+    this.meshInstances
+    .filter(x=>x.node.name.includes("hole"))
+    .forEach(meshInstance=>meshInstance.visible = false);
   }
 
   get bbox() {
@@ -376,7 +386,7 @@ export class Viewer {
     loadGlb(arrayBuffer, this.app.graphicsDevice, this.initializeScene.bind(this));
   }
 
-  loadGltf(gltf, basePath, processUri) {
+  loadGltf(gltf: Gltf, basePath: string, processUri: Function) {
     this.loadStart = Date.now();
     loadGltf(gltf, this.app.graphicsDevice, this.initializeScene.bind(this), {
       decoderModule: decoderModule,
@@ -426,7 +436,7 @@ export class Viewer {
     }
   }
   
-  pauseAnimationsAndSeekToTime(curTime) {
+  pauseAnimationsAndSeekToTime(curTime: number) {
     if (this.gltf && this.gltf.animComponent) {
       // once we seek into the animation, stop the default playing
       this.pauseAnimationClips();
@@ -442,7 +452,7 @@ export class Viewer {
     }
   }
   
-  switchToClipByName(clipName) {
+  switchToClipByName(clipName: string) {
     if (this.gltf && this.gltf.animComponent) {
       var clip = this.gltf.animComponent.animClipsMap[clipName];
       this.anim_info.innerHTML = clip.duration + "s " + clipName;
