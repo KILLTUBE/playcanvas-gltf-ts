@@ -1,4 +1,4 @@
-import * as pc from 'playcanvas';
+//import * as pc from 'playcanvas';
 import { AnimationClip } from "./AnimationClip";
 import { AnimationCurve, AnimationCurveType } from "./AnimationCurve";
 import { AnimationKeyable, AnimationKeyableType } from "./AnimationKeyable";
@@ -116,6 +116,12 @@ export type GltfNode = {
   translation: number[]; // [5.24535608291626, -0.0041389609687030315, 0.000006853883405710803]
   matrix?: number[];
   camera: any;
+};
+
+export type GltfSkin = {
+  inverseBindMatrices: number; // 235
+  joints: number[]; // [20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 3...
+  skeleton: number; // 0
 };
 
 function getPrimitiveType(primitive: Primitive) {
@@ -485,22 +491,50 @@ var specularChunk = [
   "}"
 ].join('\n');
 
-function translateMaterial(data, resources) {
-  var material = new pc.StandardMaterial();
+export type GltfMaterial = {
+  name: string; // Maila_Cloth_Corset
+  normalTexture: {
+    index: number;
+  },
+  pbrMetallicRoughness: {
+    baseColorTexture: {
+      index: number; // 1
+    },
+    metallicFactor: number; // 0.20000000298023224
+    roughnessFactor: number; // 0.6000000238418579
+  },
+  extensions?: {
+    KHR_materials_unlit?: {
 
+    },
+    KHR_materials_pbrSpecularGlossiness?: {
+      diffuseFactor: number[],
+      specularFactor?: any,
+      diffuseTexture: {
+        index: number,
+        texCoord: any,
+        extensions?: {
+          KHR_texture_transform?: {
+            scale: number[]; // length 2
+            offset: number[]; // length 2
+          }
+        }
+      }
+    }
+  }
+};
+
+function translateMaterial(data: GltfMaterial, resources: Resources) {
+  var material = new pc.StandardMaterial();
   // glTF dooesn't define how to occlude specular
   material.occludeSpecular = true;
-
   material.diffuseTint = true;
   material.diffuseVertexColor = true;
-
   material.specularTint = true;
   material.specularVertexColor = true;
-
   if (data.hasOwnProperty('name')) {
     material.name = data.name;
   }
-
   if (data.hasOwnProperty('extensions') && data.extensions.hasOwnProperty('KHR_materials_unlit')) {
     material.useLighting = false;
   }
@@ -916,6 +950,7 @@ function translateMesh(data: Data, resources: Resources) {
 
     if (positions !== null && normals === null) {
       // pc.calculateNormals needs indices so generate some if none are present
+      // TODO: ArrayLike<number>;
       normals = pc.calculateNormals(positions, (indices === null) ? calculateIndices() : indices);
     }
 
@@ -1225,10 +1260,12 @@ function translateNode(data: GltfNode, resources: Resources) {
 
 // Specification:
 //   https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#skin
-function translateSkin(data, resources) {
-  var gltf = resources.gltf;
 
-  var i, j, bindMatrix;
+function translateSkin(data: GltfSkin, resources: Resources) {
+  var gltf = resources.gltf;
+  var i;
+  var j;
+  var bindMatrix;
   var joints = data.joints;
   var numJoints = joints.length;
   var ibp = [];
@@ -1236,7 +1273,6 @@ function translateSkin(data, resources) {
     var inverseBindMatrices = data.inverseBindMatrices;
     var ibmData = getAccessorData(gltf, gltf.accessors[inverseBindMatrices], resources.buffers);
     var ibmValues = [];
-
     for (i = 0; i < numJoints; i++) {
       for (j = 0; j < 16; j++) {
         ibmValues[j] = ibmData[i * 16 + j];
@@ -1251,28 +1287,33 @@ function translateSkin(data, resources) {
       ibp.push(bindMatrix);
     }
   }
-
   var boneNames = [];
   for (i = 0; i < numJoints; i++) {
     boneNames[i] = resources.nodes[joints[i]].name;
   }
-
   var skeleton = data.skeleton;
-
   var skin = new pc.Skin(resources.device, ibp, boneNames);
   skin.skeleton = resources.nodes[skeleton];
-
   skin.bones = [];
   for (i = 0; i < joints.length; i++) {
     skin.bones[i] = resources.nodes[joints[i]];
   }
-
   return skin;
 }
 
+export type GltfTexture = {
+  sampler: number; // 0
+  source: number; // 1
+  //minFilter?: number;
+  //magFilter?: number;
+  //wrapS?: number;
+  //wrapT?: number;
+};
+
 // Specification:
 //   https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#texture
-function translateTexture(data, resources) {
+function translateTexture(data: GltfTexture, resources: Resources) {
+  console.log("tex", data);
   var texture = new pc.Texture(resources.device, {
     flipY: false
   });
@@ -1505,6 +1546,8 @@ function loadGltf(gltf: Gltf, device: pc.GraphicsDevice, done: CallableFunction,
     processAnimationExtras: processAnimationExtras,
     processMaterialExtras: processMaterialExtras
   };
+
+  window.resources = resources;
 
   if (gltf.hasOwnProperty('extensionsUsed')) {
     if (gltf.extensionsUsed.indexOf('KHR_draco_mesh_compression') !== -1) {
